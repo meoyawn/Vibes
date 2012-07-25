@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">VK Vibes</string>
+    <string name="vibes">Vibes</string>
+    <string name="sign_in">Войти</string>
+    <string name="logout">Выйти</string>
+    <string name="gettingSongsNewsfeed">Получение аудиозаписей из новостей…</string>
+    <string name="searchingSongs">Поиск…</string>
+    <string name="gettingSongsWall">Получение аудиозаписей со стены…</string>
+    <string name="gettingSongsAudios">Получение аудиозаписей…</string>
+    <string name="gettingSongsAlbum">Получение аудиозаписей из альбома…</string>
+    <string name="authProblem">Ошибка авторизации</string>
+    <string name="buffering">Загрузка…</string>
+    <string name="loading">Загрузка…</string>
+    <string name="username">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="account">Last.fm</string>
+    <string name="last_success">Скробблинг включен</string>
+    <string name="auth">Авторизация…</string>
+    <string name="connection_lost">Соединение потеряно</string>
+    <string name="title_repeat">Повтор плейлиста</string>
+    <string name="summary_repeat">Повтор плейлиста по его завершению</string>
+    <string name="title_max_news">Количество записей</string>
+    <string name="summary_max_news">Количество записей для заполнения плейлиста</string>
+    <string name="title_max_audio">Количество аудиозаписей</string>
+    <string name="summary_max_audio">Количество аудиозаписей для заполнения плейлиста</string>
+    <string name="prefs">Настройки</string>
+    <string name="tracklist">список треков</string>
+    <string name="playlist">Плейлист</string>
+    <string name="unknownError">Неизвестная ошибка</string>
+    <string name="empty">Список пуст</string>
+    <string name="access_denied">Пользователь ограничил доступ к своим аудиозаписям</string>
+    <string name="no_internet">Невозможно соединиться с сервером, проверьте ваше подключение и попробуйте снова</string>
+    <string name="default_max_news">100</string>
+    <string name="default_max_audio">200</string>
+
+    <string-array name="wall_options">
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+    </string-array>
+    <string-array name="audios_options">
+        <item>100</item>
+        <item>200</item>
+        <item>300</item>
+        <item>400</item>
+        <item>500</item>
+    </string-array>
+    <string-array name="playlist_options">
+        <item>Поиск</item>
+        <item>Друзья</item>
+        <item>Сообщества</item>
+        <item>Мои аудиозаписи</item>
+        <item>Аудиозаписи со стены</item>
+        <item>Аудиозаписи из новостей</item>
+        <item>Мои альбомы</item>
+    </string-array>
+    <string-array name="unit_options">
+        <item>Все аудиозаписи</item>
+        <item>Аудиозаписи со стены</item>
+        <item>Альбомы</item>
+    </string-array>
+
+</resources>

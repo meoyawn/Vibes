@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="60dp"
+        android:ellipsize="end"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textSize="60dp" />
+
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/title"
+        android:layout_below="@+id/title"
+        android:layout_marginBottom="5dp"
+        android:ellipsize="end"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textColor="@color/grey"
+        android:textSize="40dp" />
+
+    <TextView
+        android:id="@+id/textPassed"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_alignLeft="@id/title"
+        android:layout_alignParentBottom="true"
+        android:gravity="left|center_vertical"
+        android:textSize="28dp" />
+
+    <ImageView
+        android:id="@+id/imageAlbum"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_alignLeft="@+id/artist"
+        android:layout_below="@+id/artist"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/music"
+        android:contentDescription="@string/app_name" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:layout_above="@+id/textPassed"
+        android:layout_alignLeft="@id/title"
+        android:layout_alignRight="@id/imageAlbum"
+        android:progressDrawable="@drawable/seek_bar_background"
+        android:thumb="@drawable/thumb_zabil" />
+
+    <TextView
+        android:id="@+id/textLeft"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/seekBar"
+        android:gravity="right|center_vertical"
+        android:textSize="28dp" />
+
+    <ProgressBar
+        android:id="@+id/progressCircle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_above="@+id/seekBar"
+        android:layout_alignLeft="@id/title"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:visibility="invisible" />
+
+    <View
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_alignLeft="@+id/title"
+        android:layout_alignParentTop="true"
+        android:background="@color/normal" />
+
+    <TextView
+        android:id="@+id/textBuffering"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_alignTop="@+id/progressCircle"
+        android:layout_toRightOf="@+id/progressCircle"
+        android:text="@string/buffering"
+        android:textSize="20dp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/btnLove"
+        android:layout_width="60dp"
+        android:layout_height="80dp"
+        android:layout_alignTop="@+id/imageAlbum"
+        android:layout_marginLeft="30dp"
+        android:layout_toRightOf="@+id/imageAlbum"
+        android:background="@drawable/love_grey" />
+
+    <Button
+        android:id="@+id/btnShuffle"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_below="@+id/btnLove"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="85dp"
+        android:layout_toRightOf="@id/imageAlbum"
+        android:background="@drawable/shuffle_grey" />
+
+    <Button
+        android:id="@+id/btnRepeat"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignBottom="@+id/imageAlbum"
+        android:layout_alignLeft="@+id/btnShuffle"
+        android:background="@drawable/repeat_grey" />
+
+    <TextView
+        android:id="@+id/btnPlsFwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imageAlbum"
+        android:layout_below="@+id/imageAlbum"
+        android:layout_marginTop="35dp"
+        android:text="@string/tracklist"
+        android:textSize="50dp" />
+
+</RelativeLayout>
