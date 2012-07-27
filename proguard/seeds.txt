@@ -76,6 +76,10 @@ com.stiggpwnz.vibes.R$drawable: int back_normal
 com.stiggpwnz.vibes.R$drawable: int back_pressed
 com.stiggpwnz.vibes.R$drawable: int btn_rect
 com.stiggpwnz.vibes.R$drawable: int btn_rect_red
+com.stiggpwnz.vibes.R$drawable: int download
+com.stiggpwnz.vibes.R$drawable: int download_icon
+com.stiggpwnz.vibes.R$drawable: int download_normal
+com.stiggpwnz.vibes.R$drawable: int download_pressed
 com.stiggpwnz.vibes.R$drawable: int forward
 com.stiggpwnz.vibes.R$drawable: int forward_normal
 com.stiggpwnz.vibes.R$drawable: int forward_pressed
@@ -119,6 +123,7 @@ com.stiggpwnz.vibes.R$id: int Vibes
 com.stiggpwnz.vibes.R$id: int artist
 com.stiggpwnz.vibes.R$id: int autocomplete
 com.stiggpwnz.vibes.R$id: int btnBack
+com.stiggpwnz.vibes.R$id: int btnDownload
 com.stiggpwnz.vibes.R$id: int btnFwd
 com.stiggpwnz.vibes.R$id: int btnLogin
 com.stiggpwnz.vibes.R$id: int btnLove
@@ -131,10 +136,16 @@ com.stiggpwnz.vibes.R$id: int btnShuffle
 com.stiggpwnz.vibes.R$id: int btnSingIn
 com.stiggpwnz.vibes.R$id: int btnSingOut
 com.stiggpwnz.vibes.R$id: int btnUpdate
+com.stiggpwnz.vibes.R$id: int button1
+com.stiggpwnz.vibes.R$id: int button2
+com.stiggpwnz.vibes.R$id: int button3
+com.stiggpwnz.vibes.R$id: int downloadProgress
+com.stiggpwnz.vibes.R$id: int downloadTitle
 com.stiggpwnz.vibes.R$id: int editPassword
 com.stiggpwnz.vibes.R$id: int editUsername
 com.stiggpwnz.vibes.R$id: int imageAlbum
 com.stiggpwnz.vibes.R$id: int imageUser
+com.stiggpwnz.vibes.R$id: int imageView1
 com.stiggpwnz.vibes.R$id: int itemLastFM
 com.stiggpwnz.vibes.R$id: int itemLogOut
 com.stiggpwnz.vibes.R$id: int itemPrefs
@@ -154,6 +165,7 @@ com.stiggpwnz.vibes.R$id: int textPassed
 com.stiggpwnz.vibes.R$id: int textTitle
 com.stiggpwnz.vibes.R$id: int textUser
 com.stiggpwnz.vibes.R$id: int textView1
+com.stiggpwnz.vibes.R$id: int textView2
 com.stiggpwnz.vibes.R$id: int title
 com.stiggpwnz.vibes.R$id: int unitImage
 com.stiggpwnz.vibes.R$id: int unitName
@@ -161,6 +173,7 @@ com.stiggpwnz.vibes.R$id: int viewpager
 com.stiggpwnz.vibes.R$id: int webView1
 com.stiggpwnz.vibes.R$layout: int browser
 com.stiggpwnz.vibes.R$layout: int control
+com.stiggpwnz.vibes.R$layout: int downloader
 com.stiggpwnz.vibes.R$layout: int last_auth
 com.stiggpwnz.vibes.R$layout: int last_user
 com.stiggpwnz.vibes.R$layout: int list
@@ -182,11 +195,13 @@ com.stiggpwnz.vibes.R$string: int buffering
 com.stiggpwnz.vibes.R$string: int connection_lost
 com.stiggpwnz.vibes.R$string: int default_max_audio
 com.stiggpwnz.vibes.R$string: int default_max_news
+com.stiggpwnz.vibes.R$string: int downloading
 com.stiggpwnz.vibes.R$string: int empty
 com.stiggpwnz.vibes.R$string: int gettingSongsAlbum
 com.stiggpwnz.vibes.R$string: int gettingSongsAudios
 com.stiggpwnz.vibes.R$string: int gettingSongsNewsfeed
 com.stiggpwnz.vibes.R$string: int gettingSongsWall
+com.stiggpwnz.vibes.R$string: int insertSdCard
 com.stiggpwnz.vibes.R$string: int last_success
 com.stiggpwnz.vibes.R$string: int loading
 com.stiggpwnz.vibes.R$string: int logout

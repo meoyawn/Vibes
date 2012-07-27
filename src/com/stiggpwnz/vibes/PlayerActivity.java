@@ -413,6 +413,9 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 
 		View btnPlsFwd = page.findViewById(R.id.btnPlsFwd);
 		btnPlsFwd.setOnClickListener(this);
+		
+		View btnDownload = page.findViewById(R.id.btnDownload);
+		btnDownload.setOnClickListener(this);
 
 		textArtist = (TextView) page.findViewById(R.id.artist);
 		textArtist.setTypeface(app.getTypeface());
@@ -497,7 +500,6 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-
 		case R.id.btnPlay:
 			btnPlay.startAnimation(shake);
 			if (paused) {
@@ -591,6 +593,11 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 
 		case R.id.btnPlaylist:
 			showDialog(DIALOG_PLAYLISTS);
+			break;
+
+		case R.id.btnDownload:
+			Log.d(VibesApplication.VIBES, "starting download");
+			sendCommand(PlayerService.MSG_DOWNLOAD, 0);
 			break;
 		}
 	}

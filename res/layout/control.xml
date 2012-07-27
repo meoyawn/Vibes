@@ -133,4 +133,14 @@
         android:layout_alignLeft="@+id/btnShuffle"
         android:background="@drawable/repeat_grey" />
 
+    <Button
+        android:id="@+id/btnDownload"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="-7dp"
+        android:layout_toLeftOf="@+id/btnPlsFwd"
+        android:background="@drawable/download" />
+
 </RelativeLayout>

@@ -695,7 +695,7 @@ com.stiggpwnz.vibes.Api:
     private static final java.lang.String MD5
 com.stiggpwnz.vibes.BuildConfig
 com.stiggpwnz.vibes.FileCache:
-    40:40:public boolean isEmpty()
+    31:31:public boolean isEmpty()
 com.stiggpwnz.vibes.HeadsetStateReceiver:
     public static final java.lang.String STATE
 com.stiggpwnz.vibes.ImageLoader:
@@ -780,6 +780,7 @@ com.stiggpwnz.vibes.PlayerService:
     public static final int MSG_UPDATE_BUFFER
     public static final int MSG_AUTH_PROBLEM
     public static final int MSG_INTERNET_PROBLEM
+    public static final int MSG_DOWNLOAD
     public static final int STATE_NOT_PREPARED_IDLING
     public static final int STATE_PLAYING
     public static final int STATE_PAUSED_IDLING

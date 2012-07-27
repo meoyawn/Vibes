@@ -423,7 +423,7 @@ public class VibesApplication extends Application {
 	public Song getCurrentSong() {
 		if (current != null)
 			return current;
-		if (songs.size() > 0)
+		if (songs != null && songs.size() > 0)
 			return songs.get(currentSong);
 		return null;
 	}

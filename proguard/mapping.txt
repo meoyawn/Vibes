@@ -827,13 +827,34 @@ com.stiggpwnz.vibes.Api -> com.stiggpwnz.vibes.c:
     org.apache.http.client.HttpClient client -> c
     java.lang.String executeURL(java.net.URI) -> a
     java.lang.String md5(java.lang.String) -> a
-com.stiggpwnz.vibes.FileCache -> com.stiggpwnz.vibes.d:
+com.stiggpwnz.vibes.Downloader -> com.stiggpwnz.vibes.d:
+    android.app.NotificationManager manager -> a
+    com.stiggpwnz.vibes.PlayerService context -> b
+    void download(com.stiggpwnz.vibes.Song) -> a
+    com.stiggpwnz.vibes.PlayerService access$0(com.stiggpwnz.vibes.Downloader) -> a
+    android.app.NotificationManager access$1(com.stiggpwnz.vibes.Downloader) -> b
+com.stiggpwnz.vibes.Downloader$DownloaderThread -> com.stiggpwnz.vibes.e:
+    java.lang.String songName -> b
+    android.app.Notification notification -> c
+    com.stiggpwnz.vibes.Song song -> d
+    java.io.File outputFile -> e
+    java.lang.String messsage -> f
+    com.stiggpwnz.vibes.Downloader this$0 -> a
+    void onPreExecute() -> onPreExecute
+    java.lang.Void doInBackground(java.lang.Void[]) -> a
+    void onPostExecute(java.lang.Void) -> a
+    void onCancelled() -> onCancelled
+    void showNotification() -> a
+    void cancelNotification() -> b
+    void onPostExecute(java.lang.Object) -> onPostExecute
+    java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
+com.stiggpwnz.vibes.FileCache -> com.stiggpwnz.vibes.f:
     java.io.File cacheDir -> a
     java.io.File getFile(java.lang.String) -> a
     void clear() -> a
 com.stiggpwnz.vibes.HeadsetStateReceiver -> com.stiggpwnz.vibes.HeadsetStateReceiver:
     void onReceive(android.content.Context,android.content.Intent) -> onReceive
-com.stiggpwnz.vibes.ImageLoader -> com.stiggpwnz.vibes.e:
+com.stiggpwnz.vibes.ImageLoader -> com.stiggpwnz.vibes.g:
     com.stiggpwnz.vibes.MemoryCache memoryCache -> a
     com.stiggpwnz.vibes.FileCache fileCache -> b
     java.util.Map imageViews -> c
@@ -851,20 +872,20 @@ com.stiggpwnz.vibes.ImageLoader -> com.stiggpwnz.vibes.e:
     android.graphics.Bitmap access$0(com.stiggpwnz.vibes.ImageLoader,java.lang.String) -> a
     com.stiggpwnz.vibes.MemoryCache access$1(com.stiggpwnz.vibes.ImageLoader) -> a
     int access$2(com.stiggpwnz.vibes.ImageLoader) -> b
-com.stiggpwnz.vibes.ImageLoader$BitmapDisplayer -> com.stiggpwnz.vibes.f:
+com.stiggpwnz.vibes.ImageLoader$BitmapDisplayer -> com.stiggpwnz.vibes.h:
     android.graphics.Bitmap bitmap -> a
     com.stiggpwnz.vibes.ImageLoader$PhotoToLoad photoToLoad -> b
     com.stiggpwnz.vibes.ImageLoader this$0 -> c
     void run() -> run
-com.stiggpwnz.vibes.ImageLoader$PhotoToLoad -> com.stiggpwnz.vibes.g:
+com.stiggpwnz.vibes.ImageLoader$PhotoToLoad -> com.stiggpwnz.vibes.i:
     java.lang.String url -> a
     android.widget.ImageView imageView -> b
     com.stiggpwnz.vibes.ImageLoader this$0 -> c
-com.stiggpwnz.vibes.ImageLoader$PhotosLoader -> com.stiggpwnz.vibes.h:
+com.stiggpwnz.vibes.ImageLoader$PhotosLoader -> com.stiggpwnz.vibes.j:
     com.stiggpwnz.vibes.ImageLoader$PhotoToLoad photoToLoad -> a
     com.stiggpwnz.vibes.ImageLoader this$0 -> b
     void run() -> run
-com.stiggpwnz.vibes.LastFM -> com.stiggpwnz.vibes.i:
+com.stiggpwnz.vibes.LastFM -> com.stiggpwnz.vibes.k:
     javax.xml.parsers.DocumentBuilder builder -> d
     java.lang.String session -> e
     int density -> f
@@ -895,19 +916,19 @@ com.stiggpwnz.vibes.LoginActivity -> com.stiggpwnz.vibes.LoginActivity:
     android.view.View access$0(com.stiggpwnz.vibes.LoginActivity) -> a
     android.view.animation.Animation access$1(com.stiggpwnz.vibes.LoginActivity) -> b
     com.stiggpwnz.vibes.VibesApplication access$2(com.stiggpwnz.vibes.LoginActivity) -> c
-com.stiggpwnz.vibes.LoginActivity$1 -> com.stiggpwnz.vibes.j:
+com.stiggpwnz.vibes.LoginActivity$1 -> com.stiggpwnz.vibes.l:
     com.stiggpwnz.vibes.LoginActivity this$0 -> a
     void onClick(android.view.View) -> onClick
-com.stiggpwnz.vibes.LoginActivity$2 -> com.stiggpwnz.vibes.k:
+com.stiggpwnz.vibes.LoginActivity$2 -> com.stiggpwnz.vibes.m:
     com.stiggpwnz.vibes.LoginActivity this$0 -> a
     android.widget.ProgressBar val$progressBar -> b
     void onPageStarted(android.webkit.WebView,java.lang.String,android.graphics.Bitmap) -> onPageStarted
     void onPageFinished(android.webkit.WebView,java.lang.String) -> onPageFinished
-com.stiggpwnz.vibes.LoginActivity$3 -> com.stiggpwnz.vibes.l:
+com.stiggpwnz.vibes.LoginActivity$3 -> com.stiggpwnz.vibes.n:
     com.stiggpwnz.vibes.LoginActivity this$0 -> a
     android.widget.ProgressBar val$progressBar -> b
     void onProgressChanged(android.webkit.WebView,int) -> onProgressChanged
-com.stiggpwnz.vibes.MemoryCache -> com.stiggpwnz.vibes.m:
+com.stiggpwnz.vibes.MemoryCache -> com.stiggpwnz.vibes.o:
     java.util.Map cache -> a
     long size -> b
     long limit -> c
@@ -1054,41 +1075,41 @@ com.stiggpwnz.vibes.PlayerActivity -> com.stiggpwnz.vibes.PlayerActivity:
     void access$49(com.stiggpwnz.vibes.PlayerActivity,boolean) -> d
     java.util.List access$50(com.stiggpwnz.vibes.PlayerActivity) -> L
     java.util.List access$51(com.stiggpwnz.vibes.PlayerActivity) -> M
-com.stiggpwnz.vibes.PlayerActivity$1 -> com.stiggpwnz.vibes.n:
+com.stiggpwnz.vibes.PlayerActivity$1 -> com.stiggpwnz.vibes.p:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void handleMessage(android.os.Message) -> handleMessage
-com.stiggpwnz.vibes.PlayerActivity$10 -> com.stiggpwnz.vibes.o:
+com.stiggpwnz.vibes.PlayerActivity$10 -> com.stiggpwnz.vibes.q:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     boolean onEditorAction(android.widget.TextView,int,android.view.KeyEvent) -> onEditorAction
-com.stiggpwnz.vibes.PlayerActivity$11 -> com.stiggpwnz.vibes.p:
+com.stiggpwnz.vibes.PlayerActivity$11 -> com.stiggpwnz.vibes.r:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.stiggpwnz.vibes.PlayerActivity$2 -> com.stiggpwnz.vibes.q:
+com.stiggpwnz.vibes.PlayerActivity$2 -> com.stiggpwnz.vibes.s:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onServiceConnected(android.content.ComponentName,android.os.IBinder) -> onServiceConnected
     void onServiceDisconnected(android.content.ComponentName) -> onServiceDisconnected
-com.stiggpwnz.vibes.PlayerActivity$3 -> com.stiggpwnz.vibes.r:
+com.stiggpwnz.vibes.PlayerActivity$3 -> com.stiggpwnz.vibes.t:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerActivity$4 -> com.stiggpwnz.vibes.s:
+com.stiggpwnz.vibes.PlayerActivity$4 -> com.stiggpwnz.vibes.u:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerActivity$5 -> com.stiggpwnz.vibes.t:
+com.stiggpwnz.vibes.PlayerActivity$5 -> com.stiggpwnz.vibes.v:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerActivity$6 -> com.stiggpwnz.vibes.u:
+com.stiggpwnz.vibes.PlayerActivity$6 -> com.stiggpwnz.vibes.w:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerActivity$7 -> com.stiggpwnz.vibes.v:
+com.stiggpwnz.vibes.PlayerActivity$7 -> com.stiggpwnz.vibes.x:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.stiggpwnz.vibes.PlayerActivity$8 -> com.stiggpwnz.vibes.w:
+com.stiggpwnz.vibes.PlayerActivity$8 -> com.stiggpwnz.vibes.y:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.stiggpwnz.vibes.PlayerActivity$9 -> com.stiggpwnz.vibes.x:
+com.stiggpwnz.vibes.PlayerActivity$9 -> com.stiggpwnz.vibes.z:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onItemClick(android.widget.AdapterView,android.view.View,int,long) -> onItemClick
-com.stiggpwnz.vibes.PlayerActivity$GetAlbums -> com.stiggpwnz.vibes.y:
+com.stiggpwnz.vibes.PlayerActivity$GetAlbums -> com.stiggpwnz.vibes.aa:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onPreExecute() -> onPreExecute
     java.util.List getAlbums() -> a
@@ -1096,13 +1117,13 @@ com.stiggpwnz.vibes.PlayerActivity$GetAlbums -> com.stiggpwnz.vibes.y:
     void onPostExecute(java.util.List) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$GetAndSetAlbumImage -> com.stiggpwnz.vibes.z:
+com.stiggpwnz.vibes.PlayerActivity$GetAndSetAlbumImage -> com.stiggpwnz.vibes.ab:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     java.lang.String doInBackground(java.lang.String[]) -> a
     void onPostExecute(java.lang.String) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$GetSongs -> com.stiggpwnz.vibes.aa:
+com.stiggpwnz.vibes.PlayerActivity$GetSongs -> com.stiggpwnz.vibes.ac:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onPreExecute() -> onPreExecute
     java.lang.Boolean getSongs(java.lang.String[]) -> b
@@ -1110,7 +1131,7 @@ com.stiggpwnz.vibes.PlayerActivity$GetSongs -> com.stiggpwnz.vibes.aa:
     void onPostExecute(java.lang.Boolean) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$GetUnits -> com.stiggpwnz.vibes.ab:
+com.stiggpwnz.vibes.PlayerActivity$GetUnits -> com.stiggpwnz.vibes.ad:
     boolean success -> b
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onPreExecute() -> onPreExecute
@@ -1119,7 +1140,7 @@ com.stiggpwnz.vibes.PlayerActivity$GetUnits -> com.stiggpwnz.vibes.ab:
     void onPostExecute(java.lang.Void) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$LastFmSignIn -> com.stiggpwnz.vibes.ac:
+com.stiggpwnz.vibes.PlayerActivity$LastFmSignIn -> com.stiggpwnz.vibes.ae:
     java.lang.String username -> b
     java.lang.String password -> c
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
@@ -1128,7 +1149,7 @@ com.stiggpwnz.vibes.PlayerActivity$LastFmSignIn -> com.stiggpwnz.vibes.ac:
     void onPostExecute(java.lang.String[]) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$Love -> com.stiggpwnz.vibes.ad:
+com.stiggpwnz.vibes.PlayerActivity$Love -> com.stiggpwnz.vibes.af:
     boolean own -> a
     boolean lastLoved -> b
     com.stiggpwnz.vibes.PlayerActivity this$0 -> c
@@ -1137,7 +1158,7 @@ com.stiggpwnz.vibes.PlayerActivity$Love -> com.stiggpwnz.vibes.ad:
     void onPostExecute(java.lang.Integer) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$UnLove -> com.stiggpwnz.vibes.ae:
+com.stiggpwnz.vibes.PlayerActivity$UnLove -> com.stiggpwnz.vibes.ag:
     boolean own -> a
     boolean lastUnloved -> b
     com.stiggpwnz.vibes.PlayerActivity this$0 -> c
@@ -1146,7 +1167,7 @@ com.stiggpwnz.vibes.PlayerActivity$UnLove -> com.stiggpwnz.vibes.ae:
     void onPostExecute(java.lang.Boolean) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerActivity$UpdateSongs -> com.stiggpwnz.vibes.af:
+com.stiggpwnz.vibes.PlayerActivity$UpdateSongs -> com.stiggpwnz.vibes.ah:
     com.stiggpwnz.vibes.PlayerActivity this$0 -> a
     void onPreExecute() -> onPreExecute
     java.lang.Integer updateSongs() -> a
@@ -1185,35 +1206,40 @@ com.stiggpwnz.vibes.PlayerService -> com.stiggpwnz.vibes.PlayerService:
     com.stiggpwnz.vibes.PlayerService$PreparePlayer preparePlayer -> B
     com.stiggpwnz.vibes.PlayerService$ResetPlayer resetPlayer -> C
     android.telephony.TelephonyManager telephonyManager -> D
+    java.util.List downloadQueue -> E
     android.os.IBinder onBind(android.content.Intent) -> onBind
     int onStartCommand(android.content.Intent,int,int) -> onStartCommand
     void onCreate() -> onCreate
     void onDestroy() -> onDestroy
-    void play() -> a
-    void authFail() -> b
-    void errorStopPlayback() -> c
-    void stop() -> d
-    void startPlaying() -> e
-    void pause() -> f
-    void resume() -> g
-    void next() -> h
-    void prev() -> i
+    void play() -> c
+    void authFail() -> d
+    void errorStopPlayback() -> e
+    void stop() -> f
+    void startPlaying() -> g
+    void pause() -> h
+    void resume() -> i
+    void next() -> j
+    void prev() -> k
     void seekTo(int) -> a
-    void resetAndPlay() -> j
+    void resetAndPlay() -> l
     void generateShuffleQueue(int) -> b
-    void stopPlayback() -> k
+    void stopPlayback() -> m
     void sendCommand(int,int,int) -> a
-    void seekBarUpdater() -> l
-    void startWaiter() -> m
-    void stopWaiter() -> n
-    void makeNotification() -> o
-    void cancelNotification() -> p
+    com.stiggpwnz.vibes.VibesApplication getApp() -> a
+    void downloadSong() -> n
+    void onDownloadException(java.lang.String) -> a
+    void seekBarUpdater() -> o
+    void startWaiter() -> p
+    void stopWaiter() -> q
+    void makeNotification() -> r
+    void cancelNotification() -> s
     void onCompletion(android.media.MediaPlayer) -> onCompletion
     void onPrepared(android.media.MediaPlayer) -> onPrepared
     void onSeekComplete(android.media.MediaPlayer) -> onSeekComplete
     void onBufferingUpdate(android.media.MediaPlayer,int) -> onBufferingUpdate
     boolean onError(android.media.MediaPlayer,int,int) -> onError
     boolean onInfo(android.media.MediaPlayer,int,int) -> onInfo
+    java.util.List getDownloadQueue() -> b
     void access$0(com.stiggpwnz.vibes.PlayerService) -> a
     void access$1(com.stiggpwnz.vibes.PlayerService,int,int,int) -> a
     void access$2(com.stiggpwnz.vibes.PlayerService,int) -> a
@@ -1242,58 +1268,59 @@ com.stiggpwnz.vibes.PlayerService -> com.stiggpwnz.vibes.PlayerService:
     void access$25(com.stiggpwnz.vibes.PlayerService,int) -> c
     void access$26(com.stiggpwnz.vibes.PlayerService) -> q
     void access$27(com.stiggpwnz.vibes.PlayerService) -> r
-    boolean access$28(com.stiggpwnz.vibes.PlayerService) -> s
+    void access$28(com.stiggpwnz.vibes.PlayerService) -> s
     boolean access$29(com.stiggpwnz.vibes.PlayerService) -> t
-    void access$30(com.stiggpwnz.vibes.PlayerService,boolean) -> e
-    boolean access$31(com.stiggpwnz.vibes.PlayerService) -> u
-    java.util.List access$32(com.stiggpwnz.vibes.PlayerService) -> v
-    void access$33(com.stiggpwnz.vibes.PlayerService,int) -> d
-    java.util.Random access$34(com.stiggpwnz.vibes.PlayerService) -> w
-    void access$35(com.stiggpwnz.vibes.PlayerService,com.stiggpwnz.vibes.VibesApplication) -> a
-    void access$36(com.stiggpwnz.vibes.PlayerService,java.util.List) -> a
-    void access$37(com.stiggpwnz.vibes.PlayerService,java.util.Random) -> a
-    void access$38(com.stiggpwnz.vibes.PlayerService,android.content.IntentFilter) -> a
-    void access$39(com.stiggpwnz.vibes.PlayerService,com.stiggpwnz.vibes.HeadsetStateReceiver) -> a
-    void access$40(com.stiggpwnz.vibes.PlayerService,android.net.wifi.WifiManager$WifiLock) -> a
-    android.net.wifi.WifiManager$WifiLock access$41(com.stiggpwnz.vibes.PlayerService) -> x
-    void access$42(com.stiggpwnz.vibes.PlayerService,android.media.MediaPlayer) -> a
-    void access$43(com.stiggpwnz.vibes.PlayerService,android.telephony.TelephonyManager) -> a
-    android.telephony.TelephonyManager access$44(com.stiggpwnz.vibes.PlayerService) -> y
-    android.telephony.PhoneStateListener access$45(com.stiggpwnz.vibes.PlayerService) -> z
-    void access$46(com.stiggpwnz.vibes.PlayerService,boolean) -> f
-    long access$47(com.stiggpwnz.vibes.PlayerService) -> A
-com.stiggpwnz.vibes.PlayerService$1 -> com.stiggpwnz.vibes.ag:
+    boolean access$30(com.stiggpwnz.vibes.PlayerService) -> u
+    void access$31(com.stiggpwnz.vibes.PlayerService,boolean) -> e
+    boolean access$32(com.stiggpwnz.vibes.PlayerService) -> v
+    java.util.List access$33(com.stiggpwnz.vibes.PlayerService) -> w
+    void access$34(com.stiggpwnz.vibes.PlayerService,int) -> d
+    java.util.Random access$35(com.stiggpwnz.vibes.PlayerService) -> x
+    void access$36(com.stiggpwnz.vibes.PlayerService,com.stiggpwnz.vibes.VibesApplication) -> a
+    void access$37(com.stiggpwnz.vibes.PlayerService,java.util.List) -> a
+    void access$38(com.stiggpwnz.vibes.PlayerService,java.util.Random) -> a
+    void access$39(com.stiggpwnz.vibes.PlayerService,android.content.IntentFilter) -> a
+    void access$40(com.stiggpwnz.vibes.PlayerService,com.stiggpwnz.vibes.HeadsetStateReceiver) -> a
+    void access$41(com.stiggpwnz.vibes.PlayerService,android.net.wifi.WifiManager$WifiLock) -> a
+    android.net.wifi.WifiManager$WifiLock access$42(com.stiggpwnz.vibes.PlayerService) -> y
+    void access$43(com.stiggpwnz.vibes.PlayerService,android.media.MediaPlayer) -> a
+    void access$44(com.stiggpwnz.vibes.PlayerService,android.telephony.TelephonyManager) -> a
+    android.telephony.TelephonyManager access$45(com.stiggpwnz.vibes.PlayerService) -> z
+    android.telephony.PhoneStateListener access$46(com.stiggpwnz.vibes.PlayerService) -> A
+    void access$47(com.stiggpwnz.vibes.PlayerService,boolean) -> f
+    long access$48(com.stiggpwnz.vibes.PlayerService) -> B
+com.stiggpwnz.vibes.PlayerService$1 -> com.stiggpwnz.vibes.ai:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$2 -> com.stiggpwnz.vibes.ah:
+com.stiggpwnz.vibes.PlayerService$2 -> com.stiggpwnz.vibes.aj:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$3 -> com.stiggpwnz.vibes.ai:
+com.stiggpwnz.vibes.PlayerService$3 -> com.stiggpwnz.vibes.ak:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void onCallStateChanged(int,java.lang.String) -> onCallStateChanged
-com.stiggpwnz.vibes.PlayerService$4 -> com.stiggpwnz.vibes.aj:
+com.stiggpwnz.vibes.PlayerService$4 -> com.stiggpwnz.vibes.al:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void handleMessage(android.os.Message) -> handleMessage
-com.stiggpwnz.vibes.PlayerService$5 -> com.stiggpwnz.vibes.ak:
+com.stiggpwnz.vibes.PlayerService$5 -> com.stiggpwnz.vibes.am:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$6 -> com.stiggpwnz.vibes.al:
+com.stiggpwnz.vibes.PlayerService$6 -> com.stiggpwnz.vibes.an:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$7 -> com.stiggpwnz.vibes.am:
+com.stiggpwnz.vibes.PlayerService$7 -> com.stiggpwnz.vibes.ao:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$Generator -> com.stiggpwnz.vibes.an:
+com.stiggpwnz.vibes.PlayerService$Generator -> com.stiggpwnz.vibes.ap:
     int seed -> a
     com.stiggpwnz.vibes.PlayerService this$0 -> b
     void run() -> run
-com.stiggpwnz.vibes.PlayerService$PreparePlayer -> com.stiggpwnz.vibes.ao:
+com.stiggpwnz.vibes.PlayerService$PreparePlayer -> com.stiggpwnz.vibes.aq:
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     void getUrl() -> a
     java.lang.Void doInBackground(java.lang.Void[]) -> a
     java.lang.Void resetAndPrepare() -> b
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerService$ResetPlayer -> com.stiggpwnz.vibes.ap:
+com.stiggpwnz.vibes.PlayerService$ResetPlayer -> com.stiggpwnz.vibes.ar:
     int song -> a
     com.stiggpwnz.vibes.PlayerService this$0 -> b
     void onPreExecute() -> onPreExecute
@@ -1301,7 +1328,7 @@ com.stiggpwnz.vibes.PlayerService$ResetPlayer -> com.stiggpwnz.vibes.ap:
     void onPostExecute(java.lang.Void) -> a
     void onPostExecute(java.lang.Object) -> onPostExecute
     java.lang.Object doInBackground(java.lang.Object[]) -> doInBackground
-com.stiggpwnz.vibes.PlayerService$SetSongFromPlaylist -> com.stiggpwnz.vibes.aq:
+com.stiggpwnz.vibes.PlayerService$SetSongFromPlaylist -> com.stiggpwnz.vibes.as:
     int song -> b
     com.stiggpwnz.vibes.PlayerService this$0 -> a
     java.lang.Void doInBackground(java.lang.Integer[]) -> a
@@ -1315,7 +1342,7 @@ com.stiggpwnz.vibes.PreferencesActivity -> com.stiggpwnz.vibes.PreferencesActivi
     void onPause() -> onPause
     void onResume() -> onResume
     void onSharedPreferenceChanged(android.content.SharedPreferences,java.lang.String) -> onSharedPreferenceChanged
-com.stiggpwnz.vibes.Song -> com.stiggpwnz.vibes.ar:
+com.stiggpwnz.vibes.Song -> com.stiggpwnz.vibes.at:
     int aid -> a
     int ownerid -> b
     int myAid -> c
@@ -1323,7 +1350,7 @@ com.stiggpwnz.vibes.Song -> com.stiggpwnz.vibes.ar:
     java.lang.String title -> e
     java.lang.String url -> f
     boolean loved -> g
-com.stiggpwnz.vibes.SongsAdapter -> com.stiggpwnz.vibes.as:
+com.stiggpwnz.vibes.SongsAdapter -> com.stiggpwnz.vibes.au:
     android.view.LayoutInflater inflater -> c
     com.stiggpwnz.vibes.VibesApplication app -> d
     android.content.res.ColorStateList black -> e
@@ -1336,12 +1363,12 @@ com.stiggpwnz.vibes.SongsAdapter -> com.stiggpwnz.vibes.as:
     long getItemId(int) -> getItemId
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
     java.lang.Object getItem(int) -> getItem
-com.stiggpwnz.vibes.SongsAdapter$ViewHolder -> com.stiggpwnz.vibes.at:
+com.stiggpwnz.vibes.SongsAdapter$ViewHolder -> com.stiggpwnz.vibes.av:
     android.widget.TextView artist -> a
     android.widget.TextView title -> b
     android.view.View stick -> c
     com.stiggpwnz.vibes.SongsAdapter this$0 -> d
-com.stiggpwnz.vibes.TextAdapter -> com.stiggpwnz.vibes.au:
+com.stiggpwnz.vibes.TextAdapter -> com.stiggpwnz.vibes.aw:
     android.view.LayoutInflater inflater -> a
     android.graphics.Typeface typeface -> b
     java.lang.String[] data -> c
@@ -1350,12 +1377,12 @@ com.stiggpwnz.vibes.TextAdapter -> com.stiggpwnz.vibes.au:
     long getItemId(int) -> getItemId
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
     java.lang.Object getItem(int) -> getItem
-com.stiggpwnz.vibes.Unit -> com.stiggpwnz.vibes.av:
+com.stiggpwnz.vibes.Unit -> com.stiggpwnz.vibes.ax:
     int id -> a
     java.lang.String name -> b
     java.lang.String photo -> c
     java.util.List albums -> d
-com.stiggpwnz.vibes.UnitsAdapter -> com.stiggpwnz.vibes.aw:
+com.stiggpwnz.vibes.UnitsAdapter -> com.stiggpwnz.vibes.ay:
     java.util.List units -> a
     android.view.LayoutInflater inflater -> b
     com.stiggpwnz.vibes.ImageLoader imageLoader -> c
@@ -1366,7 +1393,7 @@ com.stiggpwnz.vibes.UnitsAdapter -> com.stiggpwnz.vibes.aw:
     long getItemId(int) -> getItemId
     android.view.View getView(int,android.view.View,android.view.ViewGroup) -> getView
     java.lang.Object getItem(int) -> getItem
-com.stiggpwnz.vibes.UnitsAdapter$ViewHolder -> com.stiggpwnz.vibes.ax:
+com.stiggpwnz.vibes.UnitsAdapter$ViewHolder -> com.stiggpwnz.vibes.az:
     android.widget.ImageView image -> a
     android.widget.TextView name -> b
     com.stiggpwnz.vibes.UnitsAdapter this$0 -> c
@@ -1431,7 +1458,7 @@ com.stiggpwnz.vibes.VibesApplication -> com.stiggpwnz.vibes.VibesApplication:
     boolean getShuffle() -> y
     void setShuffle(boolean) -> a
     android.app.NotificationManager getNotificationManager() -> z
-com.stiggpwnz.vibes.ViewPagerAdapter -> com.stiggpwnz.vibes.ay:
+com.stiggpwnz.vibes.ViewPagerAdapter -> com.stiggpwnz.vibes.ba:
     java.util.List pages -> a
     java.lang.Object instantiateItem(android.view.View,int) -> a
     void destroyItem(android.view.View,int,java.lang.Object) -> a
@@ -1441,7 +1468,7 @@ com.stiggpwnz.vibes.ViewPagerAdapter -> com.stiggpwnz.vibes.ay:
     void restoreState(android.os.Parcelable,java.lang.ClassLoader) -> a
     android.os.Parcelable saveState() -> b
     void startUpdate(android.view.View) -> a
-com.stiggpwnz.vibes.Vkontakte -> com.stiggpwnz.vibes.az:
+com.stiggpwnz.vibes.Vkontakte -> com.stiggpwnz.vibes.bb:
     int maxNews -> d
     int maxAudios -> e
     java.util.List audioUrlRequests -> f
@@ -1468,7 +1495,7 @@ com.stiggpwnz.vibes.Vkontakte -> com.stiggpwnz.vibes.az:
     com.stiggpwnz.vibes.Song parseAttachement(org.json.JSONObject) -> a
     java.util.List songsFromJson(org.json.JSONObject,boolean) -> a
     org.json.JSONObject execute(java.net.URI) -> b
-com.stiggpwnz.vibes.VkontakteException -> com.stiggpwnz.vibes.ba:
+com.stiggpwnz.vibes.VkontakteException -> com.stiggpwnz.vibes.bc:
     int code -> a
     int getCode() -> a
 org.jsoup.Jsoup -> a.a.a:

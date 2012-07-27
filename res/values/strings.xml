@@ -63,4 +63,7 @@
         <item>Albums</item>
     </string-array>
 
+    <string name="downloading">Downloading</string>
+    <string name="insertSdCard">Insert an SD card</string>
+
 </resources>

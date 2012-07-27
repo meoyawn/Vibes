@@ -132,4 +132,14 @@
         android:text="@string/tracklist"
         android:textSize="50dp" />
 
+    <Button
+        android:id="@+id/btnDownload"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="-14dp"
+        android:background="@drawable/download" />
+
 </RelativeLayout>

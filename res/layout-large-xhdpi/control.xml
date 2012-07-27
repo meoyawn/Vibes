@@ -133,4 +133,14 @@
         android:layout_marginTop="-10dp"
         android:background="@drawable/fwd" />
 
+    <Button
+        android:id="@+id/btnDownload"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="-10dp"
+        android:layout_toLeftOf="@+id/btnPlsFwd"
+        android:background="@drawable/download" />
+
 </RelativeLayout>

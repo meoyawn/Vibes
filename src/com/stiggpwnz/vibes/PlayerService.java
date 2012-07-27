@@ -32,6 +32,8 @@ import android.os.RemoteException;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 @SuppressLint("HandlerLeak")
 public class PlayerService extends Service implements OnCompletionListener, OnPreparedListener, OnSeekCompleteListener, OnBufferingUpdateListener, OnErrorListener, OnInfoListener {
@@ -58,6 +60,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 	public static final int MSG_UPDATE_BUFFER = 21;
 	public static final int MSG_AUTH_PROBLEM = 22;
 	public static final int MSG_INTERNET_PROBLEM = 23;
+	public static final int MSG_DOWNLOAD = 24;
 
 	public static final int STATE_NOT_PREPARED_IDLING = 0;
 	public static final int STATE_PLAYING = 3;
@@ -193,6 +196,9 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 				if (msg.arg1 == 1)
 					generateShuffleQueue(app.currentSong == -1 ? 0 : app.currentSong);
 				break;
+			case MSG_DOWNLOAD:
+				downloadSong();
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -228,6 +234,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 	private PreparePlayer preparePlayer;
 	private ResetPlayer resetPlayer;
 	private TelephonyManager telephonyManager;
+	private List<Integer> downloadQueue;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -720,6 +727,29 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 		}
 	}
 
+	public VibesApplication getApp() {
+		return app;
+	}
+
+	private void downloadSong() {
+		try {
+			new Downloader(this).download(app.getCurrentSong());
+		} catch (IOException e) {
+			onDownloadException(e.getLocalizedMessage());
+		}
+	}
+
+	public void onDownloadException(String message) {
+		if (activityIsAlive && message != null) {
+			Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
+			toast.setGravity(Gravity.TOP, 50, 0);
+			toast.show();
+		}
+	}
+
+	// usually, subclasses of AsyncTask are declared inside the activity class.
+	// that way, you can easily modify the UI thread from here
+
 	private void seekBarUpdater() {
 		if (player.isPlaying() && (state != STATE_SEEKING || state != STATE_NEXT_FOR_PLAYBACK || state != STATE_PREPARING_FOR_PLAYBACK)) {
 			int position = player.getCurrentPosition();
@@ -757,15 +787,15 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 	}
 
 	private void makeNotification() {
-		final Notification notifyDetails = new Notification(R.drawable.icon, String.format("%s - %s", app.getCurrentSong().performer, app.getCurrentSong().title), System
+		final Notification notification = new Notification(R.drawable.icon, String.format("%s - %s", app.getCurrentSong().performer, app.getCurrentSong().title), System
 				.currentTimeMillis());
 		CharSequence contentTitle = app.getCurrentSong().title;
 		CharSequence contentText = app.getCurrentSong().performer;
 		Intent notifyIntent = new Intent(PlayerService.this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent intent = PendingIntent.getActivity(PlayerService.this, 0, notifyIntent, 0);
-		notifyDetails.setLatestEventInfo(app, contentTitle, contentText, intent);
-		notifyDetails.flags |= Notification.FLAG_NO_CLEAR;
-		app.getNotificationManager().notify(VibesApplication.SONG, VibesApplication.NOTIFICATION, notifyDetails);
+		notification.setLatestEventInfo(app, contentTitle, contentText, intent);
+		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+		app.getNotificationManager().notify(VibesApplication.SONG, VibesApplication.NOTIFICATION, notification);
 
 		if (!recieverRegistered) {
 			registerReceiver(headsetReceiver, headsetReceiverFilter);
@@ -792,7 +822,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 		timeStamped = false;
 		timeStamp = System.currentTimeMillis() / 1000;
 		if (!player.isLooping()) {
-			if (app.songs.size() > 0) {
+			if (app.songs != null && app.songs.size() > 0) {
 				if (state != STATE_PREPARING_FOR_PLAYBACK && state != STATE_PREPARING_FOR_IDLE && state != STATE_NEXT_FOR_PLAYBACK) {
 					Log.d(VibesApplication.VIBES, "onCompleted: playing next song and state = " + state);
 					next();
@@ -888,6 +918,12 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 			return true;
 		}
 		return false;
+	}
+
+	public List<Integer> getDownloadQueue() {
+		if (downloadQueue == null)
+			downloadQueue = new LinkedList<Integer>();
+		return downloadQueue;
 	}
 
 }

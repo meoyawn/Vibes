@@ -63,4 +63,7 @@
         <item>Альбомы</item>
     </string-array>
 
+    <string name="downloading">Загрузка</string>
+    <string name="insertSdCard">Вставьте SD карту</string>
+
 </resources>
