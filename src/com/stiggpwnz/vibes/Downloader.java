@@ -22,8 +22,6 @@ import android.widget.RemoteViews;
 
 public class Downloader {
 
-	// private static final String MUSIC_VK_VIBES = "Music/VK Vibes";
-
 	private NotificationManager manager;
 	private PlayerService context;
 
@@ -96,6 +94,7 @@ public class Downloader {
 
 				// download the file
 				InputStream input = urlConnection.getInputStream();
+				@SuppressWarnings("resource")
 				OutputStream output = new FileOutputStream(outputFile);
 
 				byte buffer[] = new byte[1024];
@@ -114,6 +113,7 @@ public class Downloader {
 						notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
 						manager.notify(song.aid, notification);
 					}
+
 					output.write(buffer, 0, bufferLength);
 				}
 
