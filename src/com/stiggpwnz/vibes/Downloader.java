@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -22,8 +21,6 @@ import android.widget.RemoteViews;
 
 public class Downloader {
 
-	// private static final String MUSIC_VK_VIBES = "Music/VK Vibes";
-
 	private NotificationManager manager;
 	private PlayerService context;
 
@@ -34,7 +31,7 @@ public class Downloader {
 
 	public void download(Song song) throws IOException {
 		List<Integer> downloadQueue = context.getDownloadQueue();
-		if (!downloadQueue.contains(song.aid)) {
+		if (!downloadQueue.contains(Integer.valueOf(song.aid))) {
 			downloadQueue.add(Integer.valueOf(song.aid));
 			new DownloaderThread(song).execute();
 		}
@@ -96,6 +93,7 @@ public class Downloader {
 
 				// download the file
 				InputStream input = urlConnection.getInputStream();
+				@SuppressWarnings("resource")
 				OutputStream output = new FileOutputStream(outputFile);
 
 				byte buffer[] = new byte[1024];
@@ -120,13 +118,7 @@ public class Downloader {
 				output.flush();
 				output.close();
 				input.close();
-			} catch (MalformedURLException e) {
-				messsage = e.getLocalizedMessage();
-				cancel(false);
-			} catch (IOException e) {
-				messsage = e.getLocalizedMessage();
-				cancel(false);
-			} catch (VkontakteException e) {
+			} catch (Exception e) {
 				messsage = e.getLocalizedMessage();
 				cancel(false);
 			}
