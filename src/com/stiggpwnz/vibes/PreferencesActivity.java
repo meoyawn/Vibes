@@ -8,8 +8,8 @@ import android.preference.PreferenceManager;
 
 public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
-	VibesApplication app;
-	SharedPreferences prefs;
+	private VibesApplication app;
+	private SharedPreferences prefs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

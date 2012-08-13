@@ -11,9 +11,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -29,8 +27,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -72,7 +68,6 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 	public static final int STATE_PREPARING_FOR_IDLE = 7;
 
 	private static final long IDLE_TIME = 3 * 60 * 1000;
-	private static final long HEADPHONES_TIME = 1000;
 
 	private final Handler handler = new Handler();
 	private final Runnable progressUpdater = new Runnable() {
@@ -90,33 +85,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 			state = STATE_NOT_PREPARED_IDLING;
 		}
 	};
-	private final PhoneStateListener phoneStateListener = new PhoneStateListener() {
 
-		@Override
-		public void onCallStateChanged(int state, String incomingNumber) {
-			super.onCallStateChanged(state, incomingNumber);
-			if (PlayerService.isRunning) {
-				switch (state) {
-				case TelephonyManager.CALL_STATE_IDLE:
-					if (pausedByPhoneCall) {
-						Log.d(VibesApplication.VIBES, "phone is hanged");
-						PlayerService.this.resume();
-					}
-					break;
-
-				case TelephonyManager.CALL_STATE_RINGING:
-					Log.d(VibesApplication.VIBES, "phone is calling");
-					PlayerService.this.pause();
-					pausedByPhoneCall = true;
-					break;
-
-				case TelephonyManager.CALL_STATE_OFFHOOK:
-					break;
-				}
-			}
-		}
-
-	};
 	private final Messenger mMessenger = new Messenger(new Handler() {
 
 		@Override
@@ -166,7 +135,6 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 				}
 				break;
 			case MSG_ON_PAUSE_SERVICE:
-				registeredTime = System.currentTimeMillis();
 				activityIsAlive = false;
 				if (player.isPlaying()) {
 					makeNotification();
@@ -208,54 +176,31 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 
 	private boolean scrobbled;
 	private boolean scrobbling;
-	private boolean recieverRegistered;
 	private boolean activityIsAlive = true;
 	private boolean wasPlaying;
 	private boolean alreadySet;
 	private boolean timeStamped;
-	private boolean pausedByPhoneCall;
 
 	private int state;
 	private int shufflePosition;
 	private int songDuration;
 
 	private long timeStamp;
-	private long registeredTime;
 
 	private MediaPlayer player;
 	private VibesApplication app;
 
 	private Messenger messenger;
 	private Random random;
-	private List<Integer> queue;
+	private List<Integer> shuffleQueue;
 	private WifiManager.WifiLock wifiLock;
-	private IntentFilter headsetReceiverFilter;
-	private HeadsetStateReceiver headsetReceiver;
 	private PreparePlayer preparePlayer;
 	private ResetPlayer resetPlayer;
-	private TelephonyManager telephonyManager;
 	private List<Integer> downloadQueue;
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		return mMessenger.getBinder();
-	}
-
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null) {
-			int headset = intent.getIntExtra(HeadsetStateReceiver.STATE, 2);
-			if (System.currentTimeMillis() - registeredTime > HEADPHONES_TIME) {
-				if (headset == 0) {
-					pause();
-					Log.d(VibesApplication.VIBES, "headphones out");
-				} else {
-					resume();
-					Log.d(VibesApplication.VIBES, "headphones in");
-				}
-			}
-		}
-		return START_STICKY;
 	}
 
 	@Override
@@ -266,14 +211,11 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 			@Override
 			public void run() {
 				app = (VibesApplication) getApplication();
-				queue = new LinkedList<Integer>();
+				shuffleQueue = new LinkedList<Integer>();
 				random = new Random();
 				if (app.getShuffle()) {
 					generateShuffleQueue(0);
 				}
-
-				headsetReceiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-				headsetReceiver = new HeadsetStateReceiver();
 
 				wifiLock = ((WifiManager) getSystemService(WIFI_SERVICE)).createWifiLock(VibesApplication.SONG);
 				wifiLock.acquire();
@@ -285,9 +227,6 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 				player.setOnBufferingUpdateListener(PlayerService.this);
 				player.setOnErrorListener(PlayerService.this);
 				player.setOnInfoListener(PlayerService.this);
-
-				telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-				telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
 				isRunning = true;
 				Log.d(VibesApplication.VIBES, "Service created");
@@ -306,7 +245,6 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 		}
 		cancelNotification();
 		isRunning = false;
-		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 		Log.d(VibesApplication.VIBES, "Service destroyed");
 	}
 
@@ -510,8 +448,8 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 
 		@Override
 		public synchronized void run() {
-			queue.clear();
-			queue.add(seed);
+			shuffleQueue.clear();
+			shuffleQueue.add(seed);
 			shufflePosition = 0;
 			int n = app.songs.size();
 			for (int i = 1; i < n; i++) {
@@ -520,14 +458,14 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 				do {
 					flag = false;
 					m = random.nextInt(n);
-					for (int pos : queue) {
+					for (int pos : shuffleQueue) {
 						if (pos == m) {
 							flag = true;
 							break;
 						}
 					}
 				} while (flag);
-				queue.add(m);
+				shuffleQueue.add(m);
 			}
 		}
 	}
@@ -535,7 +473,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 	private void play() {
 		if (app.getCurrentSong() != null) {
 			synchronized (this) {
-				List<HttpPost> requests = app.getVkontakte().audioUrlRequests;
+				List<HttpPost> requests = app.getVkontakte().getAudioUrlRequests();
 				if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING) {
 					Log.e(VibesApplication.VIBES, "cancelling audio url loader: " + requests.size() + " items in queue");
 					for (HttpPost request : requests) {
@@ -632,14 +570,14 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 						}
 					} else {
 						shufflePosition++;
-						app.currentSong = queue.get(shufflePosition);
+						app.currentSong = shuffleQueue.get(shufflePosition);
 						resetAndPlay();
 					}
 				} else {
 					if (++shufflePosition >= app.songs.size()) {
 						shufflePosition = 0;
 					}
-					app.currentSong = queue.get(shufflePosition);
+					app.currentSong = shuffleQueue.get(shufflePosition);
 					resetAndPlay();
 				}
 			} else {
@@ -674,7 +612,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 				if (--shufflePosition < 0) {
 					shufflePosition = app.songs.size() - 1;
 				}
-				app.currentSong = queue.get(shufflePosition);
+				app.currentSong = shuffleQueue.get(shufflePosition);
 			} else {
 				if (--app.currentSong < 0) {
 					app.currentSong = app.songs.size() - 1;
@@ -797,21 +735,11 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
 		app.getNotificationManager().notify(VibesApplication.SONG, VibesApplication.NOTIFICATION, notification);
 
-		if (!recieverRegistered) {
-			registerReceiver(headsetReceiver, headsetReceiverFilter);
-			recieverRegistered = true;
-			Log.d(VibesApplication.VIBES, "registered reciever");
-		}
 	}
 
 	private void cancelNotification() {
 		app.getNotificationManager().cancel(VibesApplication.SONG, VibesApplication.NOTIFICATION);
 
-		if (recieverRegistered && state != STATE_PAUSED_IDLING) {
-			unregisterReceiver(headsetReceiver);
-			recieverRegistered = false;
-			Log.d(VibesApplication.VIBES, "unregistered reciever");
-		}
 	}
 
 	@Override

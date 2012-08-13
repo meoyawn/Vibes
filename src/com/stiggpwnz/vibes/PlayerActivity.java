@@ -299,7 +299,7 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 				btnLove.setBackgroundResource(R.drawable.love_grey);
 
 			synchronized (this) {
-				List<HttpPost> requests = app.getLastFM().imageRequestQueue;
+				List<HttpPost> requests = app.getLastFM().getImageRequestQueue();
 				if (getAlbumImage != null && getAlbumImage.getStatus() == AsyncTask.Status.RUNNING) {
 					Log.e(VibesApplication.VIBES, "cancelling image loader: " + requests.size() + " items in queue");
 					for (HttpPost request : requests) {

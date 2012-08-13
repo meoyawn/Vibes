@@ -2,7 +2,7 @@ package com.stiggpwnz.vibes;
 
 public interface ServiceActionListener {
 	
-	public void onPlayerProgressUpdate(int progress);
+	public void onPlayerProgressUpdate();
 
 	public void onPlayerBufferingUpdate(int percent);
 
@@ -11,9 +11,11 @@ public interface ServiceActionListener {
 	public void onPlayerStopped();
 
 	public void onPlayerSeekComplete();
-
-	public void onPlayerInfo(int what, int extra);
-
-	public void onPlayerError(int what, int extra);
+	
+	public void onBufferingStrated();
+	
+	public void onBufferingEnded();
+	
+	public void onSongChanged();
 
 }

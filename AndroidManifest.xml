@@ -32,17 +32,11 @@
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name="com.stiggpwnz.vibes.PreferencesActivity" >
+        <activity android:name=".PreferencesActivity" >
         </activity>
 
-        <service android:name="com.stiggpwnz.vibes.PlayerService" >
+        <service android:name=".PlayerService" >
         </service>
-
-        <receiver android:name=".HeadsetStateReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.HEADSET_PLUG" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

@@ -7,21 +7,36 @@ import android.os.IBinder;
 
 public class NewService extends Service {
 
-	private final IBinder mBinder = new LocalBinder();
+	private final IBinder binder = new ServiceBinder();
 
 	private Player player;
 	private ServiceActionListener serviceActionListener;
 
-	public class LocalBinder extends Binder {
+	public class ServiceBinder extends Binder {
 
-		NewService getService() {
+		public NewService getService() {
 			return NewService.this;
 		}
 	}
 
 	@Override
+	public void onCreate() {
+		super.onCreate();
+
+		player = new Player();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+
+		player.release();
+		player = null;
+	}
+
+	@Override
 	public IBinder onBind(Intent intent) {
-		return mBinder;
+		return binder;
 	}
 
 	public Player getPlayer() {

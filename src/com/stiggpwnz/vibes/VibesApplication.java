@@ -26,30 +26,11 @@ public class VibesApplication extends Application {
 	public static final int NOTIFICATION = 49;
 	public static final String SONG = "song";
 
-	public static final String ACCESS_TOKEN = "access_token";
-	public static final String EXPIRES_IN = "expires_in";
-	public static final String USER_ID = "user_id";
-	public static final String MAX_NEWS = "max news";
-	public static final String MAX_AUDIO = "max audio";
-	public static final String REPEAT_PLAYLIST = "repeat";
 
-	private static final String USERNAME = "username";
-	private static final String USER_IMAGE = "user_image";
-	private static final String SESSION = "session";
-	private static final String SHUFFLE = "shuffle";
-	private static final String PLAYLIST = "playlist";
-	private static final String OWNER = "owner";
-	private static final String LAST_SEARCH = "last search";
-	private static final String ALBUM = "album";
 
 	private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS = 4;
 
-	public int currentSong;
-	public List<Song> songs;
-	public Song current;
-
 	private DefaultHttpClient client;
-	private SharedPreferences prefs;
 	private Typeface typeface;
 
 	private Vkontakte vkontakte;
@@ -124,8 +105,6 @@ public class VibesApplication extends Application {
 	}
 
 	public void resetData() {
-		songs = null;
-
 		SharedPreferences.Editor editor = prefs.edit();
 
 		editor.remove(ACCESS_TOKEN);

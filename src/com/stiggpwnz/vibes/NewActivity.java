@@ -8,30 +8,26 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import com.stiggpwnz.vibes.NewService.LocalBinder;
+import com.stiggpwnz.vibes.NewService.ServiceBinder;
 
 public class NewActivity extends Activity implements ServiceActionListener {
 
-	private final ServiceConnection mConnection = new ServiceConnection() {
+	private final ServiceConnection connection = new ServiceConnection() {
 
 		@Override
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			LocalBinder binder = (LocalBinder) service;
-			playerService = binder.getService();
-			bound = true;
-			playerService.setServiceActionListener(NewActivity.this);
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			service = ((ServiceBinder) binder).getService();
+			service.setServiceActionListener(NewActivity.this);
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			playerService.setServiceActionListener(null);
-			playerService = null;
-			bound = false;
+			service.setServiceActionListener(null);
+			service = null;
 		}
 	};
 
-	private NewService playerService;
-	private boolean bound = false;
+	private NewService service;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +40,14 @@ public class NewActivity extends Activity implements ServiceActionListener {
 		super.onResume();
 
 		Intent intent = new Intent(this, NewService.class);
-		bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+		bindService(intent, connection, Context.BIND_AUTO_CREATE);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		if (bound) {
-			unbindService(mConnection);
-			bound = false;
-		}
+		unbindService(connection);
 	}
 
 	@Override
@@ -89,18 +82,6 @@ public class NewActivity extends Activity implements ServiceActionListener {
 
 	@Override
 	public void onPlayerSeekComplete() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onPlayerInfo(int what, int extra) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onPlayerError(int what, int extra) {
 		// TODO Auto-generated method stub
 
 	}

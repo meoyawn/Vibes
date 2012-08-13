@@ -19,18 +19,16 @@ import org.jsoup.Jsoup;
 import android.net.Uri;
 import android.util.Log;
 
-public class Vkontakte extends Api {
+public class Vkontakte extends RestApi {
 
-	private static final String ERROR_CODE = "error_code";
-	private static final String ERROR = "error";
 	public static final String CLIENT_ID = "3027476";
-	// private static final String CLIENT_SECRET = "N6fQB8m6trrkh2RpRp7m";
 
 	private static final String API_URL = "https://api.vk.com/method/";
 
 	private static final String AUDIO_ADD = "audio.add?";
 	private static final String AUDIO_DELETE = "audio.delete?";
 	private static final String AUDIO_GET = "audio.get?";
+	private static final String AUDIO_GET_BY_ID = "audio.getById?";
 	private static final String AUDIO_GET_ALBUMS = "audio.getAlbums?";
 	private static final String AUDIO_SEARCH = "/method/audio.search";
 	private static final String FRIENDS_GET = "friends.get?";
@@ -68,10 +66,11 @@ public class Vkontakte extends Api {
 	private static final String PHOTO_REC = "photo_rec";
 	private static final String HINTS = "hints";
 	private static final String ORDER = "order";
+	private static final String ERROR_CODE = "error_code";
+	private static final String ERROR = "error";
 
 	public int maxNews;
 	public int maxAudios;
-	public List<HttpPost> audioUrlRequests;
 
 	private String accesToken;
 
@@ -79,18 +78,7 @@ public class Vkontakte extends Api {
 	private Map<URI, List<Song>> cache;
 	private long lastUpdate;
 	private URI newsFeedUri;
-
-	public URI getNewsFeedUri() {
-		return newsFeedUri;
-	}
-
-	public long getLastUpdate() {
-		return lastUpdate;
-	}
-
-	public Map<URI, List<Song>> getCache() {
-		return cache;
-	}
+	private List<HttpPost> audioUrlRequests;
 
 	public Vkontakte(String accesToken, HttpClient client, int userId, int maxNews, int maxAudios) {
 		super(client);
@@ -162,7 +150,6 @@ public class Vkontakte extends Api {
 			JSONObject jsonResponse = execute(uri);
 
 			if (jsonResponse.has(RESPONSE)) {
-				Log.d(VibesApplication.VIBES, "has response");
 				List<Song> result = songsFromJson(jsonResponse, true);
 				cache.put(uri, result);
 				return result;
@@ -181,15 +168,18 @@ public class Vkontakte extends Api {
 	public List<Song> getAudios(int ownerId, int albumId, int offset, boolean update) throws IOException, VkontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(API_URL + AUDIO_GET + COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accesToken);
-			if (ownerId != 0) {
-				if (ownerId > 0)
-					buffer.append("&" + UID + "=" + ownerId);
-				else
-					buffer.append("&" + GID + "=" + -ownerId);
-			}
+			buffer.append(API_URL + AUDIO_GET + COUNT + "=" + maxAudios + "&" + ACCESS_TOKEN + "=" + accesToken);
+
+			if (ownerId > 0)
+				buffer.append("&" + UID + "=" + ownerId);
+			else if (ownerId < 0)
+				buffer.append("&" + GID + "=" + -ownerId);
+
 			if (albumId != 0)
 				buffer.append("&" + ALBUM_ID + "=" + albumId);
+
+			if (offset > 0)
+				buffer.append("&" + OFFSET + "=" + offset);
 
 			URI uri = new URI(buffer.toString());
 
@@ -483,8 +473,34 @@ public class Vkontakte extends Api {
 	}
 
 	protected JSONObject execute(URI uri) throws IOException, JSONException {
-		JSONObject jsonResponse = new JSONObject(executeURL(uri));
+		String url = uri.toString().replace("%2526", "%26");
+
+		Log.d(VibesApplication.VIBES, url);
+
+		HttpPost request = new HttpPost(url);
+		if (url.contains(AUDIO_GET_BY_ID) && audioUrlRequests != null)
+			synchronized (this) {
+				audioUrlRequests.add(request);
+			}
+
+		JSONObject jsonResponse = new JSONObject(executeRequest(request));
 		return jsonResponse;
+	}
+
+	public List<HttpPost> getAudioUrlRequests() {
+		return audioUrlRequests;
+	}
+
+	public URI getNewsFeedUri() {
+		return newsFeedUri;
+	}
+
+	public long getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public Map<URI, List<Song>> getCache() {
+		return cache;
 	}
 
 }
