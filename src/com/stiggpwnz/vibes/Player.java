@@ -86,14 +86,14 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		@Override
 		protected Void doInBackground(Void... params) {
 			Thread.currentThread().setName("Preparing New Track");
-			if (state == STATE_PREPARED_IDLING) {
+			if (state == State.STATE_PREPARED_IDLING) {
 				if (isCancelled())
 					return null;
 				startPlaying();
 			} else if (!player.isPlaying()) {
 				if (isCancelled())
 					return null;
-				state = STATE_PREPARING_FOR_PLAYBACK;
+				state = State.STATE_PREPARING_FOR_PLAYBACK;
 				if (activityIsAlive) {
 					if (isCancelled())
 						return null;
@@ -158,6 +158,11 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			serviceActionListener.onPlayerPrepared();
 		// TODO Auto-generated method stub
 
+	}
+
+	public void startPlaying() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	public void authFail() {

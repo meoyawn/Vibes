@@ -37,30 +37,13 @@ public class VibesApplication extends Application {
 	private LastFM lastfm;
 	private NotificationManager notificationManager;
 
-	private String accessToken;
-	private long expiringTime;
-	private int userID;
 
-	private String username;
-	private String userImage;
-	private String session;
-
-	private int playlist = -1;
-	private int owner = -1;
-	private int album = -1;
-	private String lastSearch;
-	private Boolean shuffle;
-	private Boolean repeatPlaylist;
-
-	private int maxNews;
-	private int maxAudio;
 
 	public long lastUpdate;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 		client = new DefaultHttpClient();
 		ClientConnectionManager mgr = client.getConnectionManager();
@@ -86,39 +69,7 @@ public class VibesApplication extends Application {
 	 * VKONTAKTE STUFF
 	 */
 
-	public void saveData(String[] params) {
-		SharedPreferences.Editor editor = prefs.edit();
 
-		accessToken = params[0];
-		editor.putString(ACCESS_TOKEN, accessToken);
-
-		expiringTime = System.currentTimeMillis() / 1000 + Integer.parseInt(params[1]);
-		editor.putLong(EXPIRES_IN, expiringTime);
-
-		userID = Integer.valueOf(params[2]);
-		editor.putInt(USER_ID, userID);
-
-		editor.commit();
-
-		if (getVkontakte().getAccesToken() == null)
-			getVkontakte().setAccesToken(accessToken);
-	}
-
-	public void resetData() {
-		SharedPreferences.Editor editor = prefs.edit();
-
-		editor.remove(ACCESS_TOKEN);
-		accessToken = null;
-
-		editor.remove(EXPIRES_IN);
-		expiringTime = 0;
-
-		editor.remove(USER_ID);
-		userID = 0;
-
-		editor.commit();
-		vkontakte = null;
-	}
 
 	/*
 	 * LAST FM STUFF
