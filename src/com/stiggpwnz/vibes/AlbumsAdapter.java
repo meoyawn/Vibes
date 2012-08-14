@@ -2,7 +2,6 @@ package com.stiggpwnz.vibes;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -17,11 +16,10 @@ public class AlbumsAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private Typeface typeface;
 
-	public AlbumsAdapter(Activity context, List<Album> albumList) {
+	public AlbumsAdapter(NewActivity context, List<Album> albumList) {
 		this.albums = albumList;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		VibesApplication app = (VibesApplication) context.getApplication();
-		typeface = app.getTypeface();
+		typeface = context.getTypeface();
 	}
 
 	public void setAlbums(List<Album> albums) {

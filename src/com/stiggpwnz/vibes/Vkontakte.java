@@ -22,6 +22,9 @@ import android.util.Log;
 public class Vkontakte extends RestApi {
 
 	public static final String CLIENT_ID = "3027476";
+	public static final String ACCESS_TOKEN = "access_token";
+	public static final String EXPIRES_IN = "expires_in";
+	public static final String USER_ID = "user_id";
 
 	private static final String API_URL = "https://api.vk.com/method/";
 
@@ -49,7 +52,6 @@ public class Vkontakte extends RestApi {
 	private static final String AID = "aid";
 	private static final String GID = "gid";
 	private static final String UID = "uid";
-	private static final String ACCESS_TOKEN = "access_token";
 	private static final String URL = "url";
 	private static final String TITLE = "title";
 	private static final String ARTIST = "artist";
@@ -268,9 +270,9 @@ public class Vkontakte extends RestApi {
 			if (cache.containsKey(uri))
 				return cache.get(uri);
 
-			lastUpdate = System.currentTimeMillis() / 1000;
-
 			JSONObject jsonResponse = execute(uri);
+
+			lastUpdate = System.currentTimeMillis() / 1000;
 
 			if (jsonResponse.has(RESPONSE)) {
 				jsonResponse = jsonResponse.getJSONObject(RESPONSE);

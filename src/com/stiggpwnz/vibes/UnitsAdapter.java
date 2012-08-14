@@ -18,13 +18,10 @@ public class UnitsAdapter extends BaseAdapter {
 	private ImageLoader imageLoader;
 	private Typeface typeface;
 
-	public UnitsAdapter(PlayerActivity activity, List<Unit> units, ImageLoader imageLoader) {
+	public UnitsAdapter(NewActivity activity, List<Unit> units, ImageLoader imageLoader) {
 		this.units = units;
 		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		VibesApplication app = (VibesApplication) activity.getApplication();
-		typeface = app.getTypeface();
-
+		typeface = activity.getTypeface();
 		this.imageLoader = imageLoader;
 	}
 

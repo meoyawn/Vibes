@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes;
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -9,8 +10,9 @@ public class NewService extends Service {
 
 	private final IBinder binder = new ServiceBinder();
 
+	private NotificationManager notificationManager;
 	private Player player;
-	private ServiceActionListener serviceActionListener;
+	private PlayerListener listener;
 
 	public class ServiceBinder extends Binder {
 
@@ -23,7 +25,7 @@ public class NewService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		player = new Player();
+		player = new Player(this);
 	}
 
 	@Override
@@ -31,7 +33,6 @@ public class NewService extends Service {
 		super.onDestroy();
 
 		player.release();
-		player = null;
 	}
 
 	@Override
@@ -43,9 +44,20 @@ public class NewService extends Service {
 		return player;
 	}
 
-	public void setServiceActionListener(ServiceActionListener serviceActionListener) {
-		this.serviceActionListener = serviceActionListener;
-		player.setServiceActionListener(serviceActionListener);
+	public NotificationManager getNotificationManager() {
+		if (notificationManager == null)
+			notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		return notificationManager;
+	}
+
+	public void onDownloadException(String messsage) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void setPlayerListener(PlayerListener listener) {
+		this.listener = listener;
+		player.setListener(listener);
 	}
 
 }

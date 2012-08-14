@@ -1,8 +1,10 @@
 package com.stiggpwnz.vibes;
 
-import android.app.Activity;
+import java.util.List;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,32 +15,33 @@ import android.widget.TextView;
 
 public class SongsAdapter extends BaseAdapter {
 
+	private List<Song> songs;
 	private LayoutInflater inflater;
-	private VibesApplication app;
 	private ColorStateList black;
 	private Animation shakeRight;
 	private int blue;
 	public boolean fromPlaylist;
 	public int currentSong = -1;
+	private Typeface typeface;
 
-	public SongsAdapter(Context context) {
-		app = (VibesApplication) ((Activity) context).getApplication();
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		blue = app.getResources().getColor(R.color.normal);
-		shakeRight = AnimationUtils.loadAnimation(app, R.anim.shake_right);
+	public SongsAdapter(NewActivity activity) {
+		typeface = activity.getTypeface();
+		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		blue = activity.getResources().getColor(R.color.normal);
+		shakeRight = AnimationUtils.loadAnimation(activity, R.anim.shake_right);
 	}
 
 	@Override
 	public int getCount() {
-		if (app.songs != null)
-			return app.songs.size();
+		if (songs != null)
+			return songs.size();
 		return 0;
 	}
 
 	@Override
 	public Song getItem(int position) {
-		if (app.songs != null)
-			return app.songs.get(position);
+		if (songs != null)
+			return songs.get(position);
 		return null;
 	}
 
@@ -62,9 +65,9 @@ public class SongsAdapter extends BaseAdapter {
 			convertView = inflater.inflate(R.layout.song, null);
 			viewholder = new ViewHolder();
 			viewholder.artist = (TextView) convertView.findViewById(R.id.textArtist);
-			viewholder.artist.setTypeface(app.getTypeface());
+			viewholder.artist.setTypeface(typeface);
 			viewholder.title = (TextView) convertView.findViewById(R.id.textTitle);
-			viewholder.title.setTypeface(app.getTypeface());
+			viewholder.title.setTypeface(typeface);
 			if (black == null)
 				black = viewholder.title.getTextColors();
 			viewholder.stick = convertView.findViewById(R.id.leftView);
@@ -72,8 +75,8 @@ public class SongsAdapter extends BaseAdapter {
 		} else
 			viewholder = (ViewHolder) convertView.getTag();
 
-		viewholder.artist.setText(app.songs.get(position).performer);
-		viewholder.title.setText(app.songs.get(position).title);
+		viewholder.artist.setText(songs.get(position).performer);
+		viewholder.title.setText(songs.get(position).title);
 
 		if (currentSong >= 0 && position == currentSong) {
 			viewholder.stick.setVisibility(View.VISIBLE);

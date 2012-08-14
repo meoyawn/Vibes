@@ -1,7 +1,5 @@
 package com.stiggpwnz.vibes;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +13,8 @@ public class TextAdapter extends BaseAdapter {
 	private Typeface typeface;
 	private String[] data;
 
-	public TextAdapter(Activity activity, String[] array) {
-		VibesApplication app = (VibesApplication) activity.getApplication();
-		inflater = (LayoutInflater) app.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		typeface = app.getTypeface();
+	public TextAdapter(NewActivity activity, String[] array) {
+		typeface = activity.getTypeface();
 		data = array;
 	}
 

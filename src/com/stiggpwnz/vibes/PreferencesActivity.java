@@ -33,11 +33,11 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(VibesApplication.MAX_NEWS))
-			app.updateMaxNews();
-		else if (key.equals(VibesApplication.REPEAT_PLAYLIST))
-			app.updateRepeatPlaylist();
-		else if (key.equals(VibesApplication.MAX_AUDIO))
-			app.updateMaxAudio();
+		if (key.equals(Settings.MAX_NEWS))
+			app.getSettings().updateMaxNews();
+		else if (key.equals(Settings.REPEAT_PLAYLIST))
+			app.getSettings().updateRepeatPlaylist();
+		else if (key.equals(Settings.MAX_AUDIOS))
+			app.getSettings().updateMaxAudio();
 	}
 }

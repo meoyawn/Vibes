@@ -12,7 +12,6 @@ import java.util.List;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -22,15 +21,18 @@ import android.widget.RemoteViews;
 public class Downloader {
 
 	private NotificationManager manager;
-	private PlayerService context;
+	private NewService player;
+	private Vkontakte vkontakte;
+	private List<Integer> downloadQueue;
 
-	public Downloader(PlayerService context) {
-		manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		this.context = context;
+	public Downloader(NewService player, NotificationManager manager, Vkontakte vkontakte) {
+		this.manager = manager;
+		this.player = player;
+		this.vkontakte = vkontakte;
 	}
 
-	public void download(Song song) throws IOException {
-		List<Integer> downloadQueue = context.getDownloadQueue();
+	public void download(Song song, List<Integer> downloadQueue) throws IOException {
+		this.downloadQueue = downloadQueue;
 		if (!downloadQueue.contains(Integer.valueOf(song.aid))) {
 			downloadQueue.add(Integer.valueOf(song.aid));
 			new DownloaderThread(song).execute();
@@ -52,7 +54,7 @@ public class Downloader {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 				directory = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_MUSIC);
 			else
-				throw new IOException(context.getString(R.string.insertSdCard));
+				throw new IOException(player.getString(R.string.insertSdCard));
 
 			if (!directory.exists())
 				directory.mkdirs();
@@ -79,7 +81,7 @@ public class Downloader {
 			try {
 				Thread.currentThread().setName("Downloading " + songName);
 				if (song.url == null)
-					context.getApp().getVkontakte().setSongUrl(song);
+					vkontakte.setSongUrl(song);
 
 				URL url = new URL(song.url);
 
@@ -130,28 +132,28 @@ public class Downloader {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			cancelNotification();
-			context.getDownloadQueue().remove(Integer.valueOf(song.aid));
+			downloadQueue.remove(Integer.valueOf(song.aid));
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
 			cancelNotification();
-			context.getDownloadQueue().remove(Integer.valueOf(song.aid));
+			downloadQueue.remove(Integer.valueOf(song.aid));
 			if (outputFile.exists())
 				outputFile.delete();
 			if (messsage != null)
-				context.onDownloadException(messsage);
+				player.onDownloadException(messsage);
 		}
 
 		private void showNotification() {
-			String title = String.format("%s %s", context.getString(R.string.downloading), songName);
+			String title = String.format("%s %s", player.getString(R.string.downloading), songName);
 			notification = new Notification(R.drawable.download_icon, title, System.currentTimeMillis());
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-			notification.contentView = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.downloader);
+			notification.contentView = new RemoteViews(player.getPackageName(), R.layout.downloader);
 
-			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			PendingIntent intent = PendingIntent.getActivity(context.getApplicationContext(), 0, notifyIntent, 0);
+			Intent notifyIntent = new Intent(player, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			PendingIntent intent = PendingIntent.getActivity(player, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;
 			notification.contentView.setTextViewText(R.id.downloadTitle, title);

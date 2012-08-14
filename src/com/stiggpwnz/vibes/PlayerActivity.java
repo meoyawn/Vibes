@@ -1250,7 +1250,7 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 			@Override
 			public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 				unit = (Unit) list.getItemAtPosition(position);
-				app.setOwner(unit.id);
+				app.setOwnerId(unit.id);
 				showDialog(DIALOG_UNIT);
 			}
 		};
@@ -1273,7 +1273,7 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 					switch (position) {
 					case 0:
 						app.setPlaylist(MY_AUDIOS);
-						app.setAlbum(0);
+						app.setAlbumId(0);
 						new GetSongs().execute((String) null);
 						dismissDialog(DIALOG_UNIT);
 						dismissDialog(DIALOG_UNITS);
@@ -1316,7 +1316,7 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 				@Override
 				public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 					app.setPlaylist(MY_AUDIOS);
-					app.setAlbum(albumsAdapter.getItem(position).id);
+					app.setAlbumId(albumsAdapter.getItem(position).id);
 					new GetSongs().execute((String) null);
 					dismissDialog(DIALOG_ALBUMS);
 					if (app.getOwnerId() != 0) {
@@ -1441,16 +1441,16 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 
 					case MY_AUDIOS:
 						app.setPlaylist(position);
-						app.setOwner(0);
-						app.setAlbum(0);
+						app.setOwnerId(0);
+						app.setAlbumId(0);
 						new GetSongs().execute((String) null);
 						dismissDialog(DIALOG_PLAYLISTS);
 						break;
 
 					case WALL:
 						app.setPlaylist(position);
-						app.setOwner(0);
-						app.setAlbum(0);
+						app.setOwnerId(0);
+						app.setAlbumId(0);
 						new GetSongs().execute((String) null);
 						dismissDialog(DIALOG_PLAYLISTS);
 						break;
@@ -1462,7 +1462,7 @@ public class PlayerActivity extends Activity implements OnClickListener, OnSeekB
 						break;
 
 					case ALBUMS:
-						app.setOwner(0);
+						app.setOwnerId(0);
 						new GetAlbums().execute();
 						break;
 					}
