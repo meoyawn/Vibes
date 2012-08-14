@@ -13,6 +13,7 @@ public class NewService extends Service {
 	private NotificationManager notificationManager;
 	private Player player;
 	private PlayerListener listener;
+	private VibesApplication app;
 
 	public class ServiceBinder extends Binder {
 
@@ -24,15 +25,16 @@ public class NewService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		app = (VibesApplication) getApplication();
+		app.setServiceRunning(true);
 		player = new Player(this);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
 		player.release();
+		app.setServiceRunning(false);
 	}
 
 	@Override
@@ -58,6 +60,11 @@ public class NewService extends Service {
 	public void setPlayerListener(PlayerListener listener) {
 		this.listener = listener;
 		player.setListener(listener);
+	}
+
+	public void generateShuffleQueue() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

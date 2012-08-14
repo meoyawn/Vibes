@@ -1,6 +1,14 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.Adapters;
 
 import java.util.List;
+
+import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.Song;
+import com.stiggpwnz.vibes.R.anim;
+import com.stiggpwnz.vibes.R.color;
+import com.stiggpwnz.vibes.R.id;
+import com.stiggpwnz.vibes.R.layout;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

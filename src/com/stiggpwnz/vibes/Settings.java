@@ -147,7 +147,7 @@ public class Settings {
 
 	public int getPlaylist() {
 		if (playlist == -1)
-			playlist = prefs.getInt(PLAYLIST, PlayerActivity.NEWSFEED);
+			playlist = prefs.getInt(PLAYLIST, NewActivity.NEWSFEED);
 		return playlist;
 	}
 

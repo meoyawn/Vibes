@@ -69,22 +69,7 @@ public class PlayerService extends Service implements OnCompletionListener, OnPr
 
 	private static final long IDLE_TIME = 3 * 60 * 1000;
 
-	private final Handler handler = new Handler();
-	private final Runnable progressUpdater = new Runnable() {
 
-		@Override
-		public void run() {
-			seekBarUpdater();
-		}
-	};
-	private final Runnable serviceKiller = new Runnable() {
-
-		@Override
-		public void run() {
-			sendCommand(MSG_UNBIND_SERVICE, 0, 0);
-			state = STATE_NOT_PREPARED_IDLING;
-		}
-	};
 
 	private final Messenger mMessenger = new Messenger(new Handler() {
 

@@ -22,6 +22,7 @@ import android.media.MediaPlayer.OnInfoListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 
 public class Player implements OnCompletionListener, OnPreparedListener, OnSeekCompleteListener, OnBufferingUpdateListener, OnErrorListener, OnInfoListener {
@@ -31,14 +32,21 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	public static final String SONG = "song";
-
 	public static final int NOTIFICATION = 49;
 
+	private final Handler handler = new Handler();
 	private final Runnable progressUpdater = new Runnable() {
 
 		@Override
 		public void run() {
 			seekBarUpdater();
+		}
+	};
+	private final Runnable serviceKiller = new Runnable() {
+
+		@Override
+		public void run() {
+			service.stopSelf();
 		}
 	};
 
@@ -50,9 +58,9 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private PlayerListener activity;
 	private State state;
 
-	private int currentSong;
+	public int currentSong;
 	private List<Song> songs;
-	private Song current;
+	public Song current;
 
 	private NewService service;
 

@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.Adapters;
 
 import java.util.List;
 
