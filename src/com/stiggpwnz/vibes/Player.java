@@ -2,16 +2,7 @@ package com.stiggpwnz.vibes;
 
 import java.util.List;
 
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -27,7 +18,7 @@ import android.util.Log;
 
 public class Player implements OnCompletionListener, OnPreparedListener, OnSeekCompleteListener, OnBufferingUpdateListener, OnErrorListener, OnInfoListener {
 
-	private enum State {
+	public enum State {
 		STATE_NOT_PREPARED_IDLING, STATE_PLAYING, STATE_PAUSED_IDLING, STATE_PREPARING_FOR_PLAYBACK, STATE_NEXT_FOR_PLAYBACK, STATE_PREPARED_IDLING, STATE_SEEKING, STATE_PREPARING_FOR_IDLE
 	}
 
@@ -55,8 +46,12 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private LastFM lastfm;
 
 	private MediaPlayer player;
-	private PlayerListener activity;
+	private OnPlayerActionListener activity;
 	private State state;
+
+	public State getState() {
+		return state;
+	}
 
 	public int currentSong;
 	private List<Song> songs;
@@ -76,31 +71,42 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		player.setOnInfoListener(this);
 
 		this.service = newService;
-		client = threadSafeHttpClient();
+		client = VibesApplication.threadSafeHttpClient();
+		((VibesApplication) service.getApplication()).getSettings().setVkontakte(getVkontakte());
 	}
 
 	public void release() {
 		player.release();
 		client.getConnectionManager().shutdown();
+		((VibesApplication) service.getApplication()).getSettings().setVkontakte(null);
 		service = null;
+		getVkontakte().getCache().clear();
+		if (lastfm != null)
+			lastfm.getCache().clear();
 	}
 
-	private AbstractHttpClient threadSafeHttpClient() {
-		HttpParams params = new BasicHttpParams();
-		int connectionTimeout = 3000;
-		HttpConnectionParams.setConnectionTimeout(params, connectionTimeout);
-		int socketTimeout = 5000;
-		HttpConnectionParams.setSoTimeout(params, socketTimeout);
+	public boolean isPlaying() {
+		try {
+			return player.isPlaying();
+		} catch (IllegalStateException e) {
+			return false;
+		}
+	}
 
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+	public void setLooping(boolean looping) {
+		player.setLooping(looping);
+	}
 
-		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, registry);
-		AbstractHttpClient client = new DefaultHttpClient(manager, params);
-		return client;
+	public boolean isLooping() {
+		return player.isLooping();
 	}
 
 	protected void seekBarUpdater() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void generateShuffleQueue() {
 		// TODO Auto-generated method stub
 
 	}
@@ -297,8 +303,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return false;
 	}
 
-	public void setListener(PlayerListener playerListener) {
-		this.activity = playerListener;
+	public void setListener(OnPlayerActionListener onPlayerActionListener) {
+		this.activity = onPlayerActionListener;
 	}
 
 	public List<Song> getSongs() {
@@ -321,14 +327,34 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return service;
 	}
 
-	public List<Integer> getDownloadQueue() {
+	public void resume() {
 		// TODO Auto-generated method stub
-		return null;
+
 	}
 
-	public void onDownloadException(String messsage) {
+	public void pause() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void play() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void next() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void prev() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void seekTo(int progress) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes;
 
-public interface PlayerListener {
+public interface OnPlayerActionListener {
 
 	public void onBufferingStrated();
 

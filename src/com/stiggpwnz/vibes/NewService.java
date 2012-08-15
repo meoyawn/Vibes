@@ -1,5 +1,8 @@
 package com.stiggpwnz.vibes;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
@@ -12,8 +15,9 @@ public class NewService extends Service {
 
 	private NotificationManager notificationManager;
 	private Player player;
-	private PlayerListener listener;
+	private OnPlayerActionListener listener;
 	private VibesApplication app;
+	private List<Integer> downloadQueue;
 
 	public class ServiceBinder extends Binder {
 
@@ -57,13 +61,18 @@ public class NewService extends Service {
 
 	}
 
-	public void setPlayerListener(PlayerListener listener) {
+	public void setPlayerListener(OnPlayerActionListener listener) {
 		this.listener = listener;
 		player.setListener(listener);
 	}
 
-	public void generateShuffleQueue() {
-		// TODO Auto-generated method stub
+	public List<Integer> getDownloadQueue() {
+		if (downloadQueue == null)
+			downloadQueue = new LinkedList<Integer>();
+		return downloadQueue;
+	}
+	
+	public void download(int song) {
 		
 	}
 

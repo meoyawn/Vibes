@@ -21,18 +21,18 @@ import android.widget.RemoteViews;
 public class Downloader {
 
 	private NotificationManager manager;
-	private NewService player;
+	private NewService context;
 	private Vkontakte vkontakte;
 	private List<Integer> downloadQueue;
 
-	public Downloader(NewService player, NotificationManager manager, Vkontakte vkontakte) {
-		this.manager = manager;
-		this.player = player;
-		this.vkontakte = vkontakte;
+	public Downloader(NewService service) {
+		context = service;
+		manager = service.getNotificationManager();
+		vkontakte = service.getPlayer().getVkontakte();
+		downloadQueue = service.getDownloadQueue();
 	}
 
-	public void download(Song song, List<Integer> downloadQueue) throws IOException {
-		this.downloadQueue = downloadQueue;
+	public void download(Song song) throws IOException {
 		if (!downloadQueue.contains(Integer.valueOf(song.aid))) {
 			downloadQueue.add(Integer.valueOf(song.aid));
 			new DownloaderThread(song).execute();
@@ -54,7 +54,7 @@ public class Downloader {
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 				directory = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_MUSIC);
 			else
-				throw new IOException(player.getString(R.string.insertSdCard));
+				throw new IOException(context.getString(R.string.insertSdCard));
 
 			if (!directory.exists())
 				directory.mkdirs();
@@ -143,17 +143,17 @@ public class Downloader {
 			if (outputFile.exists())
 				outputFile.delete();
 			if (messsage != null)
-				player.onDownloadException(messsage);
+				context.onDownloadException(messsage);
 		}
 
 		private void showNotification() {
-			String title = String.format("%s %s", player.getString(R.string.downloading), songName);
+			String title = String.format("%s %s", context.getString(R.string.downloading), songName);
 			notification = new Notification(R.drawable.download_icon, title, System.currentTimeMillis());
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-			notification.contentView = new RemoteViews(player.getPackageName(), R.layout.downloader);
+			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
-			Intent notifyIntent = new Intent(player, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			PendingIntent intent = PendingIntent.getActivity(player, 0, notifyIntent, 0);
+			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;
 			notification.contentView.setTextViewText(R.id.downloadTitle, title);
