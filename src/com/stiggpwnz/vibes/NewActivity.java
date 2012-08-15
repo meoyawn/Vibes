@@ -1164,32 +1164,26 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	protected void onPrepareDialog(int id, Dialog dialog) {
 		super.onPrepareDialog(id, dialog);
 		switch (id) {
-
 		case DIALOG_ALBUMS:
-			List<Album> albumList;
-			if (app.getSettings().getOwnerId() != 0 && unit != null)
-				albumList = unit.albums;
-			else
-				albumList = myAlbums;
-			((AlbumsDialog) dialog).setAlbums(albumList);
+			List<Album> albumList = app.getSettings().getOwnerId() != 0 && unit != null ? unit.albums : myAlbums;
+			AlbumsDialog albumsDialog = (AlbumsDialog) dialog;
+			albumsDialog.setAlbums(albumList);
 			break;
 
 		case DIALOG_LAST_FM_USER:
-
-			if (app.getUsername() != null) {
-				textLastFmUsername.setText(app.getUsername());
-				imageLoader.setStubId(R.drawable.last_fm_logo);
-				imageLoader.displayImage(app.getUserImage(), imageLastFmUser);
-			}
+			LastFMUserDialog lastFMUserDialog = (LastFMUserDialog) dialog;
+			lastFMUserDialog.setText(app.getSettings().getUsername());
+			lastFMUserDialog.setUserImage(app.getSettings().getUserImage());
 			break;
 
 		case DIALOG_UNITS:
 			String[] array = getResources().getStringArray(R.array.playlist_options);
-			String title = frnds ? array[1] : array[2];
+			String title = friendsList ? array[1] : array[2];
 			dialog.setTitle(title);
 
-			unitsAdapter.setUnits(frnds ? friends : groups);
-			unitsAdapter.notifyDataSetChanged();
+			List<Unit> list = friendsList ? friends : groups;
+			UnitsDialog unitsDialog = (UnitsDialog) dialog;
+			unitsDialog.setList(list);
 			break;
 
 		case DIALOG_UNIT:
