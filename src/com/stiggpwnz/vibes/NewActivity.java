@@ -52,7 +52,7 @@ import com.stiggpwnz.vibes.dialogs.UnitsDialog;
 
 public class NewActivity extends Activity implements OnPlayerActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
 
-	// non enum because we'll need to store this things
+	// non enum because we'll need to store this things in settings
 	public static final int SEARCH = 0;
 	public static final int FRIENDS = 1;
 	public static final int GROUPS = 2;
@@ -153,19 +153,23 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	protected void onResume() {
 		super.onResume();
 		doBindService();
-		// TODO Auto-generated method stub
-
+		service.cancelNotification();
+		service.stopWaiter();
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		imageLoader.getMemoryCache().clear();
-		service.getPlayer().getLastFM().getCache().clear();
+		Player player = service.getPlayer();
+		player.getLastFM().getCache().clear();
+		State state = player.getState();
+		if (player.isPlaying())
+			service.makeNotification();
+		else if (state == State.STATE_NOT_PREPARED_IDLING || state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE)
+			service.startWaiter();
 		if (bound)
 			unbindService(connection);
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -487,11 +491,6 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	}
 
-	@Override
-	public void onBackPressed() {
-		moveTaskToBack(true);
-	}
-
 	private class GetUnits extends AsyncTask<Void, Void, Void> {
 
 		private boolean success;
@@ -573,6 +572,11 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			}
 		}
 
+	}
+
+	@Override
+	public void onBackPressed() {
+		moveTaskToBack(true);
 	}
 
 	private void showLoadingDialog(boolean playlist) {
@@ -698,19 +702,13 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	}
 
 	@Override
-	public void onPlayerBufferingUpdate(int percent) {
+	public void onBufferingUpdate(int percent) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void onPlayerStopped() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onPlayerProgressUpdate() {
+	public void onCompletion() {
 		// TODO Auto-generated method stub
 
 	}
@@ -727,12 +725,6 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		textBuffering.setVisibility(View.INVISIBLE);
 		progressBuffering.setVisibility(View.INVISIBLE);
 		buffering = false;
-	}
-
-	@Override
-	public void onSongChanged() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public Typeface getTypeface() {
@@ -812,8 +804,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	@Override
 	public void onAuthProblem() {
-		// TODO Auto-generated method stub
-
+		authFail();
 	}
 
 	@Override
@@ -831,18 +822,17 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			btnPlay.setBackgroundResource(R.drawable.pause);
 		player.currentSong = position;
 		player.play();
+		player.generateShuffleQueue();
 		setCurrentSong(true);
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -1223,6 +1213,26 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	public List<Unit> getReadyGroups() {
 		return groups;
+	}
+
+	@Override
+	public void onProgressChanged(int progress) {
+		seekbar.setProgress(progress);
+
+		int seconds = (progress / 1000) % 60;
+		int minutes = (progress / 1000) / 60;
+		if (seconds > 9)
+			textPassed.setText(String.format("%d:%d", minutes, seconds));
+		else
+			textPassed.setText(String.format("%d:0%d", minutes, seconds));
+
+		int songDuration = service.getPlayer().getSongDuration();
+		seconds = ((songDuration - progress) / 1000) % 60;
+		minutes = ((songDuration - progress) / 1000) / 60;
+		if (seconds > 9)
+			textLeft.setText(String.format("%d:%d", minutes, seconds));
+		else
+			textLeft.setText(String.format("%d:0%d", minutes, seconds));
 	}
 
 }

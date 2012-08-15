@@ -6,13 +6,11 @@ public interface OnPlayerActionListener {
 
 	public void onBufferingEnded();
 
-	public void onPlayerProgressUpdate();
+	public void onProgressChanged(int progress);
 
-	public void onPlayerBufferingUpdate(int percent);
+	public void onBufferingUpdate(int percent);
 
-	public void onPlayerStopped();
-
-	public void onSongChanged();
+	public void onCompletion();
 
 	public void onAuthProblem();
 
