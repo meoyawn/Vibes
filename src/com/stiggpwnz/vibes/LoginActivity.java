@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 public class LoginActivity extends Activity {
 
 	public static final String RESET = "RESET";
+	
 	private static final String SCOPE = "friends,audio,wall,groups"; // GIVEN RIGHTS
 	private static final String AUTH_URL = "http://api.vk.com/oauth/authorize";
 	private static final String CALLBACK_URL = "http://api.vk.com/blank.html";

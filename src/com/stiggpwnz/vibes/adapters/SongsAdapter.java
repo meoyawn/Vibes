@@ -13,7 +13,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Song;
 
@@ -28,11 +27,11 @@ public class SongsAdapter extends BaseAdapter {
 	public int currentSong = -1;
 	private Typeface typeface;
 
-	public SongsAdapter(NewActivity activity) {
-		typeface = activity.getTypeface();
-		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		blue = activity.getResources().getColor(R.color.normal);
-		shakeRight = AnimationUtils.loadAnimation(activity, R.anim.shake_right);
+	public SongsAdapter(Context context, Typeface typeface) {
+		this.typeface = typeface;
+		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		blue = context.getResources().getColor(R.color.normal);
+		shakeRight = AnimationUtils.loadAnimation(context, R.anim.shake_right);
 	}
 
 	@Override
@@ -40,6 +39,14 @@ public class SongsAdapter extends BaseAdapter {
 		if (songs != null)
 			return songs.size();
 		return 0;
+	}
+
+	public List<Song> getSongs() {
+		return songs;
+	}
+
+	public void setSongs(List<Song> songs) {
+		this.songs = songs;
 	}
 
 	@Override

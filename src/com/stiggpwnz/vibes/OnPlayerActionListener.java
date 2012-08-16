@@ -10,10 +10,10 @@ public interface OnPlayerActionListener {
 
 	public void onBufferingUpdate(int percent);
 
-	public void onCompletion();
-
 	public void onAuthProblem();
 
 	public void onInternetProblem();
+
+	public void onNewTrack();
 
 }

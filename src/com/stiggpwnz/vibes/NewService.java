@@ -21,7 +21,7 @@ public class NewService extends Service {
 
 	private static final String SONG = "song";
 	private static final int NOTIFICATION = 49;
-	private static final long IDLE_TIME = 3 * 60 * 1000;
+	private static final long IDLE_TIME = 1 * 60 * 1000;
 
 	private final IBinder binder = new ServiceBinder();
 	private final Handler handler = new Handler();
@@ -29,6 +29,7 @@ public class NewService extends Service {
 
 		@Override
 		public void run() {
+			Log.d(VibesApplication.VIBES, "killing service");
 			stopSelf();
 		}
 	};
@@ -49,25 +50,32 @@ public class NewService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Log.d(VibesApplication.VIBES, "service created");
 		app = (VibesApplication) getApplication();
-		app.setServiceRunning(true);
-		player = new Player(this, handler);
+		player = new Player(this, getHandler());
 		wifiLock = ((WifiManager) getSystemService(WIFI_SERVICE)).createWifiLock(SONG);
 		wifiLock.acquire();
+		app.setServiceRunning(true);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		app.setServiceRunning(false);
 		cancelNotification();
 		wifiLock.release();
 		player.release();
-		app.setServiceRunning(false);
+		Log.d(VibesApplication.VIBES, "service destroyed");
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		return true;
 	}
 
 	public Player getPlayer() {
@@ -123,14 +131,18 @@ public class NewService extends Service {
 	}
 
 	public void startWaiter() {
-		stopWaiter();
+		getHandler().removeCallbacks(serviceKiller);
 		Log.d(VibesApplication.VIBES, "starting waiter");
-		handler.postDelayed(serviceKiller, IDLE_TIME);
+		getHandler().postDelayed(serviceKiller, IDLE_TIME);
 	}
 
 	public void stopWaiter() {
 		Log.d(VibesApplication.VIBES, "stopping waiter");
-		handler.removeCallbacks(serviceKiller);
+		getHandler().removeCallbacks(serviceKiller);
+	}
+
+	public Handler getHandler() {
+		return handler;
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
+import android.graphics.Typeface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -20,28 +20,18 @@ import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
 public class AlbumsDialog extends Dialog implements OnItemClickListener {
 
 	private AlbumsAdapter albumsAdapter;
-	private NewActivity activity;
-	private Settings settings;
 
-	public AlbumsDialog(Context context) {
+	public AlbumsDialog(Context context, List<Album> albums, Typeface typeface) {
 		super(context);
-		activity = (NewActivity) getOwnerActivity();
-		settings = activity.getApp().getSettings();
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list);
 		setTitle(getContext().getResources().getStringArray(R.array.unit_options)[2]);
 		setCanceledOnTouchOutside(true);
 		ListView albumsList = (ListView) findViewById(R.id.listView);
-		List<Album> albumList = settings.getOwnerId() != 0 ? activity.getUnit().albums : activity.getMyAlbums();
-		albumsAdapter = new AlbumsAdapter(activity, albumList);
+		albumsAdapter = new AlbumsAdapter(context, typeface, albums);
 		albumsList.setAdapter(albumsAdapter);
 
 		TextView emptyAlbum = (TextView) findViewById(android.R.id.empty);
-		emptyAlbum.setTypeface(activity.getTypeface());
+		emptyAlbum.setTypeface(typeface);
 		albumsList.setEmptyView(emptyAlbum);
 
 		albumsList.setOnItemClickListener(this);
@@ -49,6 +39,8 @@ public class AlbumsDialog extends Dialog implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
+		NewActivity activity = (NewActivity) getOwnerActivity();
+		Settings settings = activity.getApp().getSettings();
 		settings.setPlaylist(NewActivity.MY_AUDIOS);
 		settings.setAlbumId(albumsAdapter.getItem(position).id);
 		activity.runGetSongs(null);

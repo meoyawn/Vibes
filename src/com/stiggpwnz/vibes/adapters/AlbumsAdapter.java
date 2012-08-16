@@ -11,7 +11,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.stiggpwnz.vibes.Album;
-import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
 
 public class AlbumsAdapter extends BaseAdapter {
@@ -20,10 +19,10 @@ public class AlbumsAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private Typeface typeface;
 
-	public AlbumsAdapter(NewActivity context, List<Album> albumList) {
+	public AlbumsAdapter(Context context, Typeface typeface, List<Album> albumList) {
 		this.albums = albumList;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		typeface = context.getTypeface();
+		this.typeface = typeface;
 	}
 
 	public void setAlbums(List<Album> albums) {

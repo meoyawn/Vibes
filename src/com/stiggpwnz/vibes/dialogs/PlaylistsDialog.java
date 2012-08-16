@@ -2,7 +2,7 @@ package com.stiggpwnz.vibes.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
+import android.graphics.Typeface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -15,30 +15,22 @@ import com.stiggpwnz.vibes.adapters.TextAdapter;
 
 public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 
-	private NewActivity activity;
-	private Settings settings;
-
-	public PlaylistsDialog(Context context) {
+	public PlaylistsDialog(Context context, Typeface typeface) {
 		super(context);
-		activity = (NewActivity) getOwnerActivity();
-		settings = activity.getApp().getSettings();
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list);
 		setTitle(R.string.playlist);
 		setCanceledOnTouchOutside(true);
 		ListView listView = (ListView) findViewById(R.id.listView);
-		String[] options = getContext().getResources().getStringArray(R.array.playlist_options);
-		TextAdapter adapter = new TextAdapter(activity, options);
+		String[] options = context.getResources().getStringArray(R.array.playlist_options);
+		TextAdapter adapter = new TextAdapter(context, typeface, options);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
+		NewActivity activity = (NewActivity) getOwnerActivity();
+		Settings settings = activity.getApp().getSettings();
 		switch (position) {
 
 		case NewActivity.SEARCH:

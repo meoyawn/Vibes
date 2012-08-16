@@ -52,12 +52,11 @@ public class Downloader {
 
 			File directory;
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-				directory = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_MUSIC);
+				directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
 			else
 				throw new IOException(context.getString(R.string.insertSdCard));
 
-			if (!directory.exists())
-				directory.mkdirs();
+			directory.mkdirs();
 
 			songName = String.format("%s - %s.mp3", song.performer, song.title);
 			outputFile = new File(directory, songName);

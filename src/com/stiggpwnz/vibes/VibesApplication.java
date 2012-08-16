@@ -1,13 +1,10 @@
 package com.stiggpwnz.vibes;
 
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -18,7 +15,7 @@ public class VibesApplication extends Application {
 	public static final String VIBES = "meridian";
 
 	private Settings settings;
-	private boolean serviceRunning;
+	private boolean serviceRunning = false;
 
 	public Settings getSettings() {
 		if (settings == null)
@@ -35,17 +32,17 @@ public class VibesApplication extends Application {
 	}
 
 	public static AbstractHttpClient threadSafeHttpClient() {
-		HttpParams params = new BasicHttpParams();
+		AbstractHttpClient client = new DefaultHttpClient();
+		HttpParams params = client.getParams();
 		int connectionTimeout = 3000;
 		HttpConnectionParams.setConnectionTimeout(params, connectionTimeout);
 		int socketTimeout = 5000;
 		HttpConnectionParams.setSoTimeout(params, socketTimeout);
 
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		SchemeRegistry registry = client.getConnectionManager().getSchemeRegistry();
 
 		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, registry);
-		AbstractHttpClient client = new DefaultHttpClient(manager, params);
+		client = new DefaultHttpClient(manager, params);
 		return client;
 	}
 

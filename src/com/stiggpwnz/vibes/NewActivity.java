@@ -77,15 +77,19 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			service = ((ServiceBinder) binder).getService();
+			if (service.getPlayer().getSongs() == null)
+				runGetSongs(null);
 			service.setPlayerListener(NewActivity.this);
 			bound = true;
+			service.cancelNotification();
+			service.stopWaiter();
+			onNewTrack();
+			Log.d(VibesApplication.VIBES, "service bound");
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			service.setPlayerListener(null);
-			service = null;
-			bound = false;
+			// this motherfucking liar never gets called, cost me 2 hours to realize
 		}
 	};
 
@@ -131,59 +135,67 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	private List<Unit> friends;
 	private List<Unit> groups;
 	private boolean friendsList;
+	private Button btnShuffle;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		app = (VibesApplication) getApplication();
-		doBindService();
 
-		app = (VibesApplication) getApplication();
 		pages = new LinkedList<View>();
 		imageLoader = new ImageLoader(this, R.drawable.music);
-		runGetSongs(null);
+		typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
 		initUI();
-	}
-
-	public void runGetSongs(String search) {
-		new GetSongs().execute(search);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		doBindService();
-		service.cancelNotification();
-		service.stopWaiter();
+	}
+
+	private void doBindService() {
+		Intent intent = new Intent(this, NewService.class);
+		if (!app.isServiceRunning()) {
+			Log.d(VibesApplication.VIBES, "starting service");
+			startService(intent);
+		}
+		if (!bound) {
+			Log.d(VibesApplication.VIBES, "binding service");
+			bindService(intent, connection, BIND_AUTO_CREATE);
+		}
+	}
+
+	public void doUnbindService() {
+		if (bound) {
+			unbindService(connection);
+			service.setPlayerListener(null);
+			service = null;
+			bound = false;
+			Log.d(VibesApplication.VIBES, "service unbound from onpause");
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		imageLoader.getMemoryCache().clear();
-		Player player = service.getPlayer();
-		player.getLastFM().getCache().clear();
-		State state = player.getState();
-		if (player.isPlaying())
-			service.makeNotification();
-		else if (state == State.STATE_NOT_PREPARED_IDLING || state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE)
-			service.startWaiter();
-		if (bound)
-			unbindService(connection);
+		if (service != null) {
+			Player player = service.getPlayer();
+			player.getLastFM().getCache().clear();
+			State state = player.getState();
+			if (state == State.STATE_PLAYING)
+				service.makeNotification();
+			else if (state == State.STATE_NOT_PREPARED_IDLING || state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE)
+				service.startWaiter();
+		}
+		doUnbindService();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		// TODO Auto-generated method stub
-	}
-
-	private void doBindService() {
-		Intent intent = new Intent(this, NewService.class);
-		if (!app.isServiceRunning())
-			startService(intent);
-		if (!bound)
-			bindService(intent, connection, 0);
 	}
 
 	private void initUI() {
@@ -224,15 +236,15 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		btnDownload.setOnClickListener(this);
 
 		textArtist = (TextView) page.findViewById(R.id.artist);
-		textArtist.setTypeface(getTypeface());
+		textArtist.setTypeface(typeface);
 
 		textTitle = (TextView) page.findViewById(R.id.title);
-		textTitle.setTypeface(getTypeface());
+		textTitle.setTypeface(typeface);
 
 		albumImage = (ImageView) page.findViewById(R.id.imageAlbum);
 
 		textBuffering = (TextView) page.findViewById(R.id.textBuffering);
-		textBuffering.setTypeface(getTypeface());
+		textBuffering.setTypeface(typeface);
 
 		progressBuffering = (ProgressBar) page.findViewById(R.id.progressCircle);
 
@@ -240,15 +252,15 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		seekbar.setOnSeekBarChangeListener(this);
 
 		textPassed = (TextView) page.findViewById(R.id.textPassed);
-		textPassed.setTypeface(getTypeface());
+		textPassed.setTypeface(typeface);
 
 		textLeft = (TextView) page.findViewById(R.id.textLeft);
-		textLeft.setTypeface(getTypeface());
+		textLeft.setTypeface(typeface);
 
 		btnLove = (Button) page.findViewById(R.id.btnLove);
 		btnLove.setOnClickListener(this);
 
-		Button btnShuffle = (Button) page.findViewById(R.id.btnShuffle);
+		btnShuffle = (Button) page.findViewById(R.id.btnShuffle);
 		btnShuffle.setOnClickListener(this);
 		if (app.getSettings().getShuffle())
 			btnShuffle.setBackgroundResource(R.drawable.shuffle_blue);
@@ -273,11 +285,11 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		progressUpdating = (ProgressBar) page.findViewById(R.id.progressUpdating);
 
-		songsAdapter = new SongsAdapter(this);
+		songsAdapter = new SongsAdapter(this, typeface);
 		playlist = (ListView) page.findViewById(R.id.list);
 		playlist.setAdapter(songsAdapter);
 		TextView empty = (TextView) page.findViewById(android.R.id.empty);
-		empty.setTypeface(getTypeface());
+		empty.setTypeface(typeface);
 		playlist.setEmptyView(empty);
 		playlist.setOnItemClickListener(this);
 
@@ -295,9 +307,16 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		protected void onPreExecute() {
 			super.onPreExecute();
 			showLoadingDialog(true);
-			if (service.getPlayer().isPlaying())
+			if (service.getPlayer().getState() == State.STATE_PLAYING)
 				service.getPlayer().current = service.getPlayer().getCurrentSong();
 			Log.d(VibesApplication.VIBES, "showing getsongs dialog");
+		}
+
+		@Override
+		protected Void doInBackground(String... params) {
+			Thread.currentThread().setName("Getting songs");
+			getSongs(params);
+			return null;
 		}
 
 		private void getSongs(String... params) {
@@ -332,26 +351,23 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		}
 
 		@Override
-		protected Void doInBackground(String... params) {
-			Thread.currentThread().setName("Getting songs");
-			getSongs(params);
-			return null;
-		}
-
-		@Override
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			hideLoadingDialog();
 			viewPager.setCurrentItem(1, true);
 			Player player = service.getPlayer();
-			if (service.getPlayer().isPlaying()) {
+			List<Song> songs = player.getSongs();
+			songsAdapter.setSongs(songs);
+			if (player.getState() == State.STATE_PLAYING) {
 				player.currentSong = -1;
-			} else if (player.getSongs().size() > 0) {
-				player.currentSong = 0;
-				textArtist.setText(player.getCurrentSong().performer);
-				textTitle.setText(player.getCurrentSong().title);
-				textPassed.setText("0:00");
-				textLeft.setText("0:00");
+			} else {
+				if (songs != null && songs.size() > 0) {
+					player.currentSong = 0;
+					textArtist.setText(player.getCurrentSong().performer);
+					textTitle.setText(player.getCurrentSong().title);
+					textPassed.setText("0:00");
+					textLeft.setText("0:00");
+				}
 			}
 			songsAdapter.currentSong = -1;
 			songsAdapter.notifyDataSetChanged();
@@ -626,13 +642,13 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			@Override
 			public void run() {
 				Toast.makeText(NewActivity.this, getString(R.string.authProblem), Toast.LENGTH_LONG).show();
-				logOut();
+				logOut(false);
 			}
 		});
 	}
 
 	private void unknownError() {
-		// TODO stop playback
+		service.getPlayer().stop();
 		runOnUiThread(new Runnable() {
 
 			@Override
@@ -644,7 +660,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	}
 
 	private void internetFail() {
-		// TODO stop playback
+		service.getPlayer().stop();
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -688,10 +704,29 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			getAlbumImage = new GetAndSetAlbumImage();
 			getAlbumImage.execute(performer, name);
 
-			textPassed.setText("0:00");
-			textLeft.setText("0:00");
-			seekbar.setProgress(0);
-			seekbar.setSecondaryProgress(0);
+			State state = player.getState();
+			if (state == State.STATE_PLAYING || state == State.STATE_PAUSED_IDLING) {
+				onBufferingEnded();
+				onProgressChanged(player.getCurrentPosition());
+				if (state == State.STATE_PLAYING)
+					btnPlay.setBackgroundResource(R.drawable.pause);
+				else
+					btnPlay.setBackgroundResource(R.drawable.play);
+			} else if (state == State.STATE_PREPARING_FOR_IDLE || state == State.STATE_SEEKING_FOR_IDLE) {
+				onBufferingStrated();
+				btnPlay.setBackgroundResource(R.drawable.play);
+				if (state == State.STATE_PREPARING_FOR_IDLE)
+					nullEverything();
+			} else if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_SEEKING_FOR_PLAYBACK) {
+				onBufferingStrated();
+				btnPlay.setBackgroundResource(R.drawable.pause);
+				if (state == State.STATE_PREPARING_FOR_PLAYBACK)
+					nullEverything();
+			} else if (state == State.STATE_NOT_PREPARED_IDLING) {
+				onBufferingEnded();
+				nullEverything();
+				btnPlay.setBackgroundResource(R.drawable.play);
+			}
 
 			if (!fromPlaylist) {
 				songsAdapter.currentSong = player.currentSong;
@@ -701,36 +736,43 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		}
 	}
 
-	@Override
-	public void onBufferingUpdate(int percent) {
-		// TODO Auto-generated method stub
-
+	public void nullEverything() {
+		textPassed.setText("0:00");
+		textLeft.setText("0:00");
+		seekbar.setProgress(0);
+		seekbar.setSecondaryProgress(0);
 	}
 
 	@Override
-	public void onCompletion() {
-		// TODO Auto-generated method stub
-
+	public void onBufferingUpdate(int percent) {
+		seekbar.setSecondaryProgress(seekbar.getMax() * percent / 100);
 	}
 
 	@Override
 	public void onBufferingStrated() {
-		textBuffering.setVisibility(View.VISIBLE);
-		progressBuffering.setVisibility(View.VISIBLE);
-		buffering = true;
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				textBuffering.setVisibility(View.VISIBLE);
+				progressBuffering.setVisibility(View.VISIBLE);
+				buffering = true;
+			}
+		});
 	}
 
 	@Override
 	public void onBufferingEnded() {
-		textBuffering.setVisibility(View.INVISIBLE);
-		progressBuffering.setVisibility(View.INVISIBLE);
-		buffering = false;
-	}
+		runOnUiThread(new Runnable() {
 
-	public Typeface getTypeface() {
-		if (typeface == null)
-			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
-		return typeface;
+			@Override
+			public void run() {
+				seekbar.setMax(service.getPlayer().getSongDuration());
+				textBuffering.setVisibility(View.INVISIBLE);
+				progressBuffering.setVisibility(View.INVISIBLE);
+				buffering = false;
+			}
+		});
 	}
 
 	public void getSongs(String search) throws ClientProtocolException, IOException, VkontakteException {
@@ -746,15 +788,19 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			if (player.getSongs() != null) {
 				settings.setLastSearch(search);
 			}
+			break;
 
 		case MY_AUDIOS:
 			player.setSongs(vkontakte.getAudios(settings.getOwnerId(), settings.getAlbumId(), 0, false));
+			break;
 
 		case WALL:
 			player.setSongs(vkontakte.getWallAudios(settings.getOwnerId(), 0, false, false));
+			break;
 
 		case NEWSFEED:
 			player.setSongs(vkontakte.getNewsFeedAudios(false));
+			break;
 
 		}
 	}
@@ -817,12 +863,8 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		songsAdapter.fromPlaylist = true;
 		songsAdapter.currentSong = position;
 		songsAdapter.notifyDataSetChanged();
-		Player player = service.getPlayer();
-		if (player.getState() != State.STATE_PLAYING || player.getState() != State.STATE_PREPARING_FOR_PLAYBACK)
-			btnPlay.setBackgroundResource(R.drawable.pause);
-		player.currentSong = position;
-		player.play();
-		player.generateShuffleQueue();
+		btnPlay.setBackgroundResource(R.drawable.pause);
+		service.getPlayer().play(position);
 		setCurrentSong(true);
 	}
 
@@ -836,21 +878,31 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	}
 
+	private final Runnable playJumper = new Runnable() {
+
+		@Override
+		public void run() {
+			btnPlay.startAnimation(shake);
+		}
+	};
+
 	@Override
 	public void onClick(View v) {
 		Player player = service.getPlayer();
 		Settings settings = app.getSettings();
+		State state = player.getState();
 
 		switch (v.getId()) {
 		case R.id.btnPlay:
 			v.startAnimation(shake);
-			if (player.getState() == State.STATE_PAUSED_IDLING) {
+			Log.d(VibesApplication.VIBES, "pressing play and state = " + state);
+			if (state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE) {
 				player.resume();
 				v.setBackgroundResource(R.drawable.pause);
-			} else if (player.isPlaying()) {
+			} else if (state == State.STATE_PLAYING || state == State.STATE_PREPARING_FOR_PLAYBACK) {
 				player.pause();
 				v.setBackgroundResource(R.drawable.play);
-			} else if (player.getState() == State.STATE_NOT_PREPARED_IDLING && player.getCurrentSong() != null) {
+			} else if (state == State.STATE_NOT_PREPARED_IDLING && player.getCurrentSong() != null) {
 				player.play();
 				v.setBackgroundResource(R.drawable.pause);
 			}
@@ -858,6 +910,8 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		case R.id.btnFwd:
 			v.startAnimation(shake);
+			if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_PLAYING || state == State.STATE_SEEKING_FOR_PLAYBACK)
+				service.getHandler().postDelayed(playJumper, 75);
 			player.next();
 			break;
 
@@ -1067,10 +1121,10 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		if (fromUser && service.getPlayer().isPlaying()) {
+		if (fromUser && service.getPlayer().getState() == State.STATE_PLAYING) {
 			onBufferingStrated();
 			service.getPlayer().seekTo(progress);
-		} else if (fromUser && (!service.getPlayer().isPlaying() || buffering))
+		} else if (fromUser && (service.getPlayer().getState() != State.STATE_PLAYING || buffering))
 			seekBar.setProgress(0);
 	}
 
@@ -1086,7 +1140,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		switch (item.getItemId()) {
 
 		case R.id.itemLogOut:
-			logOut();
+			logOut(true);
 			return true;
 
 		case R.id.itemLastFM:
@@ -1105,12 +1159,14 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		}
 	}
 
-	private void logOut() {
+	private void logOut(boolean logout) {
 		app.getSettings().resetData();
 		app.getSettings().setPlaylist(NEWSFEED);
-		unbindService(connection);
+		doUnbindService();
 		stopService(new Intent(NewActivity.this, NewService.class));
-		startActivity(new Intent(NewActivity.this, LoginActivity.class));
+		Intent intent = new Intent(NewActivity.this, LoginActivity.class);
+		intent.putExtra(LoginActivity.RESET, logout);
+		startActivity(intent);
 		finish();
 	}
 
@@ -1126,10 +1182,11 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	protected Dialog onCreateDialog(int id) {
 		switch (id) {
 		case DIALOG_UNIT:
-			return new UnitDialog(this);
+			return new UnitDialog(this, typeface);
 
 		case DIALOG_ALBUMS:
-			return new AlbumsDialog(this);
+			List<Album> albums = app.getSettings().getOwnerId() != 0 ? unit.albums : getMyAlbums();
+			return new AlbumsDialog(this, albums, typeface);
 
 		case DIALOG_LAST_FM_AUTH:
 			return new LastFMLoginDialog(this);
@@ -1142,10 +1199,10 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		case DIALOG_UNITS:
 			List<Unit> units = friendsList ? friends : groups;
-			return new UnitsDialog(this, imageLoader, units);
+			return new UnitsDialog(this, imageLoader, units, typeface);
 
 		case DIALOG_PLAYLISTS:
-			return new PlaylistsDialog(this);
+			return new PlaylistsDialog(this, typeface);
 		}
 		return null;
 	}
@@ -1233,6 +1290,15 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			textLeft.setText(String.format("%d:%d", minutes, seconds));
 		else
 			textLeft.setText(String.format("%d:0%d", minutes, seconds));
+	}
+
+	public void runGetSongs(String search) {
+		new GetSongs().execute(search);
+	}
+
+	@Override
+	public void onNewTrack() {
+		setCurrentSong(false);
 	}
 
 }

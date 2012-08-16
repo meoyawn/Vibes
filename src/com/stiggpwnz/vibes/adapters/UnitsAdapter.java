@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.stiggpwnz.vibes.ImageLoader;
-import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Unit;
 
@@ -23,10 +22,10 @@ public class UnitsAdapter extends BaseAdapter {
 	private ImageLoader imageLoader;
 	private Typeface typeface;
 
-	public UnitsAdapter(NewActivity activity, List<Unit> units, ImageLoader imageLoader) {
+	public UnitsAdapter(Context context, Typeface typeface, List<Unit> units, ImageLoader imageLoader) {
 		this.units = units;
-		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		typeface = activity.getTypeface();
+		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.typeface = typeface;
 		this.imageLoader = imageLoader;
 	}
 

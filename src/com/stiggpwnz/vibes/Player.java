@@ -39,7 +39,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private LastFM lastfm;
 
 	private MediaPlayer player;
-	private OnPlayerActionListener activity;
+	private OnPlayerActionListener listener;
 	private State state;
 
 	private boolean scrobbled;
@@ -66,7 +66,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public Player(NewService newService, Handler handler) {
 		this.handler = handler;
-		state = State.STATE_NOT_PREPARED_IDLING;
+		setState(State.STATE_NOT_PREPARED_IDLING);
 
 		player = new MediaPlayer();
 		player.setOnCompletionListener(this);
@@ -84,9 +84,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 		shuffleQueue = new LinkedList<Integer>();
 		random = new Random();
-		if (settings.getShuffle()) {
-			generateShuffleQueue(0);
-		}
+
+		Log.d(VibesApplication.VIBES, "player ready");
 	}
 
 	public void release() {
@@ -112,34 +111,28 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		}
 
 		@Override
-		public synchronized void run() {
-			shuffleQueue.clear();
-			shuffleQueue.add(seed);
-			shufflePosition = 0;
-			int n = songs.size();
-			for (int i = 1; i < n; i++) {
-				boolean flag;
-				int m;
-				do {
-					flag = false;
-					m = random.nextInt(n);
-					for (int pos : shuffleQueue) {
-						if (pos == m) {
-							flag = true;
-							break;
+		public void run() {
+			synchronized (Player.this) {
+				shuffleQueue.clear();
+				shuffleQueue.add(seed);
+				shufflePosition = 0;
+				int n = songs.size();
+				for (int i = 1; i < n; i++) {
+					boolean flag;
+					int m;
+					do {
+						flag = false;
+						m = random.nextInt(n);
+						for (int pos : shuffleQueue) {
+							if (pos == m) {
+								flag = true;
+								break;
+							}
 						}
-					}
-				} while (flag);
-				shuffleQueue.add(m);
+					} while (flag);
+					shuffleQueue.add(m);
+				}
 			}
-		}
-	}
-
-	public boolean isPlaying() {
-		try {
-			return player.isPlaying();
-		} catch (IllegalStateException e) {
-			return false;
 		}
 	}
 
@@ -152,12 +145,12 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	private void seekBarUpdater() {
-		if (isPlaying()) {
-			int position = player.getCurrentPosition();
-			if (activity != null)
-				activity.onProgressChanged(position);
+		if (getState() == State.STATE_PLAYING) {
+			int progress = player.getCurrentPosition();
+			if (listener != null)
+				listener.onProgressChanged(progress);
 
-			if (settings.getSession() != null && !scrobbled && !scrobbling && songDuration > 30000 && (position >= (songDuration / 2) || (position / 60000) >= 4))
+			if (settings.getSession() != null && !scrobbled && !scrobbling && songDuration > 30000 && (progress >= (songDuration / 2) || (progress / 60000) >= 4))
 				new Thread("Scrobbling") {
 
 					@Override
@@ -184,7 +177,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		generateShuffleQueue(currentSong);
 	}
 
-	private void setSongUrl(Song song) {
+	private synchronized void setSongUrl(Song song) {
 		try {
 			getVkontakte().setSongUrl(song);
 		} catch (VkontakteException e) {
@@ -223,15 +216,46 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return lastfm;
 	}
 
+	public void play(int position) {
+		scrobbled = false;
+		timeStamped = false;
+		if (currentSong == position && (getState() == State.STATE_PAUSED_IDLING || getState() == State.STATE_PLAYING)) {
+			setState(State.STATE_SEEKING_FOR_PLAYBACK);
+			handler.removeCallbacks(progressUpdater);
+			player.seekTo(0);
+		} else {
+			currentSong = position;
+			if (state != State.STATE_NOT_PREPARED_IDLING)
+				player.reset();
+			state = State.STATE_PREPARING_FOR_PLAYBACK;
+			synchronized (this) {
+				List<HttpPost> requests = getVkontakte().getAudioUrlRequests();
+				if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING) {
+					Log.e(VibesApplication.VIBES, "cancelling audio url loader: " + requests.size() + " items in queue");
+					for (HttpPost request : requests) {
+						request.abort();
+					}
+					preparePlayer.cancel(true);
+				}
+				requests.clear();
+			}
+			preparePlayer = new PreparePlayer();
+			preparePlayer.execute();
+		}
+		generateShuffleQueue(position);
+	}
+
 	public void play() {
 		scrobbled = false;
 		timeStamped = false;
 		if (getCurrentSong() != null) {
-			if (state == State.STATE_PAUSED_IDLING || state == State.STATE_PLAYING) {
-				state = State.STATE_SEEKING_FOR_PLAYBACK;
+			if (getState() == State.STATE_PAUSED_IDLING || getState() == State.STATE_PLAYING) {
+				setState(State.STATE_SEEKING_FOR_PLAYBACK);
 				handler.removeCallbacks(progressUpdater);
 				player.seekTo(0);
 			} else {
+				if (listener != null)
+					listener.onNewTrack();
 				synchronized (this) {
 					List<HttpPost> requests = getVkontakte().getAudioUrlRequests();
 					if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING) {
@@ -256,13 +280,13 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			Thread.currentThread().setName("Preparing New Track");
 			if (isCancelled())
 				return null;
-			if (!isPlaying()) {
+			if (getState() != State.STATE_PLAYING) {
 				// telling everyone that we're started
-				if (activity != null)
-					activity.onBufferingStrated();
+				if (listener != null)
+					listener.onBufferingStrated();
 				if (isCancelled())
 					return null;
-				state = State.STATE_PREPARING_FOR_PLAYBACK;
+				setState(State.STATE_PREPARING_FOR_PLAYBACK);
 				if (isCancelled())
 					return null;
 				// remembering current song and synchronizingly setting an url for it, if needed
@@ -270,9 +294,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 				if (getCurrentSong().url == null) {
 					if (isCancelled())
 						return null;
-					synchronized (this) {
-						setSongUrl(getCurrentSong());
-					}
+					setSongUrl(getCurrentSong());
 				}
 				// finally starting to prepare song if still on this position
 				if (currentSong == Player.this.currentSong) {
@@ -311,26 +333,36 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	}
 
+	public int getCurrentPosition() {
+		try {
+			return player.getCurrentPosition();
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		Log.d(VibesApplication.VIBES, "prepared " + currentSong + " and state = " + state);
+		Log.d(VibesApplication.VIBES, "prepared " + currentSong + " and state = " + getState());
 		songDuration = player.getDuration();
-		if (activity != null)
-			activity.onBufferingEnded();
-		if (state == State.STATE_PREPARING_FOR_PLAYBACK) {
-			if (activity == null)
+		if (listener != null)
+			listener.onBufferingEnded();
+		if (getState() == State.STATE_PREPARING_FOR_PLAYBACK) {
+			if (listener == null)
 				service.makeNotification();
 
 			startPlaying();
 			if (settings.getSession() != null)
 				new Thread("Updating Now Playing") {
+
 					@Override
 					public void run() {
 						getLastFM().updateNowPlaying(getCurrentSong());
 					}
 				}.start();
-		} else if (state == State.STATE_PREPARING_FOR_IDLE) {
-			state = State.STATE_PAUSED_IDLING;
+
+		} else if (getState() == State.STATE_PREPARING_FOR_IDLE) {
+			setState(State.STATE_PAUSED_IDLING);
 		}
 
 	}
@@ -345,7 +377,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	private void startPlaying() {
 		player.start();
-		state = State.STATE_PLAYING;
+		setState(State.STATE_PLAYING);
 		if (!timeStamped) {
 			timeStamp = System.currentTimeMillis() / 1000;
 			timeStamped = true;
@@ -354,40 +386,42 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	private void authFail() {
-		if (activity != null)
-			activity.onAuthProblem();
+		if (listener != null)
+			listener.onAuthProblem();
 	}
 
 	private void errorStopPlayback() {
 		stop();
-		if (activity != null)
-			activity.onInternetProblem();
+		if (listener != null)
+			listener.onInternetProblem();
 	}
 
-	private void stop() {
+	public void stop() {
 		player.reset();
-		state = State.STATE_NOT_PREPARED_IDLING;
+		setState(State.STATE_NOT_PREPARED_IDLING);
 		service.cancelNotification();
-		if (activity == null)
+		if (listener == null)
 			service.startWaiter();
+		else
+			listener.onNewTrack();
 	}
 
 	@Override
 	public void onBufferingUpdate(MediaPlayer mp, int percent) {
-		if (activity != null)
-			activity.onBufferingUpdate(percent);
+		if (listener != null)
+			listener.onBufferingUpdate(percent);
 	}
 
 	@Override
 	public void onSeekComplete(MediaPlayer mp) {
-		if (activity != null)
-			activity.onBufferingEnded();
+		if (listener != null)
+			listener.onBufferingEnded();
 		Log.d(VibesApplication.VIBES, "seeking complete");
-		if (state == State.STATE_SEEKING_FOR_PLAYBACK) {
-			state = State.STATE_PLAYING;
+		if (getState() == State.STATE_SEEKING_FOR_PLAYBACK) {
+			setState(State.STATE_PLAYING);
 			seekBarUpdater();
-		} else if (state == State.STATE_SEEKING_FOR_IDLE)
-			state = State.STATE_PAUSED_IDLING;
+		} else if (getState() == State.STATE_SEEKING_FOR_IDLE)
+			setState(State.STATE_PAUSED_IDLING);
 	}
 
 	@Override
@@ -419,19 +453,19 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
 		Log.i(VibesApplication.VIBES, String.format("catching INFO: what = %d, extra = %d", what, extra));
 		if (what == 701 && extra == 0) {
-			if (activity != null)
-				activity.onBufferingStrated();
+			if (listener != null)
+				listener.onBufferingStrated();
 			return true;
 		} else if (what == 702 && extra == 0) {
-			if (activity != null)
-				activity.onBufferingEnded();
+			if (listener != null)
+				listener.onBufferingEnded();
 			return true;
 		}
 		return false;
 	}
 
 	public void setListener(OnPlayerActionListener onPlayerActionListener) {
-		this.activity = onPlayerActionListener;
+		this.listener = onPlayerActionListener;
 	}
 
 	public List<Song> getSongs() {
@@ -455,32 +489,32 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	public void resume() {
-		if (activity == null) {
+		if (listener == null) {
 			service.stopWaiter();
 		}
-		if (state == State.STATE_NOT_PREPARED_IDLING)
+		if (getState() == State.STATE_NOT_PREPARED_IDLING)
 			play();
-		else if (!isPlaying() && state != State.STATE_PREPARING_FOR_IDLE) {
+		else if (getState() != State.STATE_PLAYING && getState() != State.STATE_PREPARING_FOR_IDLE) {
 			startPlaying();
-			if (activity == null) {
+			if (listener == null) {
 				service.makeNotification();
 			}
-		} else if (state == State.STATE_PREPARING_FOR_IDLE) {
-			state = State.STATE_PREPARING_FOR_PLAYBACK;
+		} else if (getState() == State.STATE_PREPARING_FOR_IDLE) {
+			setState(State.STATE_PREPARING_FOR_PLAYBACK);
 		}
 	}
 
 	public void pause() {
-		if (isPlaying()) {
+		if (getState() == State.STATE_PLAYING) {
 			player.pause();
-			state = State.STATE_PAUSED_IDLING;
+			setState(State.STATE_PAUSED_IDLING);
 			handler.removeCallbacks(progressUpdater);
-			if (activity == null) {
+			if (listener == null) {
 				service.cancelNotification();
 				service.startWaiter();
 			}
-		} else if (state == State.STATE_PREPARING_FOR_PLAYBACK) {
-			state = State.STATE_PREPARING_FOR_IDLE;
+		} else if (getState() == State.STATE_PREPARING_FOR_PLAYBACK) {
+			setState(State.STATE_PREPARING_FOR_IDLE);
 		}
 	}
 
@@ -490,7 +524,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		timeStamped = false;
 		timeStamp = System.currentTimeMillis() / 1000;
 		if (songs != null && songs.size() > 0) {
-			Log.d(VibesApplication.VIBES, "onCompleted: playing next song and state = " + state);
+			Log.d(VibesApplication.VIBES, "onCompleted: playing next song and state = " + getState());
 			if (!settings.getRepeatPlaylist()) {
 				if (settings.getShuffle()) {
 					if (shufflePosition == songs.size() - 1)
@@ -509,13 +543,13 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		} else
 			stop();
 
-		if (activity != null)
-			activity.onCompletion();
+		if (listener != null)
+			listener.onNewTrack();
 	}
 
 	public void next() {
-		if (songs.size() > 0) {
-			Log.d(VibesApplication.VIBES, "Invoking next() and current = " + currentSong);
+		if (songs != null && songs.size() > 0) {
+			Log.d(VibesApplication.VIBES, "Invoking next() and state = " + getState());
 			current = null;
 			if (settings.getShuffle()) {
 				if (++shufflePosition >= songs.size())
@@ -530,13 +564,29 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	private void resetAndPlay() {
-		player.reset();
-		play();
+		if (getState() == State.STATE_PREPARING_FOR_PLAYBACK || getState() == State.STATE_PLAYING || getState() == State.STATE_SEEKING_FOR_PLAYBACK) {
+			player.reset();
+			setState(State.STATE_PREPARING_FOR_PLAYBACK);
+			play();
+		} else if (getState() == State.STATE_PAUSED_IDLING || getState() == State.STATE_PREPARING_FOR_IDLE || getState() == State.STATE_SEEKING_FOR_IDLE) {
+			player.reset();
+			nextForIdle();
+		} else {
+			nextForIdle();
+		}
+	}
+
+	public void nextForIdle() {
+		setState(State.STATE_NOT_PREPARED_IDLING);
+		if (listener != null) {
+			listener.onBufferingEnded();
+			listener.onNewTrack();
+		}
 	}
 
 	public void prev() {
-		if (songs.size() > 0) {
-			Log.d(VibesApplication.VIBES, "Invoking prev() and current = " + currentSong);
+		if (songs != null && songs.size() > 0) {
+			Log.d(VibesApplication.VIBES, "Invoking prev() and state = " + getState());
 			current = null;
 			if (settings.getShuffle()) {
 				if (--shufflePosition < 0)
@@ -552,26 +602,26 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public void seekTo(int position) {
 		Log.d(VibesApplication.VIBES, "seeking...");
-		if (isPlaying()) {
+		if (getState() == State.STATE_PLAYING) {
 			handler.removeCallbacks(progressUpdater);
-			state = State.STATE_SEEKING_FOR_PLAYBACK;
+			setState(State.STATE_SEEKING_FOR_PLAYBACK);
 			player.seekTo(position);
-		} else if (state == State.STATE_PAUSED_IDLING) {
-			state = State.STATE_SEEKING_FOR_IDLE;
+		} else if (getState() == State.STATE_PAUSED_IDLING) {
+			setState(State.STATE_SEEKING_FOR_IDLE);
 			player.seekTo(position);
 		}
 	}
 
 	public int getSongDuration() {
-		try {
-			return player.getDuration();
-		} catch (Exception e) {
-			return 0;
-		}
+		return songDuration;
 	}
 
-	public State getState() {
+	public synchronized State getState() {
 		return state;
+	}
+
+	public synchronized void setState(State state) {
+		this.state = state;
 	}
 
 }
