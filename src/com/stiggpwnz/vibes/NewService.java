@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -32,7 +35,6 @@ public class NewService extends Service {
 
 	private NotificationManager notificationManager;
 	private Player player;
-	private OnPlayerActionListener listener;
 	private VibesApplication app;
 	private List<Integer> downloadQueue;
 	private WifiManager.WifiLock wifiLock;
@@ -78,10 +80,7 @@ public class NewService extends Service {
 		return notificationManager;
 	}
 
-
-
 	public void setPlayerListener(OnPlayerActionListener listener) {
-		this.listener = listener;
 		player.setListener(listener);
 	}
 
@@ -98,7 +97,7 @@ public class NewService extends Service {
 			onDownloadException(e.getLocalizedMessage());
 		}
 	}
-	
+
 	public void onDownloadException(String message) {
 		if (message != null) {
 			Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
@@ -108,23 +107,30 @@ public class NewService extends Service {
 	}
 
 	public void makeNotification() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void startWaiter() {
-		// TODO Auto-generated method stub
-
+		final Notification notification = new Notification(R.drawable.icon, String.format("%s - %s", player.getCurrentSong().performer, player.getCurrentSong().title), System
+				.currentTimeMillis());
+		CharSequence contentTitle = player.getCurrentSong().title;
+		CharSequence contentText = player.getCurrentSong().performer;
+		Intent notifyIntent = new Intent(this, NewActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
+		notification.setLatestEventInfo(app, contentTitle, contentText, intent);
+		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+		getNotificationManager().notify(SONG, NOTIFICATION, notification);
 	}
 
 	public void cancelNotification() {
-		// TODO Auto-generated method stub
+		getNotificationManager().cancel(SONG, NOTIFICATION);
+	}
 
+	public void startWaiter() {
+		stopWaiter();
+		Log.d(VibesApplication.VIBES, "starting waiter");
+		handler.postDelayed(serviceKiller, IDLE_TIME);
 	}
 
 	public void stopWaiter() {
-		// TODO Auto-generated method stub
-
+		Log.d(VibesApplication.VIBES, "stopping waiter");
+		handler.removeCallbacks(serviceKiller);
 	}
 
 }

@@ -42,6 +42,7 @@ public class Settings {
 	private String lastSearch;
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
+	private LastFM lastFM;
 
 	public Settings(Context context) {
 		this.context = context;
@@ -92,6 +93,9 @@ public class Settings {
 		editor.putString(USER_IMAGE, userImage);
 
 		editor.commit();
+
+		if (lastFM != null)
+			lastFM.setSession(session);
 	}
 
 	public void resetLastFM() {
@@ -107,6 +111,9 @@ public class Settings {
 		userImage = null;
 
 		editor.commit();
+
+		if (lastFM != null)
+			lastFM.setSession(session);
 	}
 
 	public String getAccessToken() {
@@ -219,6 +226,10 @@ public class Settings {
 
 	public void setVkontakte(Vkontakte vkontakte) {
 		this.vkontakte = vkontakte;
+	}
+
+	public void setLastFM(LastFM lastFM) {
+		this.lastFM = lastFM;
 	}
 
 	public int getMaxAudio() {

@@ -341,4 +341,8 @@ public class LastFM extends RestApi {
 		return md5(API_KEY_STRING + API_KEY + AUTH_TOKEN + authToken(username, password) + METHOD + AUTH_GET_MOBILE_SESSION + USERNAME + username.toLowerCase() + API_SECRET);
 	}
 
+	public void setSession(String session) {
+		this.session = session;
+	}
+
 }

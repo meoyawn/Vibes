@@ -80,6 +80,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		client = VibesApplication.threadSafeHttpClient();
 		settings = ((VibesApplication) service.getApplication()).getSettings();
 		settings.setVkontakte(getVkontakte());
+		settings.setLastFM(getLastFM());
 
 		shuffleQueue = new LinkedList<Integer>();
 		random = new Random();
@@ -91,12 +92,14 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void release() {
 		player.release();
 		client.getConnectionManager().shutdown();
-		((VibesApplication) service.getApplication()).getSettings().setVkontakte(null);
+		settings.setVkontakte(null);
+		settings.setLastFM(null);
 		service = null;
+		settings = null;
 		getVkontakte().getCache().clear();
-		if (lastfm != null)
-			lastfm.getCache().clear();
+		getLastFM().getCache().clear();
 		handler.removeCallbacks(progressUpdater);
+		handler = null;
 	}
 
 	private class Generator extends Thread {
@@ -148,9 +151,28 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return player.isLooping();
 	}
 
-	protected void seekBarUpdater() {
-		// TODO Auto-generated method stub
+	private void seekBarUpdater() {
+		if (isPlaying()) {
+			int position = player.getCurrentPosition();
+			if (activity != null)
+				activity.onProgressChanged(position);
 
+			if (settings.getSession() != null && !scrobbled && !scrobbling && songDuration > 30000 && (position >= (songDuration / 2) || (position / 60000) >= 4))
+				new Thread("Scrobbling") {
+
+					@Override
+					public void run() {
+						scrobbling = true;
+						getLastFM().scrobble(getCurrentSong(), timeStamp);
+						scrobbling = false;
+						scrobbled = true;
+						getLastFM().updateNowPlaying(getCurrentSong());
+					}
+				}.start();
+
+			handler.postDelayed(progressUpdater, 500);
+		} else
+			handler.removeCallbacks(progressUpdater);
 	}
 
 	private void generateShuffleQueue(int seed) {
@@ -189,41 +211,16 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public Vkontakte getVkontakte() {
 		if (vkontakte == null)
-			vkontakte = new Vkontakte(getAccessToken(), client, getUserID(), getMaxNews(), getMaxAudio());
+			vkontakte = new Vkontakte(settings.getAccessToken(), client, settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
 		return vkontakte;
-	}
-
-	private int getMaxAudio() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private int getMaxNews() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private int getUserID() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private String getAccessToken() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public LastFM getLastFM() {
 		if (lastfm == null) {
 			int density = service.getResources().getDisplayMetrics().densityDpi;
-			lastfm = new LastFM(client, getSession(), density);
+			lastfm = new LastFM(client, settings.getSession(), density);
 		}
 		return lastfm;
-	}
-
-	private String getSession() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public void play() {
@@ -232,6 +229,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		if (getCurrentSong() != null) {
 			if (state == State.STATE_PAUSED_IDLING || state == State.STATE_PLAYING) {
 				state = State.STATE_SEEKING_FOR_PLAYBACK;
+				handler.removeCallbacks(progressUpdater);
 				player.seekTo(0);
 			} else {
 				synchronized (this) {
@@ -315,7 +313,25 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		// TODO Auto-generated method stub
+		Log.d(VibesApplication.VIBES, "prepared " + currentSong + " and state = " + state);
+		songDuration = player.getDuration();
+		if (activity != null)
+			activity.onBufferingEnded();
+		if (state == State.STATE_PREPARING_FOR_PLAYBACK) {
+			if (activity == null)
+				service.makeNotification();
+
+			startPlaying();
+			if (settings.getSession() != null)
+				new Thread("Updating Now Playing") {
+					@Override
+					public void run() {
+						getLastFM().updateNowPlaying(getCurrentSong());
+					}
+				}.start();
+		} else if (state == State.STATE_PREPARING_FOR_IDLE) {
+			state = State.STATE_PAUSED_IDLING;
+		}
 
 	}
 
@@ -328,8 +344,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	private void startPlaying() {
-		state = State.STATE_PLAYING;
 		player.start();
+		state = State.STATE_PLAYING;
 		if (!timeStamped) {
 			timeStamp = System.currentTimeMillis() / 1000;
 			timeStamped = true;
@@ -360,27 +376,57 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void onBufferingUpdate(MediaPlayer mp, int percent) {
 		if (activity != null)
 			activity.onBufferingUpdate(percent);
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onSeekComplete(MediaPlayer mp) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean onInfo(MediaPlayer arg0, int what, int extra) {
-
-		// TODO Auto-generated method stub
-		return false;
+		if (activity != null)
+			activity.onBufferingEnded();
+		Log.d(VibesApplication.VIBES, "seeking complete");
+		if (state == State.STATE_SEEKING_FOR_PLAYBACK) {
+			state = State.STATE_PLAYING;
+			seekBarUpdater();
+		} else if (state == State.STATE_SEEKING_FOR_IDLE)
+			state = State.STATE_PAUSED_IDLING;
 	}
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
+		Log.e(VibesApplication.VIBES, String.format("catching error: what = %d, extra = %d", what, extra));
+		if (what == 1 && extra == -2147483648) {
+			Log.e(VibesApplication.VIBES, "reseting while preparing");
+			return true;
+		} else if (what == 1 && extra == -1002) {
+			errorStopPlayback();
+			return true;
+		} else if (what == 1 && extra == -1004) {
+			resetAndPlay();
+			return true;
+		} else if (what == -38 && extra == 0) {
+			// SEEKING WHILE PREPARING
+			return true;
+		} else if (what == 1 && extra == -11) {
+			errorStopPlayback();
+			return true;
+		} else if (what == 1 && extra == -1) {
+			errorStopPlayback();
+			return true;
+		}
+		return false;
+	}
 
-		// TODO Auto-generated method stub
+	@Override
+	public boolean onInfo(MediaPlayer mp, int what, int extra) {
+		Log.i(VibesApplication.VIBES, String.format("catching INFO: what = %d, extra = %d", what, extra));
+		if (what == 701 && extra == 0) {
+			if (activity != null)
+				activity.onBufferingStrated();
+			return true;
+		} else if (what == 702 && extra == 0) {
+			if (activity != null)
+				activity.onBufferingEnded();
+			return true;
+		}
 		return false;
 	}
 
@@ -440,25 +486,31 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	@Override
 	public void onCompletion(MediaPlayer mp) {
-		// TODO Auto-generated method stub
-		if (!settings.getRepeatPlaylist()) {
-			if (settings.getShuffle()) {
-				if (shufflePosition == songs.size() - 1)
-					stop();
-				else
-					next();
+		scrobbled = false;
+		timeStamped = false;
+		timeStamp = System.currentTimeMillis() / 1000;
+		if (songs != null && songs.size() > 0) {
+			Log.d(VibesApplication.VIBES, "onCompleted: playing next song and state = " + state);
+			if (!settings.getRepeatPlaylist()) {
+				if (settings.getShuffle()) {
+					if (shufflePosition == songs.size() - 1)
+						stop();
+					else
+						next();
+				} else {
+					if (currentSong == songs.size() - 1)
+						stop();
+					else
+						next();
+				}
 			} else {
-				if (currentSong == songs.size() - 1)
-					stop();
-				else
-					next();
+				next();
 			}
-		} else {
-			next();
-		}
+		} else
+			stop();
+
 		if (activity != null)
 			activity.onCompletion();
-
 	}
 
 	public void next() {

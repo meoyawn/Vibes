@@ -152,7 +152,7 @@ public class Downloader {
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
 			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
-			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			Intent notifyIntent = new Intent(context, NewActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;
