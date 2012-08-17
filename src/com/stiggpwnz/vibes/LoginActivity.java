@@ -1,5 +1,7 @@
 package com.stiggpwnz.vibes;
 
+import com.stiggpwnz.vibes.vkapi.Vkontakte;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;

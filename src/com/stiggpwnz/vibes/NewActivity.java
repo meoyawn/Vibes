@@ -49,6 +49,12 @@ import com.stiggpwnz.vibes.dialogs.PlaylistsDialog;
 import com.stiggpwnz.vibes.dialogs.SearchDIalog;
 import com.stiggpwnz.vibes.dialogs.UnitDialog;
 import com.stiggpwnz.vibes.dialogs.UnitsDialog;
+import com.stiggpwnz.vibes.imageloader.ImageLoader;
+import com.stiggpwnz.vibes.vkapi.Album;
+import com.stiggpwnz.vibes.vkapi.Song;
+import com.stiggpwnz.vibes.vkapi.Unit;
+import com.stiggpwnz.vibes.vkapi.Vkontakte;
+import com.stiggpwnz.vibes.vkapi.VkontakteException;
 
 public class NewActivity extends Activity implements OnPlayerActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
 
@@ -179,14 +185,12 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	@Override
 	protected void onPause() {
 		super.onPause();
-		imageLoader.getMemoryCache().clear();
 		if (service != null) {
 			Player player = service.getPlayer();
-			player.getLastFM().getCache().clear();
 			State state = player.getState();
-			if (state == State.STATE_PLAYING)
+			if (state == State.PLAYING)
 				service.makeNotification();
-			else if (state == State.STATE_NOT_PREPARED_IDLING || state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE)
+			else if (state == State.NOT_PREPARED || state == State.PAUSED || state == State.PREPARING_FOR_IDLE)
 				service.startWaiter();
 		}
 		doUnbindService();
@@ -307,7 +311,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		protected void onPreExecute() {
 			super.onPreExecute();
 			showLoadingDialog(true);
-			if (service.getPlayer().getState() == State.STATE_PLAYING)
+			if (service.getPlayer().getState() == State.PLAYING)
 				service.getPlayer().current = service.getPlayer().getCurrentSong();
 			Log.d(VibesApplication.VIBES, "showing getsongs dialog");
 		}
@@ -358,15 +362,12 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			Player player = service.getPlayer();
 			List<Song> songs = player.getSongs();
 			songsAdapter.setSongs(songs);
-			if (player.getState() == State.STATE_PLAYING) {
+			if (player.getState() == State.PLAYING) {
 				player.currentSong = -1;
 			} else {
 				if (songs != null && songs.size() > 0) {
 					player.currentSong = 0;
-					textArtist.setText(player.getCurrentSong().performer);
-					textTitle.setText(player.getCurrentSong().title);
-					textPassed.setText("0:00");
-					textLeft.setText("0:00");
+					onNewTrack();
 				}
 			}
 			songsAdapter.currentSong = -1;
@@ -690,7 +691,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			else
 				btnLove.setBackgroundResource(R.drawable.love_grey);
 
-			synchronized (this) {
+			synchronized (player.getLastFM()) {
 				List<HttpPost> requests = player.getLastFM().getImageRequestQueue();
 				if (getAlbumImage != null && getAlbumImage.getStatus() == AsyncTask.Status.RUNNING) {
 					Log.e(VibesApplication.VIBES, "cancelling image loader: " + requests.size() + " items in queue");
@@ -705,24 +706,24 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			getAlbumImage.execute(performer, name);
 
 			State state = player.getState();
-			if (state == State.STATE_PLAYING || state == State.STATE_PAUSED_IDLING) {
+			if (state == State.PLAYING || state == State.PAUSED) {
 				onBufferingEnded();
 				onProgressChanged(player.getCurrentPosition());
-				if (state == State.STATE_PLAYING)
+				if (state == State.PLAYING)
 					btnPlay.setBackgroundResource(R.drawable.pause);
 				else
 					btnPlay.setBackgroundResource(R.drawable.play);
-			} else if (state == State.STATE_PREPARING_FOR_IDLE || state == State.STATE_SEEKING_FOR_IDLE) {
+			} else if (state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
 				onBufferingStrated();
 				btnPlay.setBackgroundResource(R.drawable.play);
-				if (state == State.STATE_PREPARING_FOR_IDLE)
+				if (state == State.PREPARING_FOR_IDLE)
 					nullEverything();
-			} else if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_SEEKING_FOR_PLAYBACK) {
+			} else if (state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK) {
 				onBufferingStrated();
 				btnPlay.setBackgroundResource(R.drawable.pause);
-				if (state == State.STATE_PREPARING_FOR_PLAYBACK)
+				if (state == State.PREPARING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK)
 					nullEverything();
-			} else if (state == State.STATE_NOT_PREPARED_IDLING) {
+			} else if (state == State.NOT_PREPARED) {
 				onBufferingEnded();
 				nullEverything();
 				btnPlay.setBackgroundResource(R.drawable.play);
@@ -878,13 +879,13 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	}
 
-	private final Runnable playJumper = new Runnable() {
-
-		@Override
-		public void run() {
-			btnPlay.startAnimation(shake);
-		}
-	};
+	// private final Runnable playJumper = new Runnable() {
+	//
+	// @Override
+	// public void run() {
+	// btnPlay.startAnimation(shake);
+	// }
+	// };
 
 	@Override
 	public void onClick(View v) {
@@ -896,13 +897,13 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		case R.id.btnPlay:
 			v.startAnimation(shake);
 			Log.d(VibesApplication.VIBES, "pressing play and state = " + state);
-			if (state == State.STATE_PAUSED_IDLING || state == State.STATE_PREPARING_FOR_IDLE) {
+			if (state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
 				player.resume();
 				v.setBackgroundResource(R.drawable.pause);
-			} else if (state == State.STATE_PLAYING || state == State.STATE_PREPARING_FOR_PLAYBACK) {
+			} else if (state == State.PLAYING || state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK) {
 				player.pause();
 				v.setBackgroundResource(R.drawable.play);
-			} else if (state == State.STATE_NOT_PREPARED_IDLING && player.getCurrentSong() != null) {
+			} else if (state == State.NOT_PREPARED && player.getCurrentSong() != null) {
 				player.play();
 				v.setBackgroundResource(R.drawable.pause);
 			}
@@ -910,8 +911,9 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		case R.id.btnFwd:
 			v.startAnimation(shake);
-			if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_PLAYING || state == State.STATE_SEEKING_FOR_PLAYBACK)
-				service.getHandler().postDelayed(playJumper, 75);
+			// if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_PLAYING || state ==
+			// State.STATE_SEEKING_FOR_PLAYBACK)
+			// service.getHandler().postDelayed(playJumper, 75);
 			player.next();
 			break;
 
@@ -1121,10 +1123,10 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		if (fromUser && service.getPlayer().getState() == State.STATE_PLAYING) {
+		if (fromUser && service.getPlayer().getState() == State.PLAYING) {
 			onBufferingStrated();
 			service.getPlayer().seekTo(progress);
-		} else if (fromUser && (service.getPlayer().getState() != State.STATE_PLAYING || buffering))
+		} else if (fromUser && (service.getPlayer().getState() != State.PLAYING || buffering))
 			seekBar.setProgress(0);
 	}
 

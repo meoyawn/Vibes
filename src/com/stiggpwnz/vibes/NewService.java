@@ -21,7 +21,7 @@ public class NewService extends Service {
 
 	private static final String SONG = "song";
 	private static final int NOTIFICATION = 49;
-	private static final long IDLE_TIME = 1 * 60 * 1000;
+	private static final long IDLE_TIME = 10 * 60 * 1000;
 
 	private final IBinder binder = new ServiceBinder();
 	private final Handler handler = new Handler();

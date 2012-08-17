@@ -11,11 +11,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.Album;
 import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
+import com.stiggpwnz.vibes.vkapi.Album;
 
 public class AlbumsDialog extends Dialog implements OnItemClickListener {
 

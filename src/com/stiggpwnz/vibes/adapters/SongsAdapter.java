@@ -14,7 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Song;
+import com.stiggpwnz.vibes.vkapi.Song;
 
 public class SongsAdapter extends BaseAdapter {
 

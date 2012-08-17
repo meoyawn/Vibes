@@ -1,5 +1,7 @@
 package com.stiggpwnz.vibes;
 
+import com.stiggpwnz.vibes.vkapi.Vkontakte;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;

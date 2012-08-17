@@ -10,11 +10,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.stiggpwnz.vibes.ImageLoader;
 import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Unit;
 import com.stiggpwnz.vibes.adapters.UnitsAdapter;
+import com.stiggpwnz.vibes.imageloader.ImageLoader;
+import com.stiggpwnz.vibes.vkapi.Unit;
 
 public class UnitsDialog extends Dialog implements OnItemClickListener {
 

@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.imageloader;
 
 import java.util.Collections;
 import java.util.Iterator;

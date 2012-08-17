@@ -9,6 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import com.stiggpwnz.vibes.vkapi.Song;
+import com.stiggpwnz.vibes.vkapi.Vkontakte;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

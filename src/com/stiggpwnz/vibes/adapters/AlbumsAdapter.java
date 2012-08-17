@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.Album;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.vkapi.Album;
 
 public class AlbumsAdapter extends BaseAdapter {
 

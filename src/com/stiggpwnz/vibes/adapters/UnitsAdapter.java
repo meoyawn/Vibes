@@ -11,9 +11,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.ImageLoader;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Unit;
+import com.stiggpwnz.vibes.imageloader.ImageLoader;
+import com.stiggpwnz.vibes.vkapi.Unit;
 
 public class UnitsAdapter extends BaseAdapter {
 
