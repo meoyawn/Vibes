@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.client.methods.HttpPost;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -677,6 +678,7 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 			loadingDialog.dismiss();
 	}
 
+	@SuppressLint("NewApi")
 	private void setCurrentSong(boolean fromPlaylist) {
 
 		Player player = service.getPlayer();
@@ -732,9 +734,19 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 			}
 
 			if (!fromPlaylist) {
-				playlistAdapter.currentSong = player.currentTrack;
+				if (state != State.NOT_PREPARED) {
+					playlistAdapter.currentSong = player.currentTrack;
+					if (android.os.Build.VERSION.SDK_INT >= 8) {
+						// playlist.smoothScrollToPosition(player.currentTrack);
+					} else {
+						playlist.setSelection(player.currentTrack);
+					}
+
+				} else {
+					playlistAdapter.currentSong = -1;
+				}
 				playlistAdapter.notifyDataSetChanged();
-				playlist.smoothScrollToPosition(player.currentTrack);
+
 			}
 		}
 	}

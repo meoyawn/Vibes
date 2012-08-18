@@ -164,7 +164,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 						app.getLastFM().scrobble(getCurrentSong(), timeStamp);
 						scrobbling = false;
 						scrobbled = true;
-						app.getLastFM().updateNowPlaying(getCurrentSong());
+						// app.getLastFM().updateNowPlaying(getCurrentSong());
 					}
 				}.start();
 
@@ -251,6 +251,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			} else if (getState() == State.PREPARING_FOR_IDLE) {
 				setState(State.PREPARING_FOR_PLAYBACK);
 			} else if (getState() == State.NOT_PREPARED || getState() == State.NEXT_FOR_PLAYBACK) {
+				setState(State.NEXT_FOR_PLAYBACK);
 				if (listener != null)
 					listener.onNewTrack();
 				synchronized (this) {

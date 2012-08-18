@@ -65,5 +65,6 @@
 
     <string name="downloading">Downloading</string>
     <string name="insertSdCard">Insert an SD card</string>
+    <string name="downloads_directory">Downloads directory</string>
 
 </resources>

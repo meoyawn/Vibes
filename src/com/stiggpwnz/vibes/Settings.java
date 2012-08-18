@@ -2,6 +2,7 @@ package com.stiggpwnz.vibes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import com.stiggpwnz.vibes.restapi.Vkontakte;
@@ -20,6 +21,7 @@ public class Settings {
 	public static final String MAX_NEWS = "max news";
 	public static final String MAX_AUDIOS = "max audios";
 	public static final String REPEAT_PLAYLIST = "repeat";
+	public static final String DIRECTORY_PICKER = "directory picker";
 
 	private static final String USERNAME = "username";
 	private static final String USER_IMAGE = "user image";
@@ -53,6 +55,7 @@ public class Settings {
 	private String lastSearch;
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
+	private String directoryPath;
 
 	public Settings(Context context, OnActionListener listener) {
 		this.context = context;
@@ -263,6 +266,21 @@ public class Settings {
 			this.shuffle = shuffle;
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putBoolean(SHUFFLE, shuffle);
+			editor.commit();
+		}
+	}
+
+	public String getDirectoryPath() {
+		if (directoryPath == null)
+			directoryPath = prefs.getString(DIRECTORY_PICKER, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
+		return directoryPath;
+	}
+
+	public void setDirectoryPath(String path) {
+		if (directoryPath == null || !directoryPath.equals(path)) {
+			directoryPath = path;
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString(DIRECTORY_PICKER, path);
 			editor.commit();
 		}
 	}

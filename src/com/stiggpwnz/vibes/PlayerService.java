@@ -67,6 +67,7 @@ public class PlayerService extends Service implements Downloader.OnActionListene
 		cancelNotification();
 		wifiLock.release();
 		player.release();
+		notificationManager = null;
 		Log.d(VibesApplication.VIBES, "service destroyed");
 	}
 
@@ -102,7 +103,7 @@ public class PlayerService extends Service implements Downloader.OnActionListene
 
 	public void download(int position) {
 		try {
-			new Downloader(this, this, notificationManager, app.getVkontakte(), downloadQueue).download(app.songs.get(position));
+			new Downloader(this, this, notificationManager, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath()).download(app.songs.get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}

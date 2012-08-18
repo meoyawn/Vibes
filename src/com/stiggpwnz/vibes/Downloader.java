@@ -33,13 +33,15 @@ public class Downloader {
 	private Vkontakte vkontakte;
 	private List<Integer> downloadQueue;
 	private OnActionListener listener;
+	private String path;
 
-	public Downloader(Context context, OnActionListener listener, NotificationManager manager, Vkontakte vkontakte, List<Integer> downloadQueue) {
+	public Downloader(Context context, OnActionListener listener, NotificationManager manager, Vkontakte vkontakte, List<Integer> downloadQueue, String path) {
 		this.context = context;
 		this.listener = listener;
 		this.manager = manager;
 		this.vkontakte = vkontakte;
 		this.downloadQueue = downloadQueue;
+		this.path = path;
 	}
 
 	public void download(Song song) throws IOException {
@@ -62,7 +64,7 @@ public class Downloader {
 
 			File directory;
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-				directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+				directory = new File(path);
 			else
 				throw new IOException(context.getString(R.string.insertSdCard));
 
@@ -96,7 +98,6 @@ public class Downloader {
 
 				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 				urlConnection.setRequestMethod("GET");
-				urlConnection.setDoOutput(true);
 				urlConnection.connect();
 
 				// this will be useful so that you can show a typical 0-100% progress bar
@@ -131,6 +132,7 @@ public class Downloader {
 				input.close();
 			} catch (Exception e) {
 				messsage = e.getLocalizedMessage();
+				Log.d(VibesApplication.VIBES, e.getClass().getName().toString());
 				cancel(false);
 			}
 
