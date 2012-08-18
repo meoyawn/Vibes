@@ -1,8 +1,5 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.adapters;
 
-import java.util.List;
-
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -11,41 +8,36 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class AlbumsAdapter extends BaseAdapter {
+import com.stiggpwnz.vibes.R;
 
-	private List<Album> albums;
+public class CustomFontTextAdapter extends BaseAdapter {
+
 	private LayoutInflater inflater;
 	private Typeface typeface;
+	private String[] data;
 
-	public AlbumsAdapter(Activity context, List<Album> albumList) {
-		this.albums = albumList;
+	public CustomFontTextAdapter(Context context, Typeface typeface, String[] array) {
+		this.typeface = typeface;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		VibesApplication app = (VibesApplication) context.getApplication();
-		typeface = app.getTypeface();
-	}
-
-	public void setAlbums(List<Album> albums) {
-		this.albums = albums;
+		data = array;
 	}
 
 	@Override
 	public int getCount() {
-		if (albums != null)
-			return albums.size();
+		if (data != null)
+			return data.length;
 		return 0;
 	}
 
 	@Override
-	public Album getItem(int position) {
-		if (albums != null)
-			return albums.get(position);
+	public String getItem(int position) {
+		if (data != null)
+			return data[position];
 		return null;
 	}
 
 	@Override
 	public long getItemId(int position) {
-		if (albums != null)
-			return albums.get(position).id;
 		return position;
 	}
 
@@ -59,7 +51,7 @@ public class AlbumsAdapter extends BaseAdapter {
 			convertView.setTag(textView);
 		} else
 			textView = (TextView) convertView.getTag();
-		textView.setText(albums.get(position).name);
+		textView.setText(data[position]);
 		return convertView;
 	}
 

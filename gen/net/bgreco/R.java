@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.stiggpwnz.vibes;
+package net.bgreco;
 
 public final class R {
     public static final class anim {

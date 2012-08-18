@@ -1,5 +1,7 @@
 package com.stiggpwnz.vibes;
 
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -22,6 +24,7 @@ import android.widget.ProgressBar;
 public class LoginActivity extends Activity {
 
 	public static final String RESET = "RESET";
+	
 	private static final String SCOPE = "friends,audio,wall,groups"; // GIVEN RIGHTS
 	private static final String AUTH_URL = "http://api.vk.com/oauth/authorize";
 	private static final String CALLBACK_URL = "http://api.vk.com/blank.html";
@@ -39,7 +42,7 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		app = (VibesApplication) getApplication();
 		reset = getIntent().getBooleanExtra(RESET, false);
-		if (app.getExpiringTime() > System.currentTimeMillis() / 1000) {
+		if (app.getSettings().getExpiringTime() > System.currentTimeMillis() / 1000) {
 			startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
 			finish();
 		} else
@@ -100,19 +103,19 @@ public class LoginActivity extends Activity {
 					progressBar.setProgress(100);
 					Uri uri = Uri.parse(url);
 					if (uri != null && uri.toString().startsWith(CALLBACK_URL)) {
-						if (uri.toString().contains(VibesApplication.ACCESS_TOKEN)) {
+						if (uri.toString().contains(Vkontakte.ACCESS_TOKEN)) {
 							String[] params = new String[3];
 							for (String param : uri.getFragment().split("&")) {
 								String pair[] = param.split("=");
 								Log.d("meridian", pair[0] + " = " + pair[1]);
-								if (pair[0].compareTo(VibesApplication.ACCESS_TOKEN) == 0)
+								if (pair[0].equals(Vkontakte.ACCESS_TOKEN))
 									params[0] = pair[1];
-								else if (pair[0].compareTo(VibesApplication.EXPIRES_IN) == 0)
+								else if (pair[0].equals(Vkontakte.EXPIRES_IN))
 									params[1] = pair[1];
-								else if (pair[0].compareTo(VibesApplication.USER_ID) == 0)
+								else if (pair[0].equals(Vkontakte.USER_ID))
 									params[2] = pair[1];
 							}
-							app.saveData(params);
+							app.getSettings().saveData(params);
 							startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
 							finish();
 						}

@@ -2,6 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:orderingFromXml="true" >
 
+    <Preference
+        android:key="directory picker"
+        android:title="@string/downloads_directory" />
+
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="repeat"

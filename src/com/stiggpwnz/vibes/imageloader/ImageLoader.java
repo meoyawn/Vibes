@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.imageloader;
 
 import java.io.File;
 import java.io.FileInputStream;

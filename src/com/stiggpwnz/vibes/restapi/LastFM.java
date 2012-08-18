@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.restapi;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -23,10 +24,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.stiggpwnz.vibes.VibesApplication;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-public class LastFM extends Api {
+public class LastFM extends RestApi {
 
 	private static final String API_KEY = "59ce954b080ef3eb99cca836896dbf5e";
 	private static final String API_SECRET = "d4c1fab919d52f46fd1d2829a37d127c";
@@ -36,6 +39,7 @@ public class LastFM extends Api {
 	private static final String API_PATH = "/2.0/";
 
 	private static final String AUTH_GET_MOBILE_SESSION = "auth.getMobileSession";
+	private static final String TRACK_GET_INFO = "track.getInfo";
 	private static final String TRACK_UNLOVE = "track.unlove";
 	private static final String TRACK_LOVE = "track.love";
 	private static final String TRACK_SCROBBLE = "track.scrobble";
@@ -60,6 +64,8 @@ public class LastFM extends Api {
 	private static final String ALBUM = "album";
 	private static final String NAME = "name";
 	private static final String ARTIST = "artist";
+
+	private List<HttpPost> imageRequestQueue;
 
 	private DocumentBuilder builder;
 	private String session;
@@ -309,10 +315,23 @@ public class LastFM extends Api {
 	}
 
 	protected Element execute(URI uri) throws IOException, ClientProtocolException, SAXException {
-		InputSource is = new InputSource(new StringReader(executeURL(uri)));
+		String url = uri.toString().replace("%2526", "%26");
+
+		Log.d(VibesApplication.VIBES, url);
+
+		HttpPost request = new HttpPost(url);
+		if (url.contains(TRACK_GET_INFO) && imageRequestQueue != null)
+			synchronized (this) {
+				imageRequestQueue.add(request);
+			}
+
+		InputSource is = new InputSource(new StringReader(executeRequest(request)));
 		Document doc = builder.parse(is);
-		Element element = doc.getDocumentElement();
-		return element;
+		return doc.getDocumentElement();
+	}
+
+	public List<HttpPost> getImageRequestQueue() {
+		return imageRequestQueue;
 	}
 
 	private String authToken(String username, String password) {
@@ -321,6 +340,10 @@ public class LastFM extends Api {
 
 	private String authApiSig(String username, String password) {
 		return md5(API_KEY_STRING + API_KEY + AUTH_TOKEN + authToken(username, password) + METHOD + AUTH_GET_MOBILE_SESSION + USERNAME + username.toLowerCase() + API_SECRET);
+	}
+
+	public void setSession(String session) {
+		this.session = session;
 	}
 
 }

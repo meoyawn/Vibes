@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.adapters;
 
 import java.util.List;
 
@@ -11,6 +11,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.imageloader.ImageLoader;
+import com.stiggpwnz.vibes.restapi.Unit;
+
 public class UnitsAdapter extends BaseAdapter {
 
 	private List<Unit> units;
@@ -18,13 +22,10 @@ public class UnitsAdapter extends BaseAdapter {
 	private ImageLoader imageLoader;
 	private Typeface typeface;
 
-	public UnitsAdapter(PlayerActivity activity, List<Unit> units, ImageLoader imageLoader) {
+	public UnitsAdapter(Context context, Typeface typeface, List<Unit> units, ImageLoader imageLoader) {
 		this.units = units;
-		inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-		VibesApplication app = (VibesApplication) activity.getApplication();
-		typeface = app.getTypeface();
-
+		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.typeface = typeface;
 		this.imageLoader = imageLoader;
 	}
 

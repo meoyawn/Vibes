@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -20,19 +19,36 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.stiggpwnz.vibes.restapi.Song;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+
 public class Downloader {
 
-	private NotificationManager manager;
-	private PlayerService context;
+<<<<<<< HEAD
+=======
+	public static interface OnActionListener {
+		public void onDownloadException(String messsage);
+	}
 
-	public Downloader(PlayerService context) {
-		manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+>>>>>>> origin/massive-refactoring
+	private NotificationManager manager;
+	private Context context;
+	private Vkontakte vkontakte;
+	private List<Integer> downloadQueue;
+	private OnActionListener listener;
+	private String path;
+
+	public Downloader(Context context, OnActionListener listener, NotificationManager manager, Vkontakte vkontakte, List<Integer> downloadQueue, String path) {
 		this.context = context;
+		this.listener = listener;
+		this.manager = manager;
+		this.vkontakte = vkontakte;
+		this.downloadQueue = downloadQueue;
+		this.path = path;
 	}
 
 	public void download(Song song) throws IOException {
-		List<Integer> downloadQueue = context.getDownloadQueue();
-		if (!downloadQueue.contains(song.aid)) {
+		if (!downloadQueue.contains(Integer.valueOf(song.aid))) {
 			downloadQueue.add(Integer.valueOf(song.aid));
 			new DownloaderThread(song).execute();
 		}
@@ -51,12 +67,11 @@ public class Downloader {
 
 			File directory;
 			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-				directory = new File(Environment.getExternalStorageDirectory(), Environment.DIRECTORY_MUSIC);
+				directory = new File(path);
 			else
 				throw new IOException(context.getString(R.string.insertSdCard));
 
-			if (!directory.exists())
-				directory.mkdirs();
+			directory.mkdirs();
 
 			songName = String.format("%s - %s.mp3", song.performer, song.title);
 			outputFile = new File(directory, songName);
@@ -80,13 +95,12 @@ public class Downloader {
 			try {
 				Thread.currentThread().setName("Downloading " + songName);
 				if (song.url == null)
-					context.getApp().getVkontakte().setSongUrl(song);
+					vkontakte.setSongUrl(song);
 
 				URL url = new URL(song.url);
 
 				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 				urlConnection.setRequestMethod("GET");
-				urlConnection.setDoOutput(true);
 				urlConnection.connect();
 
 				// this will be useful so that you can show a typical 0-100% progress bar
@@ -120,14 +134,9 @@ public class Downloader {
 				output.flush();
 				output.close();
 				input.close();
-			} catch (MalformedURLException e) {
+			} catch (Exception e) {
 				messsage = e.getLocalizedMessage();
-				cancel(false);
-			} catch (IOException e) {
-				messsage = e.getLocalizedMessage();
-				cancel(false);
-			} catch (VkontakteException e) {
-				messsage = e.getLocalizedMessage();
+				Log.d(VibesApplication.VIBES, e.getClass().getName().toString());
 				cancel(false);
 			}
 
@@ -138,28 +147,28 @@ public class Downloader {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			cancelNotification();
-			context.getDownloadQueue().remove(Integer.valueOf(song.aid));
+			downloadQueue.remove(Integer.valueOf(song.aid));
 		}
 
 		@Override
 		protected void onCancelled() {
 			super.onCancelled();
 			cancelNotification();
-			context.getDownloadQueue().remove(Integer.valueOf(song.aid));
+			downloadQueue.remove(Integer.valueOf(song.aid));
 			if (outputFile.exists())
 				outputFile.delete();
 			if (messsage != null)
-				context.onDownloadException(messsage);
+				listener.onDownloadException(messsage);
 		}
 
 		private void showNotification() {
 			String title = String.format("%s %s", context.getString(R.string.downloading), songName);
 			notification = new Notification(R.drawable.download_icon, title, System.currentTimeMillis());
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-			notification.contentView = new RemoteViews(context.getApplicationContext().getPackageName(), R.layout.downloader);
+			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
 			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			PendingIntent intent = PendingIntent.getActivity(context.getApplicationContext(), 0, notifyIntent, 0);
+			PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;
 			notification.contentView.setTextViewText(R.id.downloadTitle, title);
