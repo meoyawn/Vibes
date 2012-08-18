@@ -43,7 +43,7 @@ public class LoginActivity extends Activity {
 		app = (VibesApplication) getApplication();
 		reset = getIntent().getBooleanExtra(RESET, false);
 		if (app.getSettings().getExpiringTime() > System.currentTimeMillis() / 1000) {
-			startActivity(new Intent(getApplicationContext(), NewActivity.class));
+			startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
 			finish();
 		} else
 			initUI();
@@ -116,7 +116,7 @@ public class LoginActivity extends Activity {
 									params[2] = pair[1];
 							}
 							app.getSettings().saveData(params);
-							startActivity(new Intent(getApplicationContext(), NewActivity.class));
+							startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
 							finish();
 						}
 					}

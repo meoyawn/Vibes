@@ -16,10 +16,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
-import com.stiggpwnz.vibes.VibesApplication;
-
 import android.net.Uri;
 import android.util.Log;
+
+import com.stiggpwnz.vibes.VibesApplication;
 
 public class Vkontakte extends RestApi {
 
@@ -38,7 +38,7 @@ public class Vkontakte extends RestApi {
 	private static final String AUDIO_SEARCH = "/method/audio.search";
 	private static final String FRIENDS_GET = "friends.get?";
 	private static final String GROUPS_GET = "groups.get?";
-	private static final String NEWSFEED_GET = "newsfeed.get?";
+	public static final String NEWSFEED_GET = "newsfeed.get?";
 	private static final String WALL_GET = "wall.get?";
 
 	private static final String AUDIO = "audio";
@@ -268,6 +268,11 @@ public class Vkontakte extends RestApi {
 				uri = new URI(API_URL + NEWSFEED_GET + FILTERS + "=" + POST + "&" + START_TIME + "=" + lastUpdate + "&" + COUNT + "=" + maxNews + "&" + ACCESS_TOKEN + "="
 						+ accesToken);
 			}
+
+			if (update)
+				for (URI cached : getCache().keySet())
+					if (cached.toString().contains(NEWSFEED_GET))
+						getCache().remove(cached);
 
 			if (cache.containsKey(uri))
 				return cache.get(uri);

@@ -10,7 +10,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.UnitsAdapter;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
@@ -33,10 +33,10 @@ public class UnitsDialog extends Dialog implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
-		NewActivity activity = (NewActivity) getOwnerActivity();
+		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		activity.setUnit((Unit) list.getItemAtPosition(position));
 		activity.getApp().getSettings().setOwnerId(activity.getUnit().id);
-		activity.showDialog(NewActivity.DIALOG_UNIT);
+		activity.showDialog(PlayerActivity.DIALOG_UNIT);
 	}
 
 	public void setList(List<Unit> list) {

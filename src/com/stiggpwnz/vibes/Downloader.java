@@ -9,30 +9,37 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import com.stiggpwnz.vibes.restapi.Song;
-import com.stiggpwnz.vibes.restapi.Vkontakte;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.stiggpwnz.vibes.restapi.Song;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+
 public class Downloader {
 
+	public static interface OnActionListener {
+		public void onDownloadException(String messsage);
+	}
+
 	private NotificationManager manager;
-	private NewService context;
+	private Context context;
 	private Vkontakte vkontakte;
 	private List<Integer> downloadQueue;
+	private OnActionListener listener;
 
-	public Downloader(NewService service) {
-		context = service;
-		manager = service.getNotificationManager();
-		vkontakte = service.getPlayer().getVkontakte();
-		downloadQueue = service.getDownloadQueue();
+	public Downloader(Context context, OnActionListener listener, NotificationManager manager, Vkontakte vkontakte, List<Integer> downloadQueue) {
+		this.context = context;
+		this.listener = listener;
+		this.manager = manager;
+		this.vkontakte = vkontakte;
+		this.downloadQueue = downloadQueue;
 	}
 
 	public void download(Song song) throws IOException {
@@ -145,7 +152,7 @@ public class Downloader {
 			if (outputFile.exists())
 				outputFile.delete();
 			if (messsage != null)
-				context.onDownloadException(messsage);
+				listener.onDownloadException(messsage);
 		}
 
 		private void showNotification() {
@@ -154,7 +161,7 @@ public class Downloader {
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
 			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
-			Intent notifyIntent = new Intent(context, NewActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;

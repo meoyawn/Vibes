@@ -8,10 +8,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
-import com.stiggpwnz.vibes.adapters.TextAdapter;
+import com.stiggpwnz.vibes.adapters.CustomFontTextAdapter;
 
 public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 
@@ -22,38 +22,38 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 		setCanceledOnTouchOutside(true);
 		ListView listView = (ListView) findViewById(R.id.listView);
 		String[] options = context.getResources().getStringArray(R.array.playlist_options);
-		TextAdapter adapter = new TextAdapter(context, typeface, options);
+		CustomFontTextAdapter adapter = new CustomFontTextAdapter(context, typeface, options);
 		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(this);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
-		NewActivity activity = (NewActivity) getOwnerActivity();
+		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		Settings settings = activity.getApp().getSettings();
 		switch (position) {
 
-		case NewActivity.SEARCH:
-			activity.showDialog(NewActivity.DIALOG_SEARCH);
+		case PlayerActivity.SEARCH:
+			activity.showDialog(PlayerActivity.DIALOG_SEARCH);
 			break;
 
-		case NewActivity.FRIENDS:
+		case PlayerActivity.FRIENDS:
 			activity.setFriendsList(true);
-			if (activity.getReadyFriends() != null)
-				activity.showDialog(NewActivity.DIALOG_UNITS);
+			if (activity.getFriends() != null)
+				activity.showDialog(PlayerActivity.DIALOG_UNITS);
 			else
 				activity.runGetUnits();
 			break;
 
-		case NewActivity.GROUPS:
+		case PlayerActivity.GROUPS:
 			activity.setFriendsList(false);
-			if (activity.getReadyGroups() != null)
-				activity.showDialog(NewActivity.DIALOG_UNITS);
+			if (activity.getGroups() != null)
+				activity.showDialog(PlayerActivity.DIALOG_UNITS);
 			else
 				activity.runGetUnits();
 			break;
 
-		case NewActivity.MY_AUDIOS:
+		case PlayerActivity.MY_AUDIOS:
 			settings.setPlaylist(position);
 			settings.setOwnerId(0);
 			settings.setAlbumId(0);
@@ -61,7 +61,7 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 			dismiss();
 			break;
 
-		case NewActivity.WALL:
+		case PlayerActivity.WALL:
 			settings.setPlaylist(position);
 			settings.setOwnerId(0);
 			settings.setAlbumId(0);
@@ -69,13 +69,13 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 			dismiss();
 			break;
 
-		case NewActivity.NEWSFEED:
+		case PlayerActivity.NEWSFEED:
 			settings.setPlaylist(position);
 			activity.runGetSongs(null);
 			dismiss();
 			break;
 
-		case NewActivity.ALBUMS:
+		case PlayerActivity.ALBUMS:
 			settings.setOwnerId(0);
 			activity.runGetALbums();
 			break;

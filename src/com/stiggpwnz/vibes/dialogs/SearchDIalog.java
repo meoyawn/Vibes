@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
 import com.stiggpwnz.vibes.VibesApplication;
@@ -36,14 +36,14 @@ public class SearchDIalog extends Dialog implements OnEditorActionListener {
 
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		NewActivity activity = (NewActivity) getOwnerActivity();
+		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		Settings settings = activity.getApp().getSettings();
 
 		settings.setPlaylist(0);
 		Log.d(VibesApplication.VIBES, "performing search with param: " + v.getText().toString());
 		activity.runGetSongs(v.getText().toString());
 		dismiss();
-		activity.dismissDialog(NewActivity.DIALOG_PLAYLISTS);
+		activity.dismissDialog(PlayerActivity.DIALOG_PLAYLISTS);
 		return true;
 	}
 

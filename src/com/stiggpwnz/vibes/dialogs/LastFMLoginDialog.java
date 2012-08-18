@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 
 public class LastFMLoginDialog extends Dialog implements OnClickListener {
@@ -37,13 +37,13 @@ public class LastFMLoginDialog extends Dialog implements OnClickListener {
 
 	private class LastFmSignIn extends AsyncTask<Void, Void, String[]> {
 
-		private NewActivity newActivity;
+		private PlayerActivity playerActivity;
 		private ProgressDialog authDialog;
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			newActivity = (NewActivity) getOwnerActivity();
+			playerActivity = (PlayerActivity) getOwnerActivity();
 			authDialog = new ProgressDialog(getContext());
 			authDialog.setMessage(getContext().getString(R.string.auth));
 			authDialog.setIndeterminate(true);
@@ -56,7 +56,7 @@ public class LastFMLoginDialog extends Dialog implements OnClickListener {
 			Thread.currentThread().setName("Signing in to LastFM");
 			String username = editUsername.getText().toString();
 			String password = editPassword.getText().toString();
-			return newActivity.getService().getPlayer().getLastFM().auth(username, password);
+			return playerActivity.getApp().getLastFM().auth(username, password);
 		}
 
 		@Override
@@ -64,7 +64,7 @@ public class LastFMLoginDialog extends Dialog implements OnClickListener {
 			super.onPostExecute(result);
 			authDialog.dismiss();
 			if (result != null) {
-				newActivity.getApp().getSettings().saveLastFM(result);
+				playerActivity.getApp().getSettings().saveLastFM(result);
 				dismiss();
 				Toast.makeText(getContext(), R.string.last_success, Toast.LENGTH_SHORT).show();
 			} else

@@ -11,7 +11,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
@@ -39,17 +39,17 @@ public class AlbumsDialog extends Dialog implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
-		NewActivity activity = (NewActivity) getOwnerActivity();
+		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		Settings settings = activity.getApp().getSettings();
-		settings.setPlaylist(NewActivity.MY_AUDIOS);
+		settings.setPlaylist(PlayerActivity.MY_AUDIOS);
 		settings.setAlbumId(albumsAdapter.getItem(position).id);
 		activity.runGetSongs(null);
-		activity.dismissDialog(NewActivity.DIALOG_ALBUMS);
+		activity.dismissDialog(PlayerActivity.DIALOG_ALBUMS);
 		if (settings.getOwnerId() != 0) {
-			activity.dismissDialog(NewActivity.DIALOG_UNIT);
-			activity.dismissDialog(NewActivity.DIALOG_UNITS);
+			activity.dismissDialog(PlayerActivity.DIALOG_UNIT);
+			activity.dismissDialog(PlayerActivity.DIALOG_UNITS);
 		}
-		activity.dismissDialog(NewActivity.DIALOG_PLAYLISTS);
+		activity.dismissDialog(PlayerActivity.DIALOG_PLAYLISTS);
 	}
 
 	public void setAlbums(List<Album> albumList) {

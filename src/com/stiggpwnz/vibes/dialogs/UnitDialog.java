@@ -8,10 +8,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
-import com.stiggpwnz.vibes.adapters.TextAdapter;
+import com.stiggpwnz.vibes.adapters.CustomFontTextAdapter;
 
 public class UnitDialog extends Dialog implements OnItemClickListener {
 
@@ -22,7 +22,7 @@ public class UnitDialog extends Dialog implements OnItemClickListener {
 		setCanceledOnTouchOutside(true);
 		ListView unitList = (ListView) findViewById(R.id.listView);
 		String[] unitOptions = getContext().getResources().getStringArray(R.array.unit_options);
-		TextAdapter unitAdapter = new TextAdapter(context, typeface, unitOptions);
+		CustomFontTextAdapter unitAdapter = new CustomFontTextAdapter(context, typeface, unitOptions);
 		unitList.setAdapter(unitAdapter);
 		unitList.setEmptyView(findViewById(android.R.id.empty));
 		unitList.setOnItemClickListener(this);
@@ -31,25 +31,25 @@ public class UnitDialog extends Dialog implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 
-		NewActivity activity = (NewActivity) getOwnerActivity();
+		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		Settings settings = activity.getApp().getSettings();
 
 		switch (position) {
 		case 0:
-			settings.setPlaylist(NewActivity.MY_AUDIOS);
+			settings.setPlaylist(PlayerActivity.MY_AUDIOS);
 			settings.setAlbumId(0);
 			activity.runGetSongs(null);
 			dismiss();
-			activity.dismissDialog(NewActivity.DIALOG_UNITS);
-			activity.dismissDialog(NewActivity.DIALOG_PLAYLISTS);
+			activity.dismissDialog(PlayerActivity.DIALOG_UNITS);
+			activity.dismissDialog(PlayerActivity.DIALOG_PLAYLISTS);
 			break;
 
 		case 1:
-			settings.setPlaylist(NewActivity.WALL);
+			settings.setPlaylist(PlayerActivity.WALL);
 			activity.runGetSongs(null);
 			dismiss();
-			activity.dismissDialog(NewActivity.DIALOG_UNITS);
-			activity.dismissDialog(NewActivity.DIALOG_PLAYLISTS);
+			activity.dismissDialog(PlayerActivity.DIALOG_UNITS);
+			activity.dismissDialog(PlayerActivity.DIALOG_PLAYLISTS);
 			break;
 
 		case 2:

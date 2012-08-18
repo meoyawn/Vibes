@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.restapi.Song;
 
-public class SongsAdapter extends BaseAdapter {
+public class PlaylistAdapter extends BaseAdapter {
 
 	private List<Song> songs;
 	private LayoutInflater inflater;
@@ -27,7 +27,7 @@ public class SongsAdapter extends BaseAdapter {
 	public int currentSong = -1;
 	private Typeface typeface;
 
-	public SongsAdapter(Context context, Typeface typeface) {
+	public PlaylistAdapter(Context context, Typeface typeface) {
 		this.typeface = typeface;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		blue = context.getResources().getColor(R.color.normal);

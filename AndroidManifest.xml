@@ -28,14 +28,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".NewActivity"
+            android:name=".PlayerActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait" >
         </activity>
         <activity android:name=".PreferencesActivity" >
         </activity>
 
-        <service android:name=".NewService" >
+        <service android:name=".PlayerService" >
         </service>
     </application>
 

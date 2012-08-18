@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.stiggpwnz.vibes.NewActivity;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 
@@ -32,9 +32,9 @@ public class LastFMUserDialog extends Dialog implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		((NewActivity) getOwnerActivity()).getApp().getSettings().resetLastFM();
+		((PlayerActivity) getOwnerActivity()).getApp().getSettings().resetLastFM();
 		dismiss();
-		getOwnerActivity().showDialog(NewActivity.DIALOG_LAST_FM_AUTH);
+		getOwnerActivity().showDialog(PlayerActivity.DIALOG_LAST_FM_AUTH);
 	}
 
 	public void setText(String username) {

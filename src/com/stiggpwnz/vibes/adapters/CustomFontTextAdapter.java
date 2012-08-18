@@ -10,13 +10,13 @@ import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
 
-public class TextAdapter extends BaseAdapter {
+public class CustomFontTextAdapter extends BaseAdapter {
 
 	private LayoutInflater inflater;
 	private Typeface typeface;
 	private String[] data;
 
-	public TextAdapter(Context context, Typeface typeface, String[] array) {
+	public CustomFontTextAdapter(Context context, Typeface typeface, String[] array) {
 		this.typeface = typeface;
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		data = array;

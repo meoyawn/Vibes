@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.stiggpwnz.vibes.Player.OnActionListener;
 
-public class NewService extends Service {
+public class PlayerService extends Service implements Downloader.OnActionListener {
 
 	private static final String SONG = "song";
 	private static final int NOTIFICATION = 49;
@@ -44,8 +44,8 @@ public class NewService extends Service {
 
 	public class ServiceBinder extends Binder {
 
-		public NewService getService() {
-			return NewService.this;
+		public PlayerService getService() {
+			return PlayerService.this;
 		}
 	}
 
@@ -102,12 +102,13 @@ public class NewService extends Service {
 
 	public void download(int position) {
 		try {
-			new Downloader(this).download(player.getSongs().get(position));
+			new Downloader(this, this, notificationManager, app.getVkontakte(), downloadQueue).download(app.songs.get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}
 	}
 
+	@Override
 	public void onDownloadException(String message) {
 		if (message != null) {
 			Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
@@ -121,7 +122,7 @@ public class NewService extends Service {
 				.currentTimeMillis());
 		CharSequence contentTitle = player.getCurrentSong().title;
 		CharSequence contentText = player.getCurrentSong().performer;
-		Intent notifyIntent = new Intent(this, NewActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
 		notification.setLatestEventInfo(app, contentTitle, contentText, intent);
 		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;

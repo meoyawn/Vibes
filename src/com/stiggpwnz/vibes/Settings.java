@@ -1,13 +1,21 @@
 package com.stiggpwnz.vibes;
 
-import com.stiggpwnz.vibes.restapi.LastFM;
-import com.stiggpwnz.vibes.restapi.Vkontakte;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+
 public class Settings {
+
+	public static interface OnActionListener {
+
+		public void onLastFmSessionChanged(String session);
+
+		public void onVkontakteMaxAudiosChanged(int maxAudios);
+
+		public void onVkontakteMaxNewsChanged(int maxNews);
+	}
 
 	public static final String MAX_NEWS = "max news";
 	public static final String MAX_AUDIOS = "max audios";
@@ -23,15 +31,15 @@ public class Settings {
 	private static final String ALBUM_ID = "album id";
 
 	private SharedPreferences prefs;
+	private OnActionListener listener;
 	private Context context;
-	private Vkontakte vkontakte;
 
 	// vkontakte settings
 	private String accessToken;
 	private long expiringTime;
 	private int userID;
 	private int maxNews;
-	private int maxAudio;
+	private int maxAudios;
 
 	// last.fm settings
 	private String username;
@@ -45,9 +53,8 @@ public class Settings {
 	private String lastSearch;
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
-	private LastFM lastFM;
 
-	public Settings(Context context) {
+	public Settings(Context context, OnActionListener listener) {
 		this.context = context;
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
@@ -97,8 +104,7 @@ public class Settings {
 
 		editor.commit();
 
-		if (lastFM != null)
-			lastFM.setSession(session);
+		listener.onLastFmSessionChanged(session);
 	}
 
 	public void resetLastFM() {
@@ -115,8 +121,7 @@ public class Settings {
 
 		editor.commit();
 
-		if (lastFM != null)
-			lastFM.setSession(session);
+		listener.onLastFmSessionChanged(session);
 	}
 
 	public String getAccessToken() {
@@ -157,7 +162,7 @@ public class Settings {
 
 	public int getPlaylist() {
 		if (playlist == -1)
-			playlist = prefs.getInt(PLAYLIST, NewActivity.NEWSFEED);
+			playlist = prefs.getInt(PLAYLIST, PlayerActivity.NEWSFEED);
 		return playlist;
 	}
 
@@ -223,28 +228,18 @@ public class Settings {
 
 	public void updateMaxNews() {
 		maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, context.getString(R.string.default_max_news)));
-		if (vkontakte != null)
-			vkontakte.maxNews = maxNews;
-	}
-
-	public void setVkontakte(Vkontakte vkontakte) {
-		this.vkontakte = vkontakte;
-	}
-
-	public void setLastFM(LastFM lastFM) {
-		this.lastFM = lastFM;
+		listener.onVkontakteMaxNewsChanged(maxNews);
 	}
 
 	public int getMaxAudio() {
-		if (maxAudio == 0)
-			maxAudio = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
-		return maxAudio;
+		if (maxAudios == 0)
+			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+		return maxAudios;
 	}
 
 	public void updateMaxAudio() {
-		maxAudio = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
-		if (vkontakte != null)
-			vkontakte.maxAudios = maxAudio;
+		maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+		listener.onVkontakteMaxAudiosChanged(maxAudios);
 	}
 
 	public boolean getRepeatPlaylist() {

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 
 import android.app.Activity;
@@ -39,10 +38,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.stiggpwnz.vibes.NewService.ServiceBinder;
-import com.stiggpwnz.vibes.Player.OnActionListener;
 import com.stiggpwnz.vibes.Player.State;
-import com.stiggpwnz.vibes.adapters.SongsAdapter;
+import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
+import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
 import com.stiggpwnz.vibes.adapters.ViewPagerAdapter;
 import com.stiggpwnz.vibes.dialogs.AlbumsDialog;
 import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog;
@@ -55,10 +53,9 @@ import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
-import com.stiggpwnz.vibes.restapi.Vkontakte;
 import com.stiggpwnz.vibes.restapi.VkontakteException;
 
-public class NewActivity extends Activity implements OnActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
+public class PlayerActivity extends Activity implements Player.OnActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
 
 	// non enum because we'll need to store this things in settings
 	public static final int SEARCH = 0;
@@ -78,17 +75,15 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 	public static final int DIALOG_UNIT = 77;
 	public static final int DIALOG_ALBUMS = 78;
 
-	private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS = 4;
-
 	private final AtomicInteger runningThreads = new AtomicInteger();
 	private final ServiceConnection connection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			service = ((ServiceBinder) binder).getService();
-			if (service.getPlayer().getSongs() == null)
+			if (app.songs == null)
 				runGetSongs(null);
-			service.setPlayerListener(NewActivity.this);
+			service.setPlayerListener(PlayerActivity.this);
 			bound = true;
 			service.cancelNotification();
 			service.stopWaiter();
@@ -102,7 +97,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		}
 	};
 
-	private NewService service;
+	private PlayerService service;
 	private VibesApplication app;
 
 	private Typeface typeface;
@@ -127,7 +122,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 	private ViewPager viewPager;
 	private List<View> pages;
 
-	private SongsAdapter songsAdapter;
+	private PlaylistAdapter playlistAdapter;
 
 	private Animation shake;
 	private SeekBar seekbar;
@@ -165,7 +160,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 	}
 
 	private void doBindService() {
-		Intent intent = new Intent(this, NewService.class);
+		Intent intent = new Intent(this, PlayerService.class);
 		if (!app.isServiceRunning()) {
 			Log.d(VibesApplication.VIBES, "starting service");
 			startService(intent);
@@ -295,9 +290,9 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 
 		progressUpdating = (ProgressBar) page.findViewById(R.id.progressUpdating);
 
-		songsAdapter = new SongsAdapter(this, typeface);
+		playlistAdapter = new PlaylistAdapter(this, typeface);
 		playlist = (ListView) page.findViewById(R.id.list);
-		playlist.setAdapter(songsAdapter);
+		playlist.setAdapter(playlistAdapter);
 		TextView empty = (TextView) page.findViewById(android.R.id.empty);
 		empty.setTypeface(typeface);
 		playlist.setEmptyView(empty);
@@ -332,7 +327,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 
 		private void getSongs(String... params) {
 			try {
-				NewActivity.this.getSongs(params[0]);
+				app.getSongs(params[0]);
 			} catch (IOException e) {
 				internetFail();
 			} catch (VkontakteException e) {
@@ -367,18 +362,18 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			hideLoadingDialog();
 			viewPager.setCurrentItem(1, true);
 			Player player = service.getPlayer();
-			List<Song> songs = player.getSongs();
-			songsAdapter.setSongs(songs);
+			playlistAdapter.setSongs(app.songs);
 			if (player.getState() == State.PLAYING) {
-				player.currentSong = -1;
+				player.currentTrack = -1;
 			} else {
-				if (songs != null && songs.size() > 0) {
-					player.currentSong = 0;
+				if (app.songs != null && app.songs.size() > 0) {
+					player.currentTrack = 0;
 					onNewTrack();
 				}
 			}
-			songsAdapter.currentSong = -1;
-			songsAdapter.notifyDataSetChanged();
+
+			playlistAdapter.currentSong = -1;
+			playlistAdapter.notifyDataSetChanged();
 			playlist.setSelection(0);
 			player.generateShuffleQueue();
 			outOfThread();
@@ -394,9 +389,9 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			progressUpdating.setVisibility(View.VISIBLE);
 		}
 
-		private Integer updateSongs() {
+		private int updateSongs() {
 			try {
-				return NewActivity.this.updateSongs();
+				return app.updateSongs();
 			} catch (IOException e) {
 				internetFail();
 			} catch (VkontakteException e) {
@@ -438,12 +433,12 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			super.onPostExecute(result);
 			Log.d(VibesApplication.VIBES, "new songs: " + result);
 			progressUpdating.setVisibility(View.INVISIBLE);
-			if (result > 0 && service.getPlayer().currentSong != -1) {
-				service.getPlayer().currentSong += result;
-				if (songsAdapter.currentSong != -1)
-					songsAdapter.currentSong += result;
+			if (result > 0 && service.getPlayer().currentTrack != -1) {
+				service.getPlayer().currentTrack += result;
+				if (playlistAdapter.currentSong != -1)
+					playlistAdapter.currentSong += result;
 			}
-			songsAdapter.notifyDataSetChanged();
+			playlistAdapter.notifyDataSetChanged();
 			service.getPlayer().generateShuffleQueue();
 			outOfThread();
 		}
@@ -461,12 +456,12 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			try {
 				if (app.getSettings().getOwnerId() != 0) {
 					if (getUnit().albums == null)
-						return NewActivity.this.getAlbums(getUnit().id);
+						return app.getAlbums(getUnit().id);
 					else
 						return getUnit().albums;
 				} else {
 					if (getMyAlbums() == null)
-						return NewActivity.this.getAlbums(0);
+						return app.getAlbums(0);
 					else
 						return getMyAlbums();
 				}
@@ -529,9 +524,9 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		private Void getUnits() {
 			try {
 				if (friendsList)
-					friends = getFriends();
+					friends = app.getFriends();
 				else
-					groups = getGroups();
+					groups = app.getGroups();
 				success = true;
 			} catch (IOException e) {
 				success = false;
@@ -580,7 +575,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			synchronized (this) {
 				if (isCancelled())
 					return null;
-				return service.getPlayer().getLastFM().getAlbumImageURL(params[0], params[1]);
+				return app.getLastFM().getAlbumImageURL(params[0], params[1]);
 			}
 		}
 
@@ -640,7 +635,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(NewActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
+				Toast.makeText(PlayerActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -649,7 +644,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(NewActivity.this, getString(R.string.authProblem), Toast.LENGTH_LONG).show();
+				Toast.makeText(PlayerActivity.this, getString(R.string.authProblem), Toast.LENGTH_LONG).show();
 				logOut(false);
 			}
 		});
@@ -661,7 +656,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			@Override
 			public void run() {
 				service.getPlayer().stop();
-				Toast.makeText(NewActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
+				Toast.makeText(PlayerActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
 			}
 		});
 
@@ -672,7 +667,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			@Override
 			public void run() {
 				service.getPlayer().stop();
-				Toast.makeText(NewActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+				Toast.makeText(PlayerActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -698,8 +693,8 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			else
 				btnLove.setBackgroundResource(R.drawable.love_grey);
 
-			synchronized (player.getLastFM()) {
-				List<HttpPost> requests = player.getLastFM().getImageRequestQueue();
+			synchronized (app.getLastFM()) {
+				List<HttpPost> requests = app.getLastFM().getImageRequestQueue();
 				if (getAlbumImage != null && getAlbumImage.getStatus() == AsyncTask.Status.RUNNING) {
 					Log.e(VibesApplication.VIBES, "cancelling image loader: " + requests.size() + " items in queue");
 					for (HttpPost request : requests) {
@@ -737,9 +732,9 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			}
 
 			if (!fromPlaylist) {
-				songsAdapter.currentSong = player.currentSong;
-				songsAdapter.notifyDataSetChanged();
-				playlist.smoothScrollToPosition(player.currentSong);
+				playlistAdapter.currentSong = player.currentTrack;
+				playlistAdapter.notifyDataSetChanged();
+				playlist.smoothScrollToPosition(player.currentTrack);
 			}
 		}
 	}
@@ -783,79 +778,6 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		});
 	}
 
-	public void getSongs(String search) throws ClientProtocolException, IOException, VkontakteException {
-		Settings settings = app.getSettings();
-		Player player = service.getPlayer();
-		Vkontakte vkontakte = player.getVkontakte();
-
-		switch (settings.getPlaylist()) {
-		case SEARCH:
-			if (search == null)
-				search = settings.getLastSearch();
-			player.setSongs(vkontakte.search(search, 0));
-			if (player.getSongs() != null) {
-				settings.setLastSearch(search);
-			}
-			break;
-
-		case MY_AUDIOS:
-			player.setSongs(vkontakte.getAudios(settings.getOwnerId(), settings.getAlbumId(), 0, false));
-			break;
-
-		case WALL:
-			player.setSongs(vkontakte.getWallAudios(settings.getOwnerId(), 0, false, false));
-			break;
-
-		case NEWSFEED:
-			player.setSongs(vkontakte.getNewsFeedAudios(false));
-			break;
-
-		}
-	}
-
-	public int updateSongs() throws ClientProtocolException, IOException, VkontakteException {
-		Player player = service.getPlayer();
-		Vkontakte vkontakte = player.getVkontakte();
-		Settings settings = app.getSettings();
-
-		switch (settings.getPlaylist()) {
-		case MY_AUDIOS:
-			player.setSongs(vkontakte.getAudios(settings.getOwnerId(), settings.getAlbumId(), 0, true));
-			break;
-
-		case WALL:
-			player.setSongs(vkontakte.getWallAudios(settings.getOwnerId(), 0, false, true));
-			break;
-
-		case NEWSFEED:
-			long prevUpdate = vkontakte.getLastUpdate();
-			long thisUpdate = System.currentTimeMillis() / 1000;
-			if (thisUpdate - prevUpdate > UPDATE_PLAYLIST_TIMEOUT_SECONDS) {
-				Log.d(VibesApplication.VIBES, "updating songs from:" + prevUpdate);
-				List<Song> temp = vkontakte.getNewsFeedAudios(true);
-				if (temp != null) {
-					List<Song> songs = player.getSongs();
-					songs.addAll(0, temp);
-					vkontakte.getCache().put(vkontakte.getNewsFeedUri(), songs);
-					return temp.size();
-				}
-			}
-		}
-		return 0;
-	}
-
-	public List<Album> getAlbums(int id) throws ClientProtocolException, IOException, VkontakteException {
-		return service.getPlayer().getVkontakte().getAlbums(id, 0);
-	}
-
-	public List<Unit> getFriends() throws ClientProtocolException, IOException, VkontakteException {
-		return service.getPlayer().getVkontakte().getFriends(false);
-	}
-
-	public List<Unit> getGroups() throws ClientProtocolException, IOException, VkontakteException {
-		return service.getPlayer().getVkontakte().getGroups();
-	}
-
 	@Override
 	public void onAuthProblem() {
 		authFail();
@@ -868,9 +790,9 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-		songsAdapter.fromPlaylist = true;
-		songsAdapter.currentSong = position;
-		songsAdapter.notifyDataSetChanged();
+		playlistAdapter.fromPlaylist = true;
+		playlistAdapter.currentSong = position;
+		playlistAdapter.notifyDataSetChanged();
 		btnPlay.setBackgroundResource(R.drawable.pause);
 		service.getPlayer().play(position);
 		setCurrentSong(true);
@@ -974,7 +896,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			break;
 
 		case R.id.btnDownload:
-			service.download(player.currentSong);
+			service.download(player.currentTrack);
 			break;
 		}
 	}
@@ -998,7 +920,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 
 		private Integer addSong() {
 			try {
-				return player.getVkontakte().add(player.getCurrentSong());
+				return app.getVkontakte().add(player.getCurrentSong());
 			} catch (IOException e) {
 				internetFail();
 			} catch (VkontakteException e) {
@@ -1028,7 +950,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			Thread.currentThread().setName("Loving song");
 			own = settings.getPlaylist() == MY_AUDIOS && settings.getOwnerId() == 0;
 			if (settings.getSession() != null)
-				if (player.getLastFM().love(player.getCurrentSong())) {
+				if (app.getLastFM().love(player.getCurrentSong())) {
 					lastLoved = true;
 					Log.d(VibesApplication.VIBES, "last fm: loved");
 				}
@@ -1070,7 +992,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 
 		private Boolean deleteSong() {
 			try {
-				return player.getVkontakte().delete(player.getCurrentSong());
+				return app.getVkontakte().delete(player.getCurrentSong());
 			} catch (IOException e) {
 				internetFail();
 			} catch (VkontakteException e) {
@@ -1100,7 +1022,7 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 			Thread.currentThread().setName("Unloving song");
 			own = settings.getPlaylist() == MY_AUDIOS && settings.getOwnerId() == 0;
 			if (settings.getSession() != null)
-				if (player.getLastFM().unlove(player.getCurrentSong())) {
+				if (app.getLastFM().unlove(player.getCurrentSong())) {
 					lastUnloved = true;
 					Log.d(VibesApplication.VIBES, "last fm: unloved");
 				}
@@ -1176,8 +1098,8 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		app.getSettings().resetData();
 		app.getSettings().setPlaylist(NEWSFEED);
 		doUnbindService();
-		stopService(new Intent(NewActivity.this, NewService.class));
-		Intent intent = new Intent(NewActivity.this, LoginActivity.class);
+		stopService(new Intent(PlayerActivity.this, PlayerService.class));
+		Intent intent = new Intent(PlayerActivity.this, LoginActivity.class);
 		intent.putExtra(LoginActivity.RESET, logout);
 		startActivity(intent);
 		finish();
@@ -1273,15 +1195,15 @@ public class NewActivity extends Activity implements OnActionListener, OnClickLi
 		return app;
 	}
 
-	public NewService getService() {
+	public PlayerService getService() {
 		return service;
 	}
 
-	public List<Unit> getReadyFriends() {
+	public List<Unit> getFriends() {
 		return friends;
 	}
 
-	public List<Unit> getReadyGroups() {
+	public List<Unit> getGroups() {
 		return groups;
 	}
 
