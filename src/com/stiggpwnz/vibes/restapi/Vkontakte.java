@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes.vkapi;
+package com.stiggpwnz.vibes.restapi;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 
-import com.stiggpwnz.vibes.RestApi;
 import com.stiggpwnz.vibes.VibesApplication;
 
 import android.net.Uri;

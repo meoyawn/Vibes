@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.restapi;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -10,6 +10,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
+
+import com.stiggpwnz.vibes.VibesApplication;
 
 import android.util.Log;
 

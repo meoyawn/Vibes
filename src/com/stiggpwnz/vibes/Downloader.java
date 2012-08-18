@@ -9,8 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import com.stiggpwnz.vibes.vkapi.Song;
-import com.stiggpwnz.vibes.vkapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.Song;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
 
 import android.app.Notification;
 import android.app.NotificationManager;

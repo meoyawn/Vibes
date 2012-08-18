@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes.vkapi;
+package com.stiggpwnz.vibes.restapi;
 
 public class VkontakteException extends Exception {
 

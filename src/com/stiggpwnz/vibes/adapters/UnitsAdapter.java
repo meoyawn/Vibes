@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
-import com.stiggpwnz.vibes.vkapi.Unit;
+import com.stiggpwnz.vibes.restapi.Unit;
 
 public class UnitsAdapter extends BaseAdapter {
 

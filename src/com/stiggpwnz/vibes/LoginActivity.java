@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes;
 
-import com.stiggpwnz.vibes.vkapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

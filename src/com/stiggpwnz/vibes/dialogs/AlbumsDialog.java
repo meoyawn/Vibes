@@ -15,7 +15,7 @@ import com.stiggpwnz.vibes.NewActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Settings;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
-import com.stiggpwnz.vibes.vkapi.Album;
+import com.stiggpwnz.vibes.restapi.Album;
 
 public class AlbumsDialog extends Dialog implements OnItemClickListener {
 

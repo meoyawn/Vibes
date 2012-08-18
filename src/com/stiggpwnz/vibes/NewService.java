@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.stiggpwnz.vibes.Player.OnActionListener;
+
 public class NewService extends Service {
 
 	private static final String SONG = "song";
@@ -88,7 +90,7 @@ public class NewService extends Service {
 		return notificationManager;
 	}
 
-	public void setPlayerListener(OnPlayerActionListener listener) {
+	public void setPlayerListener(OnActionListener listener) {
 		player.setListener(listener);
 	}
 

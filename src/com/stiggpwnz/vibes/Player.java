@@ -20,11 +20,30 @@ import android.os.AsyncTask.Status;
 import android.os.Handler;
 import android.util.Log;
 
-import com.stiggpwnz.vibes.vkapi.Song;
-import com.stiggpwnz.vibes.vkapi.Vkontakte;
-import com.stiggpwnz.vibes.vkapi.VkontakteException;
+import com.stiggpwnz.vibes.restapi.LastFM;
+import com.stiggpwnz.vibes.restapi.Song;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.VkontakteException;
 
 public class Player implements OnCompletionListener, OnPreparedListener, OnSeekCompleteListener, OnBufferingUpdateListener, OnErrorListener, OnInfoListener {
+
+	public interface OnActionListener {
+
+		public void onBufferingStrated();
+
+		public void onBufferingEnded();
+
+		public void onProgressChanged(int progress);
+
+		public void onBufferingUpdate(int percent);
+
+		public void onAuthProblem();
+
+		public void onInternetProblem();
+
+		public void onNewTrack();
+
+	}
 
 	public enum State {
 		NOT_PREPARED, PLAYING, PAUSED, PREPARING_FOR_PLAYBACK, PREPARING_FOR_IDLE, SEEKING_FOR_PLAYBACK, SEEKING_FOR_IDLE, NEXT_FOR_PLAYBACK
@@ -43,7 +62,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private LastFM lastfm;
 
 	private MediaPlayer player;
-	private OnPlayerActionListener listener;
+	private OnActionListener listener;
 	private State state;
 
 	private boolean scrobbled;
@@ -474,8 +493,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return false;
 	}
 
-	public void setListener(OnPlayerActionListener onPlayerActionListener) {
-		this.listener = onPlayerActionListener;
+	public void setListener(OnActionListener onActionListener) {
+		this.listener = onActionListener;
 	}
 
 	public List<Song> getSongs() {

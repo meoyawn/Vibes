@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.restapi;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.stiggpwnz.vibes.vkapi.Song;
+import com.stiggpwnz.vibes.VibesApplication;
 
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -327,8 +327,7 @@ public class LastFM extends RestApi {
 
 		InputSource is = new InputSource(new StringReader(executeRequest(request)));
 		Document doc = builder.parse(is);
-		Element element = doc.getDocumentElement();
-		return element;
+		return doc.getDocumentElement();
 	}
 
 	public List<HttpPost> getImageRequestQueue() {

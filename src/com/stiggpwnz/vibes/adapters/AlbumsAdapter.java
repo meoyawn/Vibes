@@ -11,7 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.vkapi.Album;
+import com.stiggpwnz.vibes.restapi.Album;
 
 public class AlbumsAdapter extends BaseAdapter {
 

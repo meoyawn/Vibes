@@ -3,6 +3,7 @@ package com.stiggpwnz.vibes;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
@@ -39,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.stiggpwnz.vibes.NewService.ServiceBinder;
+import com.stiggpwnz.vibes.Player.OnActionListener;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.adapters.SongsAdapter;
 import com.stiggpwnz.vibes.adapters.ViewPagerAdapter;
@@ -50,13 +52,13 @@ import com.stiggpwnz.vibes.dialogs.SearchDIalog;
 import com.stiggpwnz.vibes.dialogs.UnitDialog;
 import com.stiggpwnz.vibes.dialogs.UnitsDialog;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
-import com.stiggpwnz.vibes.vkapi.Album;
-import com.stiggpwnz.vibes.vkapi.Song;
-import com.stiggpwnz.vibes.vkapi.Unit;
-import com.stiggpwnz.vibes.vkapi.Vkontakte;
-import com.stiggpwnz.vibes.vkapi.VkontakteException;
+import com.stiggpwnz.vibes.restapi.Album;
+import com.stiggpwnz.vibes.restapi.Song;
+import com.stiggpwnz.vibes.restapi.Unit;
+import com.stiggpwnz.vibes.restapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.VkontakteException;
 
-public class NewActivity extends Activity implements OnPlayerActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
+public class NewActivity extends Activity implements OnActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
 
 	// non enum because we'll need to store this things in settings
 	public static final int SEARCH = 0;
@@ -78,6 +80,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS = 4;
 
+	private final AtomicInteger runningThreads = new AtomicInteger();
 	private final ServiceConnection connection = new ServiceConnection() {
 
 		@Override
@@ -137,11 +140,11 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	private boolean bound;
 
 	private List<Album> myAlbums;
-
 	private List<Unit> friends;
 	private List<Unit> groups;
 	private boolean friendsList;
 	private Button btnShuffle;
+	private boolean inFront;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -158,6 +161,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	protected void onResume() {
 		super.onResume();
 		doBindService();
+		inFront = true;
 	}
 
 	private void doBindService() {
@@ -193,7 +197,9 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			else if (state == State.NOT_PREPARED || state == State.PAUSED || state == State.PREPARING_FOR_IDLE)
 				service.startWaiter();
 		}
-		doUnbindService();
+		if (runningThreads.get() == 0)
+			doUnbindService();
+		inFront = false;
 	}
 
 	@Override
@@ -310,6 +316,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			enteredThread();
 			showLoadingDialog(true);
 			if (service.getPlayer().getState() == State.PLAYING)
 				service.getPlayer().current = service.getPlayer().getCurrentSong();
@@ -373,8 +380,8 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			songsAdapter.currentSong = -1;
 			songsAdapter.notifyDataSetChanged();
 			playlist.setSelection(0);
-
 			player.generateShuffleQueue();
+			outOfThread();
 		}
 	}
 
@@ -383,6 +390,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
+			enteredThread();
 			progressUpdating.setVisibility(View.VISIBLE);
 		}
 
@@ -437,6 +445,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			}
 			songsAdapter.notifyDataSetChanged();
 			service.getPlayer().generateShuffleQueue();
+			outOfThread();
 		}
 	}
 
@@ -505,7 +514,6 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			}
 			hideLoadingDialog();
 		}
-
 	}
 
 	private class GetUnits extends AsyncTask<Void, Void, Void> {
@@ -630,7 +638,6 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 	private void accessDenied() {
 		runOnUiThread(new Runnable() {
-
 			@Override
 			public void run() {
 				Toast.makeText(NewActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
@@ -649,11 +656,11 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	}
 
 	private void unknownError() {
-		service.getPlayer().stop();
 		runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
+				service.getPlayer().stop();
 				Toast.makeText(NewActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
 			}
 		});
@@ -661,10 +668,10 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	}
 
 	private void internetFail() {
-		service.getPlayer().stop();
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				service.getPlayer().stop();
 				Toast.makeText(NewActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
 			}
 		});
@@ -1017,6 +1024,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		@Override
 		protected Integer doInBackground(Void... params) {
+			enteredThread();
 			Thread.currentThread().setName("Loving song");
 			own = settings.getPlaylist() == MY_AUDIOS && settings.getOwnerId() == 0;
 			if (settings.getSession() != null)
@@ -1049,6 +1057,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			} else {
 				player.getCurrentSong().loved = true;
 			}
+			outOfThread();
 		}
 	}
 
@@ -1087,6 +1096,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 
 		@Override
 		protected Boolean doInBackground(Void... params) {
+			enteredThread();
 			Thread.currentThread().setName("Unloving song");
 			own = settings.getPlaylist() == MY_AUDIOS && settings.getOwnerId() == 0;
 			if (settings.getSession() != null)
@@ -1118,6 +1128,7 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 			} else {
 				player.getCurrentSong().loved = false;
 			}
+			outOfThread();
 		}
 	}
 
@@ -1301,6 +1312,15 @@ public class NewActivity extends Activity implements OnPlayerActionListener, OnC
 	@Override
 	public void onNewTrack() {
 		setCurrentSong(false);
+	}
+
+	private void enteredThread() {
+		runningThreads.incrementAndGet();
+	}
+
+	private void outOfThread() {
+		if (runningThreads.decrementAndGet() == 0 && !inFront)
+			doUnbindService();
 	}
 
 }
