@@ -41,7 +41,7 @@ public class AlbumsDialog extends Dialog implements OnItemClickListener {
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
 		Settings settings = activity.getApp().getSettings();
-		settings.setPlaylist(PlayerActivity.MY_AUDIOS);
+		settings.setPlaylist(PlayerActivity.PLAYLIST_MY_AUDIOS);
 		settings.setAlbumId(albumsAdapter.getItem(position).id);
 		activity.runGetSongs(null);
 		activity.dismissDialog(PlayerActivity.DIALOG_ALBUMS);

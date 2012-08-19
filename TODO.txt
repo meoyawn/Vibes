@@ -1,8 +1,6 @@
 caching
 add to the wall
-download track
 sleeping timer
-delete from playlist
 search within friends
 widget
 custom playlists

@@ -25,6 +25,9 @@ import com.stiggpwnz.vibes.restapi.VkontakteException;
 
 public class VibesApplication extends Application implements Settings.OnActionListener {
 
+	public static final int TIMEOUT_CONNECTION = 3000;
+	public static final int TIMEOUT_SOCKET = 5000;
+
 	public static final String VIBES = "meridian";
 
 	private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS = 4;
@@ -69,10 +72,8 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	public static AbstractHttpClient threadSafeHttpClient() {
 		AbstractHttpClient client = new DefaultHttpClient();
 		HttpParams params = client.getParams();
-		int connectionTimeout = 3000;
-		HttpConnectionParams.setConnectionTimeout(params, connectionTimeout);
-		int socketTimeout = 5000;
-		HttpConnectionParams.setSoTimeout(params, socketTimeout);
+		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_CONNECTION);
+		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SOCKET);
 
 		SchemeRegistry registry = client.getConnectionManager().getSchemeRegistry();
 
@@ -100,7 +101,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		Vkontakte vkontakte = getVkontakte();
 
 		switch (settings.getPlaylist()) {
-		case PlayerActivity.SEARCH:
+		case PlayerActivity.PLAYLIST_SEARCH:
 			if (search == null)
 				search = settings.getLastSearch();
 			songs = vkontakte.search(search, 0);
@@ -109,15 +110,15 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 			}
 			break;
 
-		case PlayerActivity.MY_AUDIOS:
+		case PlayerActivity.PLAYLIST_MY_AUDIOS:
 			songs = vkontakte.getAudios(settings.getOwnerId(), settings.getAlbumId(), 0, false);
 			break;
 
-		case PlayerActivity.WALL:
+		case PlayerActivity.PLAYLIST_WALL:
 			songs = vkontakte.getWallAudios(settings.getOwnerId(), 0, false, false);
 			break;
 
-		case PlayerActivity.NEWSFEED:
+		case PlayerActivity.PLAYLIST_NEWSFEED:
 			songs = vkontakte.getNewsFeedAudios(false);
 			break;
 
@@ -129,26 +130,28 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		Settings settings = getSettings();
 
 		switch (settings.getPlaylist()) {
-		case PlayerActivity.MY_AUDIOS:
+		case PlayerActivity.PLAYLIST_MY_AUDIOS:
 			songs = vkontakte.getAudios(settings.getOwnerId(), settings.getAlbumId(), 0, true);
 			break;
 
-		case PlayerActivity.WALL:
+		case PlayerActivity.PLAYLIST_WALL:
 			songs = vkontakte.getWallAudios(settings.getOwnerId(), 0, false, true);
 			break;
 
-		case PlayerActivity.NEWSFEED:
+		case PlayerActivity.PLAYLIST_NEWSFEED:
 			long prevUpdate = vkontakte.getLastUpdate();
 			long thisUpdate = System.currentTimeMillis() / 1000;
 			if (thisUpdate - prevUpdate > UPDATE_PLAYLIST_TIMEOUT_SECONDS) {
 				Log.d(VibesApplication.VIBES, "updating songs from:" + prevUpdate);
 				List<Song> temp = vkontakte.getNewsFeedAudios(true);
-				if (temp != null) {
+				if (temp != null && temp.size() > 0) {
 					songs.addAll(0, temp);
 					// removing last cached newsfeed playlist
-					for (URI uri : vkontakte.getCache().keySet())
-						if (uri.toString().contains(Vkontakte.NEWSFEED_GET))
-							vkontakte.getCache().remove(uri);
+					synchronized (vkontakte) {
+						for (URI uri : vkontakte.getCache().keySet())
+							if (uri.toString().contains(Vkontakte.NEWSFEED_GET))
+								vkontakte.getCache().remove(uri);
+					}
 					// and adding a new one
 					vkontakte.getCache().put(vkontakte.getNewsFeedUri(), songs);
 					return temp.size();
@@ -172,20 +175,19 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 
 	@Override
 	public void onLastFmSessionChanged(String session) {
-		// TODO Auto-generated method stub
+		getLastFM().setSession(session);
 
 	}
 
 	@Override
 	public void onVkontakteMaxAudiosChanged(int maxAudios) {
-		// TODO Auto-generated method stub
+		getVkontakte().maxAudios = maxAudios;
 
 	}
 
 	@Override
 	public void onVkontakteMaxNewsChanged(int maxNews) {
-		// TODO Auto-generated method stub
-
+		getVkontakte().maxNews = maxNews;
 	}
 
 }

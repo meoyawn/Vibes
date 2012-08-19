@@ -119,6 +119,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		public void run() {
 			synchronized (Player.this) {
 				shuffleQueue.clear();
+				if (seed == -1)
+					seed = 0;
 				shuffleQueue.add(seed);
 				shufflePosition = 0;
 				int n = app.songs.size();
@@ -467,10 +469,6 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		this.listener = onActionListener;
 	}
 
-	public Song getCurrent() {
-		return current;
-	}
-
 	public void setCurrent(Song current) {
 		this.current = current;
 	}
@@ -578,16 +576,20 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void prev() {
 		if (app.songs != null && app.songs.size() > 0) {
 			Log.d(VibesApplication.VIBES, "Invoking prev() and state = " + getState());
-			current = null;
-			if (settings.getShuffle()) {
-				if (--shufflePosition < 0)
-					shufflePosition = app.songs.size() - 1;
-				currentTrack = shuffleQueue.get(shufflePosition);
+			if ((state == State.PLAYING || state == State.SEEKING_FOR_PLAYBACK) && player.getCurrentPosition() >= 5000) {
+				play();
 			} else {
-				if (--currentTrack < 0)
-					currentTrack = app.songs.size() - 1;
+				current = null;
+				if (settings.getShuffle()) {
+					if (--shufflePosition < 0)
+						shufflePosition = app.songs.size() - 1;
+					currentTrack = shuffleQueue.get(shufflePosition);
+				} else {
+					if (--currentTrack < 0)
+						currentTrack = app.songs.size() - 1;
+				}
+				resetAndPlay();
 			}
-			resetAndPlay();
 		}
 	}
 

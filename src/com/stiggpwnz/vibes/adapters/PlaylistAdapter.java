@@ -24,7 +24,7 @@ public class PlaylistAdapter extends BaseAdapter {
 	private Animation shakeRight;
 	private int blue;
 	public boolean fromPlaylist;
-	public int currentSong = -1;
+	public int currentTrack = -1;
 	private Typeface typeface;
 
 	public PlaylistAdapter(Context context, Typeface typeface) {
@@ -89,7 +89,7 @@ public class PlaylistAdapter extends BaseAdapter {
 		viewholder.artist.setText(songs.get(position).performer);
 		viewholder.title.setText(songs.get(position).title);
 
-		if (currentSong >= 0 && position == currentSong) {
+		if (currentTrack >= 0 && position == currentTrack) {
 			viewholder.stick.setVisibility(View.VISIBLE);
 			viewholder.title.setTextColor(blue);
 			if (fromPlaylist) {

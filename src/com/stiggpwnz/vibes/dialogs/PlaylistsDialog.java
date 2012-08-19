@@ -33,11 +33,11 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 		Settings settings = activity.getApp().getSettings();
 		switch (position) {
 
-		case PlayerActivity.SEARCH:
+		case PlayerActivity.PLAYLIST_SEARCH:
 			activity.showDialog(PlayerActivity.DIALOG_SEARCH);
 			break;
 
-		case PlayerActivity.FRIENDS:
+		case PlayerActivity.PLAYLIST_FRIENDS:
 			activity.setFriendsList(true);
 			if (activity.getFriends() != null)
 				activity.showDialog(PlayerActivity.DIALOG_UNITS);
@@ -45,7 +45,7 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 				activity.runGetUnits();
 			break;
 
-		case PlayerActivity.GROUPS:
+		case PlayerActivity.PLAYLIST_GROUPS:
 			activity.setFriendsList(false);
 			if (activity.getGroups() != null)
 				activity.showDialog(PlayerActivity.DIALOG_UNITS);
@@ -53,7 +53,7 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 				activity.runGetUnits();
 			break;
 
-		case PlayerActivity.MY_AUDIOS:
+		case PlayerActivity.PLAYLIST_MY_AUDIOS:
 			settings.setPlaylist(position);
 			settings.setOwnerId(0);
 			settings.setAlbumId(0);
@@ -61,7 +61,7 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 			dismiss();
 			break;
 
-		case PlayerActivity.WALL:
+		case PlayerActivity.PLAYLIST_WALL:
 			settings.setPlaylist(position);
 			settings.setOwnerId(0);
 			settings.setAlbumId(0);
@@ -69,15 +69,15 @@ public class PlaylistsDialog extends Dialog implements OnItemClickListener {
 			dismiss();
 			break;
 
-		case PlayerActivity.NEWSFEED:
+		case PlayerActivity.PLAYLIST_NEWSFEED:
 			settings.setPlaylist(position);
 			activity.runGetSongs(null);
 			dismiss();
 			break;
 
-		case PlayerActivity.ALBUMS:
+		case PlayerActivity.PLAYLIST_ALBUMS:
 			settings.setOwnerId(0);
-			activity.runGetALbums();
+			activity.getAlbums();
 			break;
 		}
 	}

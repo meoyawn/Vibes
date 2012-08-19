@@ -2,28 +2,33 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/white"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:paddingBottom="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="5dp" >
 
     <ImageView
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_gravity="center_vertical"
-        android:contentDescription="@string/downloading"
-        android:src="@drawable/download_icon" />
-
-    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_gravity="center_vertical"
+        android:layout_weight="4"
+        android:contentDescription="@string/downloading"
+        android:src="@drawable/downloading" />
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/downloadTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="@color/black" />
@@ -33,11 +38,12 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="10dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="false"
+            android:layout_below="@id/downloadTitle"
             android:layout_marginTop="5dp"
             android:progressDrawable="@drawable/seek_bar_background" />
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

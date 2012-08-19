@@ -18,7 +18,6 @@
     <string name="account">Last.fm</string>
     <string name="last_success">Скробблинг включен</string>
     <string name="auth">Авторизация…</string>
-    <string name="connection_lost">Соединение потеряно</string>
     <string name="title_repeat">Повтор плейлиста</string>
     <string name="summary_repeat">Повтор плейлиста по его завершению</string>
     <string name="title_max_news">Количество записей</string>
@@ -62,8 +61,17 @@
         <item>Аудиозаписи со стены</item>
         <item>Альбомы</item>
     </string-array>
+    <string-array name="context_options">
+        <item>Добавить и полюбить</item>
+        <item>Удалить из плейлиста</item>
+        <item>Загрузить</item>
+    </string-array>
 
+    <string name="remove_unlove">Удалить и разлюбить</string>
     <string name="downloading">Загрузка</string>
     <string name="insertSdCard">Вставьте SD карту</string>
+    <string name="downloads_directory">Папка для загрузок</string>
+    <string name="download_success">Успешно загружен</string>
+    <string name="download_fail">Не удалось завершить загрузку</string>
 
 </resources>

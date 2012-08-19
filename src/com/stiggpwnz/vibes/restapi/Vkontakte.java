@@ -269,11 +269,6 @@ public class Vkontakte extends RestApi {
 						+ accesToken);
 			}
 
-			if (update)
-				for (URI cached : getCache().keySet())
-					if (cached.toString().contains(NEWSFEED_GET))
-						getCache().remove(cached);
-
 			if (cache.containsKey(uri))
 				return cache.get(uri);
 

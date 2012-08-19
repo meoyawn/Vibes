@@ -24,21 +24,18 @@ import com.stiggpwnz.vibes.restapi.Vkontakte;
 
 public class Downloader {
 
-	public static interface OnActionListener {
-		public void onDownloadException(String messsage);
-	}
+	private static final String DOWNLOADING = "downloading";
+	private static final String FINISHED = "finished";
 
 	private NotificationManager manager;
 	private Context context;
 	private Vkontakte vkontakte;
 	private List<Integer> downloadQueue;
-	private OnActionListener listener;
 	private String path;
 
-	public Downloader(Context context, OnActionListener listener, NotificationManager manager, Vkontakte vkontakte, List<Integer> downloadQueue, String path) {
+	public Downloader(Context context, Vkontakte vkontakte, List<Integer> downloadQueue, String path) {
 		this.context = context;
-		this.listener = listener;
-		this.manager = manager;
+		this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.vkontakte = vkontakte;
 		this.downloadQueue = downloadQueue;
 		this.path = path;
@@ -53,7 +50,7 @@ public class Downloader {
 
 	private class DownloaderThread extends AsyncTask<Void, Void, Void> {
 
-		private String songName;
+		private String filename;
 		private Notification notification;
 		private Song song;
 		private File outputFile;
@@ -70,13 +67,13 @@ public class Downloader {
 
 			directory.mkdirs();
 
-			songName = String.format("%s - %s.mp3", song.performer, song.title);
-			outputFile = new File(directory, songName);
+			filename = song.toString() + ".mp3";
+			outputFile = new File(directory, filename);
 			int tries = 0;
 			while (outputFile.exists()) {
 				tries++;
-				songName = String.format("%s - %s (%d).mp3", song.performer, song.title, tries);
-				outputFile = new File(directory, songName);
+				filename = String.format("%s (%d).mp3", song.toString(), tries);
+				outputFile = new File(directory, filename);
 			}
 			Log.d(VibesApplication.VIBES, outputFile.getAbsolutePath());
 		}
@@ -90,7 +87,7 @@ public class Downloader {
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
-				Thread.currentThread().setName("Downloading " + songName);
+				Thread.currentThread().setName("Downloading " + filename);
 				if (song.url == null)
 					vkontakte.setSongUrl(song);
 
@@ -98,9 +95,12 @@ public class Downloader {
 
 				HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 				urlConnection.setRequestMethod("GET");
+				urlConnection.setConnectTimeout(VibesApplication.TIMEOUT_CONNECTION);
+				urlConnection.setReadTimeout(VibesApplication.TIMEOUT_SOCKET);
 				urlConnection.connect();
 
-				// this will be useful so that you can show a typical 0-100% progress bar
+				// this will be useful so that you can show a typical 0-100%
+				// progress bar
 				int fileLength = urlConnection.getContentLength();
 
 				// download the file
@@ -122,7 +122,7 @@ public class Downloader {
 					if (progress > lastprogress) {
 						lastprogress = progress;
 						notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
-						manager.notify(song.aid, notification);
+						manager.notify(DOWNLOADING, song.aid, notification);
 					}
 
 					output.write(buffer, 0, bufferLength);
@@ -132,11 +132,9 @@ public class Downloader {
 				output.close();
 				input.close();
 			} catch (Exception e) {
-				messsage = e.getLocalizedMessage();
-				Log.d(VibesApplication.VIBES, e.getClass().getName().toString());
-				cancel(false);
+				messsage = String.format("%s: %s", e.getClass().getName(), e.getLocalizedMessage());
+				return null;
 			}
-
 			return null;
 		}
 
@@ -145,22 +143,37 @@ public class Downloader {
 			super.onPostExecute(result);
 			cancelNotification();
 			downloadQueue.remove(Integer.valueOf(song.aid));
+			showNotification(messsage == null);
+			if (messsage != null && outputFile.exists())
+				outputFile.delete();
 		}
 
-		@Override
-		protected void onCancelled() {
-			super.onCancelled();
-			cancelNotification();
-			downloadQueue.remove(Integer.valueOf(song.aid));
-			if (outputFile.exists())
-				outputFile.delete();
-			if (messsage != null)
-				listener.onDownloadException(messsage);
+		private void showNotification(boolean success) {
+			int icon;
+			if (success)
+				icon = R.drawable.ok;
+			else
+				icon = R.drawable.cancel;
+
+			Notification notification = new Notification(icon, song.toString(), System.currentTimeMillis());
+
+			int status;
+			if (success)
+				status = R.string.download_success;
+			else
+				status = R.string.download_fail;
+
+			CharSequence contentTitle = song.toString();
+			CharSequence contentText = context.getString(status);
+			Intent notificationIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+			notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
+			manager.notify(FINISHED, song.aid, notification);
 		}
 
 		private void showNotification() {
-			String title = String.format("%s %s", context.getString(R.string.downloading), songName);
-			notification = new Notification(R.drawable.download_icon, title, System.currentTimeMillis());
+			notification = new Notification(R.drawable.download_icon, song.toString(), System.currentTimeMillis());
 			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
 			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
@@ -168,13 +181,13 @@ public class Downloader {
 			PendingIntent intent = PendingIntent.getActivity(context, 0, notifyIntent, 0);
 
 			notification.contentIntent = intent;
-			notification.contentView.setTextViewText(R.id.downloadTitle, title);
+			notification.contentView.setTextViewText(R.id.downloadTitle, song.toString());
 
-			manager.notify(song.aid, notification);
+			manager.notify(DOWNLOADING, song.aid, notification);
 		}
 
 		private void cancelNotification() {
-			manager.cancel(song.aid);
+			manager.cancel(DOWNLOADING, song.aid);
 		}
 
 	}

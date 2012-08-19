@@ -56,7 +56,7 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == picker) {
 			Intent intent = new Intent(this, DirectoryPicker.class);
-			intent.putExtra(DirectoryPicker.SHOW_HIDDEN, true);
+			intent.putExtra(DirectoryPicker.ONLY_DIRS, false);
 			startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
 			return true;
 		}

@@ -36,7 +36,7 @@ public class UnitDialog extends Dialog implements OnItemClickListener {
 
 		switch (position) {
 		case 0:
-			settings.setPlaylist(PlayerActivity.MY_AUDIOS);
+			settings.setPlaylist(PlayerActivity.PLAYLIST_MY_AUDIOS);
 			settings.setAlbumId(0);
 			activity.runGetSongs(null);
 			dismiss();
@@ -45,7 +45,7 @@ public class UnitDialog extends Dialog implements OnItemClickListener {
 			break;
 
 		case 1:
-			settings.setPlaylist(PlayerActivity.WALL);
+			settings.setPlaylist(PlayerActivity.PLAYLIST_WALL);
 			activity.runGetSongs(null);
 			dismiss();
 			activity.dismissDialog(PlayerActivity.DIALOG_UNITS);
@@ -53,7 +53,7 @@ public class UnitDialog extends Dialog implements OnItemClickListener {
 			break;
 
 		case 2:
-			activity.runGetALbums();
+			activity.getAlbums();
 			break;
 		}
 

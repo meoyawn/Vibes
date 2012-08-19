@@ -18,7 +18,6 @@
     <string name="account">Last.fm</string>
     <string name="last_success">Scrobbling is enabled</string>
     <string name="auth">Authorization…</string>
-    <string name="connection_lost">Connection lost</string>
     <string name="title_repeat">Repeat playlist</string>
     <string name="summary_repeat">Repeat playlist when the end is reached</string>
     <string name="title_max_news">Posts count</string>
@@ -62,9 +61,17 @@
         <item>Wall audios</item>
         <item>Albums</item>
     </string-array>
+    <string-array name="context_options">
+        <item>Add and love</item>
+        <item>Remove from playlist</item>
+        <item>Download</item>
+    </string-array>
 
+    <string name="remove_unlove">Remove and unlove</string>
     <string name="downloading">Downloading</string>
     <string name="insertSdCard">Insert an SD card</string>
     <string name="downloads_directory">Downloads directory</string>
+    <string name="download_success">Successfully downloaded</string>
+    <string name="download_fail">Couldn\'t finish the download</string>
 
 </resources>

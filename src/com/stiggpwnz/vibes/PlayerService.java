@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.stiggpwnz.vibes.Player.OnActionListener;
 
-public class PlayerService extends Service implements Downloader.OnActionListener {
+public class PlayerService extends Service {
 
 	private static final String SONG = "song";
 	private static final int NOTIFICATION = 49;
@@ -103,24 +103,22 @@ public class PlayerService extends Service implements Downloader.OnActionListene
 
 	public void download(int position) {
 		try {
-			new Downloader(this, this, notificationManager, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath()).download(app.songs.get(position));
+			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath()).download(app.songs.get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}
 	}
 
-	@Override
 	public void onDownloadException(String message) {
 		if (message != null) {
 			Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
-			toast.setGravity(Gravity.TOP, 50, 0);
+			toast.setGravity(Gravity.TOP, 0, -50);
 			toast.show();
 		}
 	}
 
 	public void makeNotification() {
-		final Notification notification = new Notification(R.drawable.icon, String.format("%s - %s", player.getCurrentSong().performer, player.getCurrentSong().title), System
-				.currentTimeMillis());
+		Notification notification = new Notification(R.drawable.icon, player.getCurrentSong().toString(), System.currentTimeMillis());
 		CharSequence contentTitle = player.getCurrentSong().title;
 		CharSequence contentText = player.getCurrentSong().performer;
 		Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

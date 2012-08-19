@@ -59,6 +59,7 @@ public class Settings {
 
 	public Settings(Context context, OnActionListener listener) {
 		this.context = context;
+		this.listener = listener;
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
@@ -165,7 +166,7 @@ public class Settings {
 
 	public int getPlaylist() {
 		if (playlist == -1)
-			playlist = prefs.getInt(PLAYLIST, PlayerActivity.NEWSFEED);
+			playlist = prefs.getInt(PLAYLIST, PlayerActivity.PLAYLIST_NEWSFEED);
 		return playlist;
 	}
 

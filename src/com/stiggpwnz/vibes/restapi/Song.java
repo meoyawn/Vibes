@@ -24,4 +24,10 @@ public class Song {
 		title = name;
 		this.url = url;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("%s - %s", performer, title);
+	}
+
 }

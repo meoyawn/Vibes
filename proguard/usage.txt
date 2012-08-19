@@ -688,28 +688,93 @@ android.support.v4.widget.SearchViewCompatHoneycomb$OnQueryTextListenerCompatBri
 android.support.v4.widget.SimpleCursorAdapter
 android.support.v4.widget.SimpleCursorAdapter$CursorToStringConverter
 android.support.v4.widget.SimpleCursorAdapter$ViewBinder
-com.stiggpwnz.vibes.Api:
-    protected static final java.lang.String TRACK_GET_INFO
-    protected static final java.lang.String AUDIO_GET_BY_ID
-    private static final java.lang.String UTF_8
-    private static final java.lang.String MD5
 com.stiggpwnz.vibes.BuildConfig
-com.stiggpwnz.vibes.FileCache:
+com.stiggpwnz.vibes.Downloader:
+    private static final java.lang.String DOWNLOADING
+    private static final java.lang.String FINISHED
+com.stiggpwnz.vibes.LoginActivity:
+    public static final java.lang.String RESET
+    private static final java.lang.String SCOPE
+    private static final java.lang.String AUTH_URL
+    private static final java.lang.String CALLBACK_URL
+    private static final int DIALOG_BROWSER
+com.stiggpwnz.vibes.Player:
+    473:474:public void setCurrent(com.stiggpwnz.vibes.restapi.Song)
+com.stiggpwnz.vibes.PlayerActivity:
+    public static final int PLAYLIST_SEARCH
+    public static final int PLAYLIST_FRIENDS
+    public static final int PLAYLIST_GROUPS
+    public static final int PLAYLIST_MY_AUDIOS
+    public static final int PLAYLIST_WALL
+    public static final int PLAYLIST_NEWSFEED
+    public static final int PLAYLIST_ALBUMS
+    public static final int DIALOG_LAST_FM_AUTH
+    public static final int DIALOG_LAST_FM_USER
+    public static final int DIALOG_PLAYLISTS
+    public static final int DIALOG_SEARCH
+    public static final int DIALOG_UNITS
+    public static final int DIALOG_UNIT
+    public static final int DIALOG_ALBUMS
+    private static final int CONTEXT_LOVE_UNLOVE
+    private static final int CONTEXT_REMOVE
+    private static final int CONTEXT_DOWNLOAD
+    1266:1266:public boolean isFriendsList()
+    1282:1282:public com.stiggpwnz.vibes.PlayerService getService()
+com.stiggpwnz.vibes.PlayerService:
+    private static final java.lang.String SONG
+    private static final int NOTIFICATION
+    private static final long IDLE_TIME
+com.stiggpwnz.vibes.R
+com.stiggpwnz.vibes.R$anim
+com.stiggpwnz.vibes.R$array
+com.stiggpwnz.vibes.R$attr
+com.stiggpwnz.vibes.R$color
+com.stiggpwnz.vibes.R$drawable
+com.stiggpwnz.vibes.R$id
+com.stiggpwnz.vibes.R$layout
+com.stiggpwnz.vibes.R$menu
+com.stiggpwnz.vibes.R$string
+com.stiggpwnz.vibes.R$style
+com.stiggpwnz.vibes.R$xml
+com.stiggpwnz.vibes.Settings:
+    public static final java.lang.String MAX_NEWS
+    public static final java.lang.String MAX_AUDIOS
+    public static final java.lang.String REPEAT_PLAYLIST
+    public static final java.lang.String DIRECTORY_PICKER
+    private static final java.lang.String USERNAME
+    private static final java.lang.String USER_IMAGE
+    private static final java.lang.String SESSION
+    private static final java.lang.String SHUFFLE
+    private static final java.lang.String PLAYLIST
+    private static final java.lang.String OWNER_ID
+    private static final java.lang.String LAST_SEARCH
+    private static final java.lang.String ALBUM_ID
+com.stiggpwnz.vibes.VibesApplication:
+    public static final int TIMEOUT_CONNECTION
+    public static final int TIMEOUT_SOCKET
+    public static final java.lang.String VIBES
+    private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS
+com.stiggpwnz.vibes.adapters.PlaylistAdapter:
+    45:45:public java.util.List getSongs()
+com.stiggpwnz.vibes.imageloader.FileCache:
     31:31:public boolean isEmpty()
-com.stiggpwnz.vibes.HeadsetStateReceiver:
-    public static final java.lang.String STATE
-com.stiggpwnz.vibes.ImageLoader:
+com.stiggpwnz.vibes.imageloader.ImageLoader:
     181:183:public void clearCache()
-    190:191:public void setMemoryCache(com.stiggpwnz.vibes.MemoryCache)
-    194:194:public com.stiggpwnz.vibes.FileCache getFileCache()
-    198:199:public void setFileCache(com.stiggpwnz.vibes.FileCache)
-com.stiggpwnz.vibes.LastFM:
+    186:186:public com.stiggpwnz.vibes.imageloader.MemoryCache getMemoryCache()
+    190:191:public void setMemoryCache(com.stiggpwnz.vibes.imageloader.MemoryCache)
+    194:194:public com.stiggpwnz.vibes.imageloader.FileCache getFileCache()
+    198:199:public void setFileCache(com.stiggpwnz.vibes.imageloader.FileCache)
+com.stiggpwnz.vibes.imageloader.MemoryCache:
+    private static final java.lang.String TAG
+    74:76:public void clear()
+com.stiggpwnz.vibes.restapi.LastFM:
     private static final java.lang.String API_KEY
     private static final java.lang.String API_SECRET
     private static final java.lang.String API_SCHEME
     private static final java.lang.String API_AUTHORITY
     private static final java.lang.String API_PATH
     private static final java.lang.String AUTH_GET_MOBILE_SESSION
+    private static final java.lang.String TRACK_GET_INFO
     private static final java.lang.String TRACK_UNLOVE
     private static final java.lang.String TRACK_LOVE
     private static final java.lang.String TRACK_SCROBBLE
@@ -733,111 +798,24 @@ com.stiggpwnz.vibes.LastFM:
     private static final java.lang.String ALBUM
     private static final java.lang.String NAME
     private static final java.lang.String ARTIST
-com.stiggpwnz.vibes.LoginActivity:
-    public static final java.lang.String RESET
-    private static final java.lang.String SCOPE
-    private static final java.lang.String AUTH_URL
-    private static final java.lang.String CALLBACK_URL
-    private static final int DIALOG_BROWSER
-com.stiggpwnz.vibes.MemoryCache:
-    private static final java.lang.String TAG
-com.stiggpwnz.vibes.PlayerActivity:
-    public static final int SEARCH
-    public static final int FRIENDS
-    public static final int GROUPS
-    public static final int MY_AUDIOS
-    public static final int WALL
-    public static final int NEWSFEED
-    public static final int ALBUMS
-    private static final int DIALOG_LAST_FM_AUTH
-    private static final int DIALOG_SIGNING_IN
-    private static final int DIALOG_LAST_FM_USER
-    private static final int DIALOG_PLAYLISTS
-    private static final int DIALOG_SEARCH
-    private static final int DIALOG_UNITS
-    private static final int DIALOG_UNIT
-    private static final int DIALOG_ALBUMS
-com.stiggpwnz.vibes.PlayerService:
-    public static final int MSG_REGISTER_CLIENT
-    public static final int MSG_UNREGISTER_CLIENT
-    public static final int MSG_BUFFERING_STARTED
-    public static final int MSG_BUFFERING_STOPPED
-    public static final int MSG_SET_CURRENT_SONG
-    public static final int MSG_PLAY
-    public static final int MSG_PAUSE
-    public static final int MSG_RESUME
-    public static final int MSG_NEXT
-    public static final int MSG_PREV
-    public static final int MSG_SET_PROGRESS
-    public static final int MSG_SEEK_TO
-    public static final int MSG_SET_CURRENT_SONG_SERVICE
-    public static final int MSG_ON_RESUME
-    public static final int MSG_ON_RESUME_SERVICE
-    public static final int MSG_ON_PAUSE_SERVICE
-    public static final int MSG_SET_SHUFFLE
-    public static final int MSG_SET_REPEAT
-    public static final int MSG_UNBIND_SERVICE
-    public static final int MSG_UPDATE_BUFFER
-    public static final int MSG_AUTH_PROBLEM
-    public static final int MSG_INTERNET_PROBLEM
-    public static final int MSG_DOWNLOAD
-    public static final int STATE_NOT_PREPARED_IDLING
-    public static final int STATE_PLAYING
-    public static final int STATE_PAUSED_IDLING
-    public static final int STATE_PREPARING_FOR_PLAYBACK
-    public static final int STATE_NEXT_FOR_PLAYBACK
-    public static final int STATE_PREPARED_IDLING
-    public static final int STATE_SEEKING
-    public static final int STATE_PREPARING_FOR_IDLE
-    private static final long IDLE_TIME
-    private static final long HEADPHONES_TIME
-com.stiggpwnz.vibes.R
-com.stiggpwnz.vibes.R$anim
-com.stiggpwnz.vibes.R$array
-com.stiggpwnz.vibes.R$attr
-com.stiggpwnz.vibes.R$color
-com.stiggpwnz.vibes.R$drawable
-com.stiggpwnz.vibes.R$id
-com.stiggpwnz.vibes.R$layout
-com.stiggpwnz.vibes.R$menu
-com.stiggpwnz.vibes.R$string
-com.stiggpwnz.vibes.R$style
-com.stiggpwnz.vibes.R$xml
-com.stiggpwnz.vibes.VibesApplication:
-    public static final java.lang.String VIBES
-    public static final int NOTIFICATION
-    public static final java.lang.String SONG
+com.stiggpwnz.vibes.restapi.RestApi:
+    private static final java.lang.String UTF_8
+    private static final java.lang.String MD5
+com.stiggpwnz.vibes.restapi.Vkontakte:
+    public static final java.lang.String CLIENT_ID
     public static final java.lang.String ACCESS_TOKEN
     public static final java.lang.String EXPIRES_IN
     public static final java.lang.String USER_ID
-    public static final java.lang.String MAX_NEWS
-    public static final java.lang.String MAX_AUDIO
-    public static final java.lang.String REPEAT_PLAYLIST
-    private static final java.lang.String USERNAME
-    private static final java.lang.String USER_IMAGE
-    private static final java.lang.String SESSION
-    private static final java.lang.String SHUFFLE
-    private static final java.lang.String PLAYLIST
-    private static final java.lang.String OWNER
-    private static final java.lang.String LAST_SEARCH
-    private static final java.lang.String ALBUM
-    private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS
-    public long lastUpdate
-    274:275:public void closeIdleConnections()
-    278:279:public void closeAllConnections()
-com.stiggpwnz.vibes.Vkontakte:
-    private static final java.lang.String ERROR_CODE
-    private static final java.lang.String ERROR
-    public static final java.lang.String CLIENT_ID
     private static final java.lang.String API_URL
     private static final java.lang.String AUDIO_ADD
     private static final java.lang.String AUDIO_DELETE
     private static final java.lang.String AUDIO_GET
+    private static final java.lang.String AUDIO_GET_BY_ID
     private static final java.lang.String AUDIO_GET_ALBUMS
     private static final java.lang.String AUDIO_SEARCH
     private static final java.lang.String FRIENDS_GET
     private static final java.lang.String GROUPS_GET
-    private static final java.lang.String NEWSFEED_GET
+    public static final java.lang.String NEWSFEED_GET
     private static final java.lang.String WALL_GET
     private static final java.lang.String AUDIO
     private static final java.lang.String AUDIOS
@@ -852,7 +830,6 @@ com.stiggpwnz.vibes.Vkontakte:
     private static final java.lang.String AID
     private static final java.lang.String GID
     private static final java.lang.String UID
-    private static final java.lang.String ACCESS_TOKEN
     private static final java.lang.String URL
     private static final java.lang.String TITLE
     private static final java.lang.String ARTIST
@@ -869,7 +846,11 @@ com.stiggpwnz.vibes.Vkontakte:
     private static final java.lang.String PHOTO_REC
     private static final java.lang.String HINTS
     private static final java.lang.String ORDER
-com.stiggpwnz.vibes.VkontakteException:
+    private static final java.lang.String ERROR_CODE
+    private static final java.lang.String ERROR
+    98:98:public java.lang.String getAccesToken()
+    102:103:public void setAccesToken(java.lang.String)
+com.stiggpwnz.vibes.restapi.VkontakteException:
     private static final long serialVersionUID
     public static final int UNKNOWN_ERROR_OCCURED
     public static final int APPLICATION_IS_DISABLED
@@ -880,6 +861,27 @@ com.stiggpwnz.vibes.VkontakteException:
     public static final int ONE_OF_THE_PARAMETERS_IS_MISSING_OR_INVALID
     public static final int INVALID_MESSAGE
     public static final int ACCESS_DENIED
+net.bgreco.DirectoryPicker:
+    public static final java.lang.String START_DIR
+    public static final java.lang.String ONLY_DIRS
+    public static final java.lang.String SHOW_HIDDEN
+    public static final java.lang.String CHOSEN_DIRECTORY
+    public static final int PICK_DIRECTORY
+net.bgreco.R:
+    10:10:public R()
+net.bgreco.R$anim
+net.bgreco.R$array
+net.bgreco.R$attr
+net.bgreco.R$color
+net.bgreco.R$drawable
+net.bgreco.R$id:
+    87:87:public R$id()
+net.bgreco.R$layout:
+    143:143:public R$layout()
+net.bgreco.R$menu
+net.bgreco.R$string
+net.bgreco.R$style
+net.bgreco.R$xml
 org.jsoup.Connection
 org.jsoup.Connection$Base
 org.jsoup.Connection$KeyVal
