@@ -814,12 +814,14 @@ com.stiggpwnz.vibes.Downloader -> com.stiggpwnz.vibes.a:
     com.stiggpwnz.vibes.restapi.Vkontakte vkontakte -> c
     java.util.List downloadQueue -> d
     java.lang.String path -> e
+    boolean finished -> f
     void download(com.stiggpwnz.vibes.restapi.Song) -> a
     java.lang.String access$0(com.stiggpwnz.vibes.Downloader) -> a
     android.content.Context access$1(com.stiggpwnz.vibes.Downloader) -> b
     com.stiggpwnz.vibes.restapi.Vkontakte access$2(com.stiggpwnz.vibes.Downloader) -> c
     android.app.NotificationManager access$3(com.stiggpwnz.vibes.Downloader) -> d
     java.util.List access$4(com.stiggpwnz.vibes.Downloader) -> e
+    boolean access$5(com.stiggpwnz.vibes.Downloader) -> f
 com.stiggpwnz.vibes.Downloader$DownloaderThread -> com.stiggpwnz.vibes.b:
     java.lang.String filename -> b
     android.app.Notification notification -> c
@@ -1225,6 +1227,7 @@ com.stiggpwnz.vibes.Settings -> com.stiggpwnz.vibes.ad:
     java.lang.Boolean shuffle -> p
     java.lang.Boolean repeatPlaylist -> q
     java.lang.String directoryPath -> r
+    java.lang.Boolean finishedNotification -> s
     void saveData(java.lang.String[]) -> a
     void resetData() -> a
     void saveLastFM(java.lang.String[]) -> b
@@ -1253,6 +1256,8 @@ com.stiggpwnz.vibes.Settings -> com.stiggpwnz.vibes.ad:
     void setShuffle(boolean) -> a
     java.lang.String getDirectoryPath() -> t
     void setDirectoryPath(java.lang.String) -> b
+    java.lang.Boolean getFinishedNotification() -> u
+    void updateFinishedNotification() -> v
 com.stiggpwnz.vibes.Settings$OnActionListener -> com.stiggpwnz.vibes.ae:
     void onLastFmSessionChanged(java.lang.String) -> a
     void onVkontakteMaxAudiosChanged(int) -> a
@@ -1533,16 +1538,12 @@ net.bgreco.R$id -> net.bgreco.d:
     int btnSingIn -> btnSingIn
     int btnSingOut -> btnSingOut
     int btnUpdate -> btnUpdate
-    int button1 -> button1
-    int button2 -> button2
-    int button3 -> button3
     int downloadProgress -> downloadProgress
     int downloadTitle -> downloadTitle
     int editPassword -> editPassword
     int editUsername -> editUsername
     int imageAlbum -> imageAlbum
     int imageUser -> imageUser
-    int imageView1 -> imageView1
     int itemLastFM -> itemLastFM
     int itemLogOut -> itemLogOut
     int itemPrefs -> itemPrefs
@@ -1562,7 +1563,6 @@ net.bgreco.R$id -> net.bgreco.d:
     int textTitle -> textTitle
     int textUser -> textUser
     int textView1 -> textView1
-    int textView2 -> textView2
     int title -> title
     int unitImage -> unitImage
     int unitName -> unitName
@@ -1578,7 +1578,6 @@ net.bgreco.R$layout -> net.bgreco.e:
     int list -> list
     int list_item -> list_item
     int login -> login
-    int notification -> notification
     int player -> player
     int playlist -> playlist
     int search -> search

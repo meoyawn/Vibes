@@ -741,6 +741,7 @@ com.stiggpwnz.vibes.Settings:
     public static final java.lang.String MAX_AUDIOS
     public static final java.lang.String REPEAT_PLAYLIST
     public static final java.lang.String DIRECTORY_PICKER
+    public static final java.lang.String FINISHED_NOTIFICATION
     private static final java.lang.String USERNAME
     private static final java.lang.String USER_IMAGE
     private static final java.lang.String SESSION
@@ -877,7 +878,7 @@ net.bgreco.R$drawable
 net.bgreco.R$id:
     87:87:public R$id()
 net.bgreco.R$layout:
-    143:143:public R$layout()
+    138:138:public R$layout()
 net.bgreco.R$menu
 net.bgreco.R$string
 net.bgreco.R$style

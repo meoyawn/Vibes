@@ -75,7 +75,6 @@ com.stiggpwnz.vibes.R$color: int white
 com.stiggpwnz.vibes.R$drawable: int back
 com.stiggpwnz.vibes.R$drawable: int back_normal
 com.stiggpwnz.vibes.R$drawable: int back_pressed
-com.stiggpwnz.vibes.R$drawable: int btn_rect
 com.stiggpwnz.vibes.R$drawable: int btn_rect_red
 com.stiggpwnz.vibes.R$drawable: int cancel
 com.stiggpwnz.vibes.R$drawable: int download
@@ -98,6 +97,7 @@ com.stiggpwnz.vibes.R$drawable: int love_grey
 com.stiggpwnz.vibes.R$drawable: int music
 com.stiggpwnz.vibes.R$drawable: int next_normal
 com.stiggpwnz.vibes.R$drawable: int next_pressed
+com.stiggpwnz.vibes.R$drawable: int notification_icon
 com.stiggpwnz.vibes.R$drawable: int ok
 com.stiggpwnz.vibes.R$drawable: int pause
 com.stiggpwnz.vibes.R$drawable: int pause_normal
@@ -140,16 +140,12 @@ com.stiggpwnz.vibes.R$id: int btnShuffle
 com.stiggpwnz.vibes.R$id: int btnSingIn
 com.stiggpwnz.vibes.R$id: int btnSingOut
 com.stiggpwnz.vibes.R$id: int btnUpdate
-com.stiggpwnz.vibes.R$id: int button1
-com.stiggpwnz.vibes.R$id: int button2
-com.stiggpwnz.vibes.R$id: int button3
 com.stiggpwnz.vibes.R$id: int downloadProgress
 com.stiggpwnz.vibes.R$id: int downloadTitle
 com.stiggpwnz.vibes.R$id: int editPassword
 com.stiggpwnz.vibes.R$id: int editUsername
 com.stiggpwnz.vibes.R$id: int imageAlbum
 com.stiggpwnz.vibes.R$id: int imageUser
-com.stiggpwnz.vibes.R$id: int imageView1
 com.stiggpwnz.vibes.R$id: int itemLastFM
 com.stiggpwnz.vibes.R$id: int itemLogOut
 com.stiggpwnz.vibes.R$id: int itemPrefs
@@ -169,7 +165,6 @@ com.stiggpwnz.vibes.R$id: int textPassed
 com.stiggpwnz.vibes.R$id: int textTitle
 com.stiggpwnz.vibes.R$id: int textUser
 com.stiggpwnz.vibes.R$id: int textView1
-com.stiggpwnz.vibes.R$id: int textView2
 com.stiggpwnz.vibes.R$id: int title
 com.stiggpwnz.vibes.R$id: int unitImage
 com.stiggpwnz.vibes.R$id: int unitName
@@ -184,7 +179,6 @@ com.stiggpwnz.vibes.R$layout: int last_user
 com.stiggpwnz.vibes.R$layout: int list
 com.stiggpwnz.vibes.R$layout: int list_item
 com.stiggpwnz.vibes.R$layout: int login
-com.stiggpwnz.vibes.R$layout: int notification
 com.stiggpwnz.vibes.R$layout: int player
 com.stiggpwnz.vibes.R$layout: int playlist
 com.stiggpwnz.vibes.R$layout: int search
@@ -199,7 +193,6 @@ com.stiggpwnz.vibes.R$string: int auth
 com.stiggpwnz.vibes.R$string: int authProblem
 com.stiggpwnz.vibes.R$string: int buffering
 com.stiggpwnz.vibes.R$string: int choose
-com.stiggpwnz.vibes.R$string: int connection_lost
 com.stiggpwnz.vibes.R$string: int default_max_audio
 com.stiggpwnz.vibes.R$string: int default_max_news
 com.stiggpwnz.vibes.R$string: int download_fail
@@ -207,6 +200,8 @@ com.stiggpwnz.vibes.R$string: int download_success
 com.stiggpwnz.vibes.R$string: int downloading
 com.stiggpwnz.vibes.R$string: int downloads_directory
 com.stiggpwnz.vibes.R$string: int empty
+com.stiggpwnz.vibes.R$string: int finish_download_notification_summary
+com.stiggpwnz.vibes.R$string: int finish_download_notification_title
 com.stiggpwnz.vibes.R$string: int gettingSongsAlbum
 com.stiggpwnz.vibes.R$string: int gettingSongsAudios
 com.stiggpwnz.vibes.R$string: int gettingSongsNewsfeed
@@ -232,6 +227,7 @@ com.stiggpwnz.vibes.R$string: int tracklist
 com.stiggpwnz.vibes.R$string: int unknownError
 com.stiggpwnz.vibes.R$string: int username
 com.stiggpwnz.vibes.R$string: int vibes
+com.stiggpwnz.vibes.R$string: int vkontakte
 com.stiggpwnz.vibes.R$style: int AppTheme
 com.stiggpwnz.vibes.R$xml: int prefs
 com.stiggpwnz.vibes.VibesApplication
@@ -258,7 +254,6 @@ net.bgreco.R$color: int white
 net.bgreco.R$drawable: int back
 net.bgreco.R$drawable: int back_normal
 net.bgreco.R$drawable: int back_pressed
-net.bgreco.R$drawable: int btn_rect
 net.bgreco.R$drawable: int btn_rect_red
 net.bgreco.R$drawable: int cancel
 net.bgreco.R$drawable: int download
@@ -281,6 +276,7 @@ net.bgreco.R$drawable: int love_grey
 net.bgreco.R$drawable: int music
 net.bgreco.R$drawable: int next_normal
 net.bgreco.R$drawable: int next_pressed
+net.bgreco.R$drawable: int notification_icon
 net.bgreco.R$drawable: int ok
 net.bgreco.R$drawable: int pause
 net.bgreco.R$drawable: int pause_normal
@@ -323,16 +319,12 @@ net.bgreco.R$id: int btnShuffle
 net.bgreco.R$id: int btnSingIn
 net.bgreco.R$id: int btnSingOut
 net.bgreco.R$id: int btnUpdate
-net.bgreco.R$id: int button1
-net.bgreco.R$id: int button2
-net.bgreco.R$id: int button3
 net.bgreco.R$id: int downloadProgress
 net.bgreco.R$id: int downloadTitle
 net.bgreco.R$id: int editPassword
 net.bgreco.R$id: int editUsername
 net.bgreco.R$id: int imageAlbum
 net.bgreco.R$id: int imageUser
-net.bgreco.R$id: int imageView1
 net.bgreco.R$id: int itemLastFM
 net.bgreco.R$id: int itemLogOut
 net.bgreco.R$id: int itemPrefs
@@ -352,7 +344,6 @@ net.bgreco.R$id: int textPassed
 net.bgreco.R$id: int textTitle
 net.bgreco.R$id: int textUser
 net.bgreco.R$id: int textView1
-net.bgreco.R$id: int textView2
 net.bgreco.R$id: int title
 net.bgreco.R$id: int unitImage
 net.bgreco.R$id: int unitName
@@ -367,7 +358,6 @@ net.bgreco.R$layout: int last_user
 net.bgreco.R$layout: int list
 net.bgreco.R$layout: int list_item
 net.bgreco.R$layout: int login
-net.bgreco.R$layout: int notification
 net.bgreco.R$layout: int player
 net.bgreco.R$layout: int playlist
 net.bgreco.R$layout: int search
@@ -382,7 +372,6 @@ net.bgreco.R$string: int auth
 net.bgreco.R$string: int authProblem
 net.bgreco.R$string: int buffering
 net.bgreco.R$string: int choose
-net.bgreco.R$string: int connection_lost
 net.bgreco.R$string: int default_max_audio
 net.bgreco.R$string: int default_max_news
 net.bgreco.R$string: int download_fail
@@ -390,6 +379,8 @@ net.bgreco.R$string: int download_success
 net.bgreco.R$string: int downloading
 net.bgreco.R$string: int downloads_directory
 net.bgreco.R$string: int empty
+net.bgreco.R$string: int finish_download_notification_summary
+net.bgreco.R$string: int finish_download_notification_title
 net.bgreco.R$string: int gettingSongsAlbum
 net.bgreco.R$string: int gettingSongsAudios
 net.bgreco.R$string: int gettingSongsNewsfeed
@@ -415,6 +406,7 @@ net.bgreco.R$string: int tracklist
 net.bgreco.R$string: int unknownError
 net.bgreco.R$string: int username
 net.bgreco.R$string: int vibes
+net.bgreco.R$string: int vkontakte
 net.bgreco.R$style: int AppTheme
 net.bgreco.R$xml: int prefs
 org.jsoup.Connection$Method: org.jsoup.Connection$Method[] values()
