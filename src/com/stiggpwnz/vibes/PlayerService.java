@@ -103,7 +103,8 @@ public class PlayerService extends Service {
 
 	public void download(int position) {
 		try {
-			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath()).download(app.songs.get(position));
+			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification())
+					.download(app.songs.get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}
@@ -118,7 +119,7 @@ public class PlayerService extends Service {
 	}
 
 	public void makeNotification() {
-		Notification notification = new Notification(R.drawable.icon, player.getCurrentSong().toString(), System.currentTimeMillis());
+		Notification notification = new Notification(R.drawable.notification_icon, player.getCurrentSong().toString(), System.currentTimeMillis());
 		CharSequence contentTitle = player.getCurrentSong().title;
 		CharSequence contentText = player.getCurrentSong().performer;
 		Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

@@ -73,5 +73,8 @@
     <string name="downloads_directory">Папка для загрузок</string>
     <string name="download_success">Успешно загружен</string>
     <string name="download_fail">Не удалось завершить загрузку</string>
+    <string name="finish_download_notification_title">Уведомления о завершении загрузки</string>
+    <string name="finish_download_notification_summary">Показывать уведомления по окончании загрузки</string>
+    <string name="vkontakte">ВКонтакте</string>
 
 </resources>

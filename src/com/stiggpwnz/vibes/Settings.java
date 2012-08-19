@@ -22,6 +22,7 @@ public class Settings {
 	public static final String MAX_AUDIOS = "max audios";
 	public static final String REPEAT_PLAYLIST = "repeat";
 	public static final String DIRECTORY_PICKER = "directory picker";
+	public static final String FINISHED_NOTIFICATION = "finish download notification";
 
 	private static final String USERNAME = "username";
 	private static final String USER_IMAGE = "user image";
@@ -56,6 +57,7 @@ public class Settings {
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
 	private String directoryPath;
+	private Boolean finishedNotification;
 
 	public Settings(Context context, OnActionListener listener) {
 		this.context = context;
@@ -284,6 +286,16 @@ public class Settings {
 			editor.putString(DIRECTORY_PICKER, path);
 			editor.commit();
 		}
+	}
+
+	public Boolean getFinishedNotification() {
+		if (finishedNotification == null)
+			finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, false);
+		return finishedNotification;
+	}
+
+	public void updateFinishedNotification() {
+		finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, false);
 	}
 
 }

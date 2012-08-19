@@ -59,29 +59,30 @@ public final class R {
         public static final int music=0x7f020016;
         public static final int next_normal=0x7f020017;
         public static final int next_pressed=0x7f020018;
-        public static final int ok=0x7f020019;
-        public static final int pause=0x7f02001a;
-        public static final int pause_normal=0x7f02001b;
-        public static final int pause_pressed=0x7f02001c;
-        public static final int photo_placeholder=0x7f02001d;
-        public static final int play=0x7f02001e;
-        public static final int play_normal=0x7f02001f;
-        public static final int play_pressed=0x7f020020;
-        public static final int playlist=0x7f020021;
-        public static final int playlist_normal=0x7f020022;
-        public static final int playlist_pressed=0x7f020023;
-        public static final int repeat_blue=0x7f020024;
-        public static final int repeat_grey=0x7f020025;
-        public static final int rewind=0x7f020026;
-        public static final int rewind_normal=0x7f020027;
-        public static final int rewind_pressed=0x7f020028;
-        public static final int seek_bar_background=0x7f020029;
-        public static final int shuffle_blue=0x7f02002a;
-        public static final int shuffle_grey=0x7f02002b;
-        public static final int thumb_zabil=0x7f02002c;
-        public static final int update=0x7f02002d;
-        public static final int update_normal=0x7f02002e;
-        public static final int update_pressed=0x7f02002f;
+        public static final int notification_icon=0x7f020019;
+        public static final int ok=0x7f02001a;
+        public static final int pause=0x7f02001b;
+        public static final int pause_normal=0x7f02001c;
+        public static final int pause_pressed=0x7f02001d;
+        public static final int photo_placeholder=0x7f02001e;
+        public static final int play=0x7f02001f;
+        public static final int play_normal=0x7f020020;
+        public static final int play_pressed=0x7f020021;
+        public static final int playlist=0x7f020022;
+        public static final int playlist_normal=0x7f020023;
+        public static final int playlist_pressed=0x7f020024;
+        public static final int repeat_blue=0x7f020025;
+        public static final int repeat_grey=0x7f020026;
+        public static final int rewind=0x7f020027;
+        public static final int rewind_normal=0x7f020028;
+        public static final int rewind_pressed=0x7f020029;
+        public static final int seek_bar_background=0x7f02002a;
+        public static final int shuffle_blue=0x7f02002b;
+        public static final int shuffle_grey=0x7f02002c;
+        public static final int thumb_zabil=0x7f02002d;
+        public static final int update=0x7f02002e;
+        public static final int update_normal=0x7f02002f;
+        public static final int update_pressed=0x7f020030;
     }
     public static final class id {
         public static final int RelativeLayout1=0x7f0b0010;
@@ -169,6 +170,8 @@ public final class R {
         public static final int downloading=0x7f060022;
         public static final int downloads_directory=0x7f060024;
         public static final int empty=0x7f06001e;
+        public static final int finish_download_notification_summary=0x7f060028;
+        public static final int finish_download_notification_title=0x7f060027;
         public static final int gettingSongsAlbum=0x7f060009;
         public static final int gettingSongsAudios=0x7f060008;
         public static final int gettingSongsNewsfeed=0x7f060005;
@@ -194,6 +197,7 @@ public final class R {
         public static final int unknownError=0x7f06001d;
         public static final int username=0x7f06000d;
         public static final int vibes=0x7f060002;
+        public static final int vkontakte=0x7f060029;
     }
     public static final class style {
         public static final int AppTheme=0x7f090000;

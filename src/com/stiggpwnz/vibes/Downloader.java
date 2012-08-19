@@ -32,13 +32,15 @@ public class Downloader {
 	private Vkontakte vkontakte;
 	private List<Integer> downloadQueue;
 	private String path;
+	private boolean finished;
 
-	public Downloader(Context context, Vkontakte vkontakte, List<Integer> downloadQueue, String path) {
+	public Downloader(Context context, Vkontakte vkontakte, List<Integer> downloadQueue, String path, boolean finished) {
 		this.context = context;
 		this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.vkontakte = vkontakte;
 		this.downloadQueue = downloadQueue;
 		this.path = path;
+		this.finished = finished;
 	}
 
 	public void download(Song song) throws IOException {
@@ -124,7 +126,6 @@ public class Downloader {
 						notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
 						manager.notify(DOWNLOADING, song.aid, notification);
 					}
-
 					output.write(buffer, 0, bufferLength);
 				}
 
@@ -149,27 +150,29 @@ public class Downloader {
 		}
 
 		private void showNotification(boolean success) {
-			int icon;
-			if (success)
-				icon = R.drawable.ok;
-			else
-				icon = R.drawable.cancel;
+			if (finished) {
+				int icon;
+				if (success)
+					icon = R.drawable.ok;
+				else
+					icon = R.drawable.cancel;
 
-			Notification notification = new Notification(icon, song.toString(), System.currentTimeMillis());
+				Notification notification = new Notification(icon, song.toString(), System.currentTimeMillis());
 
-			int status;
-			if (success)
-				status = R.string.download_success;
-			else
-				status = R.string.download_fail;
+				int status;
+				if (success)
+					status = R.string.download_success;
+				else
+					status = R.string.download_fail;
 
-			CharSequence contentTitle = song.toString();
-			CharSequence contentText = context.getString(status);
-			Intent notificationIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-			notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-			notification.flags |= Notification.FLAG_AUTO_CANCEL;
-			manager.notify(FINISHED, song.aid, notification);
+				CharSequence contentTitle = song.toString();
+				CharSequence contentText = context.getString(status);
+				Intent notificationIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+				notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+				notification.flags |= Notification.FLAG_AUTO_CANCEL;
+				manager.notify(FINISHED, song.aid, notification);
+			}
 		}
 
 		private void showNotification() {

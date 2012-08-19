@@ -73,5 +73,8 @@
     <string name="downloads_directory">Downloads directory</string>
     <string name="download_success">Successfully downloaded</string>
     <string name="download_fail">Couldn\'t finish the download</string>
+    <string name="finish_download_notification_title">Download is finished notification</string>
+    <string name="finish_download_notification_summary">Show notification when download is complete</string>
+    <string name="vkontakte">VKontakte</string>
 
 </resources>

@@ -50,13 +50,15 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 			app.getSettings().updateRepeatPlaylist();
 		else if (key.equals(Settings.MAX_AUDIOS))
 			app.getSettings().updateMaxAudio();
+		else if (key.equals(Settings.FINISHED_NOTIFICATION))
+			app.getSettings().updateFinishedNotification();
 	}
 
 	@Override
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == picker) {
 			Intent intent = new Intent(this, DirectoryPicker.class);
-			intent.putExtra(DirectoryPicker.ONLY_DIRS, false);
+			// intent.putExtra(DirectoryPicker.ONLY_DIRS, false);
 			startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
 			return true;
 		}
