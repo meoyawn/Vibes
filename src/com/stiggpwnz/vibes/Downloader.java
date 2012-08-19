@@ -24,13 +24,10 @@ import com.stiggpwnz.vibes.restapi.Vkontakte;
 
 public class Downloader {
 
-<<<<<<< HEAD
-=======
 	public static interface OnActionListener {
 		public void onDownloadException(String messsage);
 	}
 
->>>>>>> origin/massive-refactoring
 	private NotificationManager manager;
 	private Context context;
 	private Vkontakte vkontakte;

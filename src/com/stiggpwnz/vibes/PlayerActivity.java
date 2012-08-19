@@ -736,17 +736,11 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 			if (!fromPlaylist) {
 				if (state != State.NOT_PREPARED) {
 					playlistAdapter.currentSong = player.currentTrack;
-					if (android.os.Build.VERSION.SDK_INT >= 8) {
-						// playlist.smoothScrollToPosition(player.currentTrack);
-					} else {
-						playlist.setSelection(player.currentTrack);
-					}
-
+					playlist.smoothScrollToPosition(player.currentTrack);
 				} else {
 					playlistAdapter.currentSong = -1;
 				}
 				playlistAdapter.notifyDataSetChanged();
-
 			}
 		}
 	}
