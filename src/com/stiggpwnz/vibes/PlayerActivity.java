@@ -102,7 +102,8 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			// this motherfucking liar never gets called, cost me 2 hours to realize
+			// this motherfucking liar never gets called, cost me 2 hours to
+			// realize
 		}
 	};
 
@@ -726,6 +727,7 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 
 			@Override
 			public void run() {
+				if (service != null)
 				service.getPlayer().stop();
 				Toast.makeText(PlayerActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
 			}
@@ -737,7 +739,8 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				service.getPlayer().stop();
+				if (service != null)
+					service.getPlayer().stop();
 				Toast.makeText(PlayerActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
 			}
 		});
@@ -919,7 +922,8 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 
 		case R.id.btnFwd:
 			v.startAnimation(shake);
-			// if (state == State.STATE_PREPARING_FOR_PLAYBACK || state == State.STATE_PLAYING || state ==
+			// if (state == State.STATE_PREPARING_FOR_PLAYBACK || state ==
+			// State.STATE_PLAYING || state ==
 			// State.STATE_SEEKING_FOR_PLAYBACK)
 			// service.getHandler().postDelayed(playJumper, 75);
 			player.next();

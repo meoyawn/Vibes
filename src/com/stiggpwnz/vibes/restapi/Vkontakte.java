@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -91,7 +91,7 @@ public class Vkontakte extends RestApi {
 		this.maxNews = maxNews;
 		this.maxAudios = maxAudios;
 		audioUrlRequests = new LinkedList<HttpPost>();
-		cache = new HashMap<URI, List<Song>>();
+		cache = new ConcurrentHashMap<URI, List<Song>>();
 	}
 
 	public String getAccesToken() {

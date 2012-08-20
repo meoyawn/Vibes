@@ -3,6 +3,7 @@ package com.stiggpwnz.vibes;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ClientConnectionManager;
@@ -146,14 +147,17 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 				List<Song> temp = vkontakte.getNewsFeedAudios(true);
 				if (temp != null && temp.size() > 0) {
 					songs.addAll(0, temp);
+
 					// removing last cached newsfeed playlist
-					synchronized (vkontakte) {
-						for (URI uri : vkontakte.getCache().keySet())
+					Map<URI, List<Song>> cache = vkontakte.getCache();
+					synchronized (cache) {
+						for (URI uri : cache.keySet())
 							if (uri.toString().contains(Vkontakte.NEWSFEED_GET))
-								vkontakte.getCache().remove(uri);
+								cache.remove(uri);
 					}
+
 					// and adding a new one
-					vkontakte.getCache().put(vkontakte.getNewsFeedUri(), songs);
+					cache.put(vkontakte.getNewsFeedUri(), songs);
 					return temp.size();
 				}
 			}

@@ -76,11 +76,6 @@ public class PlayerService extends Service {
 		return binder;
 	}
 
-	@Override
-	public boolean onUnbind(Intent intent) {
-		return true;
-	}
-
 	public Player getPlayer() {
 		return player;
 	}
@@ -103,8 +98,8 @@ public class PlayerService extends Service {
 
 	public void download(int position) {
 		try {
-			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification())
-					.download(app.songs.get(position));
+			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification()).download(app.songs
+					.get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}
