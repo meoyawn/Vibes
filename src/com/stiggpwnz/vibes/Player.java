@@ -117,27 +117,29 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 		@Override
 		public void run() {
-			synchronized (Player.this) {
-				shuffleQueue.clear();
-				if (seed == -1)
-					seed = 0;
-				shuffleQueue.add(seed);
-				shufflePosition = 0;
-				int n = app.songs.size();
-				for (int i = 1; i < n; i++) {
-					boolean flag;
-					int m;
-					do {
-						flag = false;
-						m = random.nextInt(n);
-						for (int pos : shuffleQueue) {
-							if (pos == m) {
-								flag = true;
-								break;
+			if (app.songs != null) {
+				synchronized (Player.this) {
+					shuffleQueue.clear();
+					if (seed == -1)
+						seed = 0;
+					shuffleQueue.add(seed);
+					shufflePosition = 0;
+					int n = app.songs.size();
+					for (int i = 1; i < n; i++) {
+						boolean flag;
+						int m;
+						do {
+							flag = false;
+							m = random.nextInt(n);
+							for (int pos : shuffleQueue) {
+								if (pos == m) {
+									flag = true;
+									break;
+								}
 							}
-						}
-					} while (flag);
-					shuffleQueue.add(m);
+						} while (flag);
+						shuffleQueue.add(m);
+					}
 				}
 			}
 		}

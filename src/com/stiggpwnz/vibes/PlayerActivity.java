@@ -728,7 +728,7 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 			@Override
 			public void run() {
 				if (service != null)
-				service.getPlayer().stop();
+					service.getPlayer().stop();
 				Toast.makeText(PlayerActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
 			}
 		});
@@ -757,6 +757,13 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 		btnLove.setBackgroundResource(R.drawable.love_grey);
 		nullEverything();
 		btnPlay.setBackgroundResource(R.drawable.play);
+	}
+
+	public void nullEverything() {
+		textPassed.setText("0:00");
+		textLeft.setText("0:00");
+		seekbar.setProgress(0);
+		seekbar.setSecondaryProgress(0);
 	}
 
 	private void setCurrentSong(boolean fromPlaylist) {
@@ -819,13 +826,6 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 				playlistAdapter.notifyDataSetChanged();
 			}
 		}
-	}
-
-	public void nullEverything() {
-		textPassed.setText("0:00");
-		textLeft.setText("0:00");
-		seekbar.setProgress(0);
-		seekbar.setSecondaryProgress(0);
 	}
 
 	@Override
@@ -1207,7 +1207,7 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 			return new UnitDialog(this, typeface);
 
 		case DIALOG_ALBUMS:
-			List<Album> albums = app.getSettings().getOwnerId() != 0 ? unit.albums : getMyAlbums();
+			List<Album> albums = app.getSettings().getOwnerId() == 0 || unit == null || unit.albums == null ? myAlbums : unit.albums;
 			return new AlbumsDialog(this, albums, typeface);
 
 		case DIALOG_LAST_FM_AUTH:

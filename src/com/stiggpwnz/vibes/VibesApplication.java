@@ -105,9 +105,14 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		case PlayerActivity.PLAYLIST_SEARCH:
 			if (search == null)
 				search = settings.getLastSearch();
-			songs = vkontakte.search(search, 0);
-			if (songs != null) {
-				settings.setLastSearch(search);
+			if (search == null) {
+				settings.setPlaylist(PlayerActivity.PLAYLIST_NEWSFEED);
+				getSongs(null);
+			} else {
+				songs = vkontakte.search(search, 0);
+				if (songs != null) {
+					settings.setLastSearch(search);
+				}
 			}
 			break;
 
@@ -192,6 +197,11 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	@Override
 	public void onVkontakteMaxNewsChanged(int maxNews) {
 		getVkontakte().maxNews = maxNews;
+	}
+
+	@Override
+	public void onVkontakteAccessTokenChanged(String accessToken) {
+		getVkontakte().setAccesToken(accessToken);
 	}
 
 }

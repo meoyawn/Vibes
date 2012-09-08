@@ -145,21 +145,23 @@ public class Vkontakte extends RestApi {
 
 	public List<Song> search(String search, int offset) throws IOException, VkontakteException {
 		try {
-			URI uri = new URI("https", "api.vk.com", AUDIO_SEARCH, COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accesToken + "&q="
-					+ search.replace("&", "%26"), null);
+			if (search != null) {
+				URI uri = new URI("https", "api.vk.com", AUDIO_SEARCH, COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accesToken + "&q="
+						+ search.replace("&", "%26"), null);
 
-			if (cache.containsKey(uri))
-				return cache.get(uri);
+				if (cache.containsKey(uri))
+					return cache.get(uri);
 
-			JSONObject jsonResponse = execute(uri);
+				JSONObject jsonResponse = execute(uri);
 
-			if (jsonResponse.has(RESPONSE)) {
-				List<Song> result = songsFromJson(jsonResponse, true);
-				cache.put(uri, result);
-				return result;
-			} else if (jsonResponse.has(ERROR)) {
-				jsonResponse = jsonResponse.getJSONObject(ERROR);
-				throw new VkontakteException(jsonResponse.getInt(ERROR_CODE));
+				if (jsonResponse.has(RESPONSE)) {
+					List<Song> result = songsFromJson(jsonResponse, true);
+					cache.put(uri, result);
+					return result;
+				} else if (jsonResponse.has(ERROR)) {
+					jsonResponse = jsonResponse.getJSONObject(ERROR);
+					throw new VkontakteException(jsonResponse.getInt(ERROR_CODE));
+				}
 			}
 		} catch (URISyntaxException e) {
 

@@ -16,6 +16,8 @@ public class Settings {
 		public void onVkontakteMaxAudiosChanged(int maxAudios);
 
 		public void onVkontakteMaxNewsChanged(int maxNews);
+
+		public void onVkontakteAccessTokenChanged(String session);
 	}
 
 	public static final String MAX_NEWS = "max news";
@@ -70,6 +72,7 @@ public class Settings {
 
 		accessToken = params[0];
 		editor.putString(Vkontakte.ACCESS_TOKEN, accessToken);
+		listener.onVkontakteAccessTokenChanged(accessToken);
 
 		expiringTime = System.currentTimeMillis() / 1000 + Integer.parseInt(params[1]);
 		editor.putLong(Vkontakte.EXPIRES_IN, expiringTime);
@@ -78,7 +81,6 @@ public class Settings {
 		editor.putInt(Vkontakte.USER_ID, userID);
 
 		editor.commit();
-
 	}
 
 	public void resetData() {
@@ -86,6 +88,7 @@ public class Settings {
 
 		editor.remove(Vkontakte.ACCESS_TOKEN);
 		accessToken = null;
+		listener.onVkontakteAccessTokenChanged(accessToken);
 
 		editor.remove(Vkontakte.EXPIRES_IN);
 		expiringTime = 0;

@@ -34,13 +34,14 @@ public class UnitsDialog extends Dialog implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 		PlayerActivity activity = (PlayerActivity) getOwnerActivity();
-		activity.setUnit((Unit) list.getItemAtPosition(position));
-		activity.getApp().getSettings().setOwnerId(activity.getUnit().id);
+		Unit unit = (Unit) list.getItemAtPosition(position);
+		activity.setUnit(unit);
+		activity.getApp().getSettings().setOwnerId(unit.id);
 		activity.showDialog(PlayerActivity.DIALOG_UNIT);
 	}
 
-	public void setList(List<Unit> list) {
-		unitsAdapter.setUnits(list);
+	public void setList(List<Unit> units) {
+		unitsAdapter.setUnits(units);
 		unitsAdapter.notifyDataSetChanged();
 	}
 
