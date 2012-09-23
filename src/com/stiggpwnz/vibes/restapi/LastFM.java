@@ -2,13 +2,10 @@ package com.stiggpwnz.vibes.restapi;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,13 +21,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.stiggpwnz.vibes.VibesApplication;
-
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-public class LastFM extends RestApi {
+import com.stiggpwnz.vibes.VibesApplication;
 
+public class LastFM extends RestAPI {
+
+	public static final String EMPTY = "empty";
 	private static final String API_KEY = "59ce954b080ef3eb99cca836896dbf5e";
 	private static final String API_SECRET = "d4c1fab919d52f46fd1d2829a37d127c";
 
@@ -70,11 +68,6 @@ public class LastFM extends RestApi {
 	private DocumentBuilder builder;
 	private String session;
 	private int density;
-	private Map<URI, String> cache;
-
-	public Map<URI, String> getCache() {
-		return cache;
-	}
 
 	public LastFM(HttpClient client, String session, int densityDpi) {
 		super(client);
@@ -83,7 +76,6 @@ public class LastFM extends RestApi {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			imageRequestQueue = new LinkedList<HttpPost>();
 			this.density = densityDpi;
-			cache = new HashMap<URI, String>();
 		} catch (ParserConfigurationException e) {
 
 		}
@@ -177,8 +169,8 @@ public class LastFM extends RestApi {
 					+ API_SECRET);
 
 			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_SCROBBLE + "&" + TIMESTAMP + "=" + timeStamp + "&" + TRACK + "="
-					+ title.replace("&", "%26") + "&" + ARTIST + "=" + artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "=" + session + "&"
-					+ API_SIGNATURE + "=" + singature, null);
+					+ title.replace("&", "%26") + "&" + ARTIST + "=" + artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "=" + session
+					+ "&" + API_SIGNATURE + "=" + singature, null);
 
 			Element element = execute(uri);
 
@@ -199,8 +191,8 @@ public class LastFM extends RestApi {
 
 	public String[] auth(String username, String password) {
 		try {
-			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + AUTH_GET_MOBILE_SESSION + "&" + USERNAME + "=" + username.toLowerCase() + "&" + AUTH_TOKEN + "="
-					+ authToken(username, password) + "&" + API_KEY_STRING + "=" + API_KEY + "&" + API_SIGNATURE + "=" + authApiSig(username, password), null);
+			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + AUTH_GET_MOBILE_SESSION + "&" + USERNAME + "=" + username.toLowerCase() + "&" + AUTH_TOKEN
+					+ "=" + authToken(username, password) + "&" + API_KEY_STRING + "=" + API_KEY + "&" + API_SIGNATURE + "=" + authApiSig(username, password), null);
 
 			Element element = execute(uri);
 
@@ -250,7 +242,7 @@ public class LastFM extends RestApi {
 				case DisplayMetrics.DENSITY_MEDIUM:
 					element = (Element) list.item(2);
 					break;
-				case DisplayMetrics.DENSITY_HIGH:
+				default:
 					element = (Element) list.item(3);
 					break;
 				}
@@ -269,13 +261,10 @@ public class LastFM extends RestApi {
 		return null;
 	}
 
-	public String getAlbumImageURL(String artist, String title) {
+	public String getAndSetAlbumImageUrl(Song song) {
 		try {
 			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_GET_INFO + "&" + API_KEY_STRING + "=" + API_KEY + "&" + ARTIST + "="
-					+ artist.replace("&", "%26") + "&" + TRACK + "=" + title.replace("&", "%26") + "&" + AUTOCORRECT + "=1", null);
-
-			if (cache.containsKey(uri))
-				return cache.get(uri);
+					+ song.performer.replace("&", "%26") + "&" + TRACK + "=" + song.title.replace("&", "%26") + "&" + AUTOCORRECT + "=1", null);
 
 			Element element = execute(uri);
 			if (element != null) {
@@ -288,29 +277,15 @@ public class LastFM extends RestApi {
 						list = element.getElementsByTagName(IMAGE);
 						element = (Element) list.item(3);
 						String imageURL = element.getFirstChild().getNodeValue();
-						cache.put(uri, imageURL);
+						song.albumImageUrl = imageURL;
 						return imageURL;
-					} else {
-						cache.put(uri, null);
 					}
-				} else {
-					cache.put(uri, null);
+					song.albumImageUrl = EMPTY;
 				}
 			}
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		} catch (ClientProtocolException e) {
-			Log.d(VibesApplication.VIBES, "getAlbumImageURL() ClientProtocolException returning null: " + e.getMessage());
-			return null;
-		} catch (IOException e) {
-			Log.d(VibesApplication.VIBES, "getAlbumImageURL() IOException returning null: " + e.getMessage());
-			return null;
-		} catch (SAXException e) {
-			return null;
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
 			return null;
 		}
-		Log.d(VibesApplication.VIBES, "getAlbumImageURL() returning null: no album images");
 		return null;
 	}
 

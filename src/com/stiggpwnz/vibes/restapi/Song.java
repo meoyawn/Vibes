@@ -5,9 +5,12 @@ public class Song {
 	public int aid;
 	public int ownerid;
 	public int myAid;
+
 	public String performer;
 	public String title;
 	public String url;
+	public String albumImageUrl;
+
 	public boolean loved;
 
 	public Song(int id, int owner, String artist, String name) {

@@ -1,6 +1,7 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -15,22 +16,20 @@ import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Unit;
 
-public class UnitsAdapter extends BaseAdapter {
+public class UnitsAdapter extends BaseAdapter implements Serializable {
 
-	private List<Unit> units;
+	private static final long serialVersionUID = -8488498887314081280L;
+
+	private ArrayList<Unit> units;
 	private LayoutInflater inflater;
 	private ImageLoader imageLoader;
 	private Typeface typeface;
 
-	public UnitsAdapter(Context context, Typeface typeface, List<Unit> units, ImageLoader imageLoader) {
+	public UnitsAdapter(Context context, ArrayList<Unit> units, Typeface typeface, ImageLoader imageLoader) {
+		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.units = units;
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		this.typeface = typeface;
 		this.imageLoader = imageLoader;
-	}
-
-	public void setUnits(List<Unit> units) {
-		this.units = units;
 	}
 
 	@Override
@@ -64,7 +63,7 @@ public class UnitsAdapter extends BaseAdapter {
 
 		ViewHolder viewholder;
 		if (convertView == null) {
-			convertView = inflater.inflate(R.layout.unit_list_item, null);
+			convertView = inflater.inflate(R.layout.unit, null);
 			viewholder = new ViewHolder();
 			viewholder.image = (ImageView) convertView.findViewById(R.id.unitImage);
 			viewholder.name = (TextView) convertView.findViewById(R.id.unitName);
@@ -81,5 +80,9 @@ public class UnitsAdapter extends BaseAdapter {
 		imageLoader.displayImage(unit.photo, viewholder.image);
 
 		return convertView;
+	}
+
+	public ArrayList<Unit> getUnits() {
+		return units;
 	}
 }

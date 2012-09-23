@@ -1,98 +1,66 @@
 package com.stiggpwnz.vibes;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
 
-import org.apache.http.client.methods.HttpPost;
+import net.simonvt.widget.MenuDrawer;
+import net.simonvt.widget.MenuDrawerManager;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import org.apache.http.client.ClientProtocolException;
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
+import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
-import com.stiggpwnz.vibes.adapters.ViewPagerAdapter;
-import com.stiggpwnz.vibes.dialogs.AlbumsDialog;
-import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog;
-import com.stiggpwnz.vibes.dialogs.LastFMUserDialog;
-import com.stiggpwnz.vibes.dialogs.PlaylistsDialog;
-import com.stiggpwnz.vibes.dialogs.SearchDialog;
-import com.stiggpwnz.vibes.dialogs.UnitDialog;
-import com.stiggpwnz.vibes.dialogs.UnitsDialog;
+import com.stiggpwnz.vibes.fragments.ControlsFragment;
+import com.stiggpwnz.vibes.fragments.PlaylistFragment;
+import com.stiggpwnz.vibes.fragments.StartingFragment;
+import com.stiggpwnz.vibes.fragments.UnitFragment;
+import com.stiggpwnz.vibes.fragments.UnitsFragment;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
+import com.stiggpwnz.vibes.restapi.LastFM;
+import com.stiggpwnz.vibes.restapi.Playlist;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
-import com.stiggpwnz.vibes.restapi.VkontakteException;
+import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class PlayerActivity extends Activity implements Player.OnActionListener, OnClickListener, OnSeekBarChangeListener, OnItemClickListener {
+public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsFragment.Listener, PlaylistFragment.Listener, ControlsFragment.Listener,
+		Player.Listener, OnClickListener {
 
-	public static final int PLAYLIST_SEARCH = 0;
-	public static final int PLAYLIST_FRIENDS = 1;
-	public static final int PLAYLIST_GROUPS = 2;
-	public static final int PLAYLIST_MY_AUDIOS = 3;
-	public static final int PLAYLIST_WALL = 4;
-	public static final int PLAYLIST_NEWSFEED = 5;
-	public static final int PLAYLIST_ALBUMS = 6;
+	private static final String START = "init";
+	private static final String UNITS = "units";
+	private static final String UNIT = "unit";
 
-	public static final int DIALOG_LAST_FM_AUTH = 56;
-	public static final int DIALOG_LAST_FM_USER = 29;
-	public static final int DIALOG_PLAYLISTS = 69;
-	public static final int DIALOG_SEARCH = 75;
-	public static final int DIALOG_UNITS = 76;
-	public static final int DIALOG_UNIT = 77;
-	public static final int DIALOG_ALBUMS = 78;
-
-	private static final int CONTEXT_LOVE_UNLOVE = 0;
-	private static final int CONTEXT_REMOVE = 1;
-	private static final int CONTEXT_DOWNLOAD = 2;
-
-	private final AtomicInteger runningThreads = new AtomicInteger();
 	private final ServiceConnection connection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			service = ((ServiceBinder) binder).getService();
-			if (app.songs == null)
-				runGetSongs(null);
-			else if (serviceWasDead) {
-				if (app.getSettings().getShuffle())
-					service.getPlayer().generateShuffleQueue();
-				serviceWasDead = false;
-			}
-			service.setPlayerListener(PlayerActivity.this);
+			service.getPlayer().setListener(PlayerActivity.this);
 			bound = true;
 			service.cancelNotification();
 			service.stopWaiter();
@@ -102,80 +70,70 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
-			// this motherfucking liar never gets called, cost me 2 hours to
-			// realize
+
 		}
 	};
 
 	private PlayerService service;
 	private VibesApplication app;
 
-	private Typeface typeface;
+	private PlaylistFragment playlistFragment;
+	private ControlsFragment controlsFragment;
 
-	private Button btnPlay;
-	private Button btnLove;
-
-	private TextView textArtist;
-	private TextView textTitle;
-	private TextView textBuffering;
-	private TextView textPassed;
-	private TextView textLeft;
-
-	private ProgressBar progressBuffering;
-	private ProgressBar progressUpdating;
-
-	private ImageView albumImage;
-
-	private ProgressDialog loadingDialog;
-
-	private ViewPagerAdapter pagerAdapter;
-	private ViewPager viewPager;
-	private List<View> pages;
-
-	private PlaylistAdapter playlistAdapter;
-
-	private Animation shake;
-	private SeekBar seekbar;
-	private ListView playlist;
-	private ImageLoader imageLoader;
-	private GetAndSetAlbumImage getAlbumImage;
-	private Unit unit;
-
-	private boolean buffering;
 	private boolean bound;
-
-	private List<Album> myAlbums;
-	private List<Unit> friends;
-	private List<Unit> groups;
-	private boolean friendsList;
-	private Button btnShuffle;
-	private boolean inFront;
-	private boolean serviceWasDead;
+	private boolean playlistLoading;
+	private ViewPager pager;
+	private View play;
+	private MenuDrawerManager mMenuDrawer;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
+		Log.d(VibesApplication.VIBES, "onCreate activity");
 		super.onCreate(savedInstanceState);
-		app = (VibesApplication) getApplication();
+		setContentView(R.layout.activity_player);
+		FragmentManager supportFragmentManager = getSupportFragmentManager();
+		Fragment startFragment = supportFragmentManager.findFragmentByTag(START);
+		if (findViewById(R.id.framePlaylists) != null) {
+			controlsFragment = (ControlsFragment) supportFragmentManager.findFragmentById(R.id.fragment_controls);
+			playlistFragment = (PlaylistFragment) supportFragmentManager.findFragmentById(R.id.fragmentPlaylist);
+			if (startFragment == null) {
+				if (getApp().getSelected() == null)
+					playlistFragment.loadPlaylist(getPlaylist(), isPlaying());
+			}
+		} else {
+			mMenuDrawer = new MenuDrawerManager(this, MenuDrawer.MENU_DRAG_CONTENT);
+			mMenuDrawer.setContentView(R.layout.activity_player);
+			mMenuDrawer.setMenuView(R.layout.side_menu);
 
-		pages = new LinkedList<View>();
-		imageLoader = new ImageLoader(this, R.drawable.music);
-		typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
-		initUI();
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+			FragmentPagesAdapter adapter = new FragmentPagesAdapter(supportFragmentManager);
+			pager = (ViewPager) findViewById(R.id.pager);
+			pager.setAdapter(adapter);
+
+			play = findViewById(R.id.btnPlay);
+			play.setOnClickListener(this);
+
+			findViewById(R.id.btnFwd).setOnClickListener(this);
+			findViewById(R.id.btnRwd).setOnClickListener(this);
+			findViewById(R.id.btnPlaylist).setOnClickListener(this);
+		}
+
+		if (startFragment == null)
+			initFragments();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		doBindService();
-		inFront = true;
 	}
 
 	private void doBindService() {
 		Intent intent = new Intent(this, PlayerService.class);
-		if (!app.isServiceRunning()) {
+		if (!getApp().isServiceRunning()) {
 			Log.d(VibesApplication.VIBES, "starting service");
 			startService(intent);
-			serviceWasDead = true;
 		}
 		if (!bound) {
 			Log.d(VibesApplication.VIBES, "binding service");
@@ -183,546 +141,131 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 		}
 	}
 
-	public void doUnbindService() {
+	private void doUnbindService() {
 		if (bound) {
+			State state = service.getPlayer().getState();
+			if (state == State.PLAYING)
+				service.makeNotification();
+			else if (state == State.NOT_PREPARED || state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE)
+				service.startWaiter();
+			service.getPlayer().setListener(null);
 			unbindService(connection);
-			service.setPlayerListener(null);
 			service = null;
 			bound = false;
-			Log.d(VibesApplication.VIBES, "service unbound from onpause");
+			Log.d(VibesApplication.VIBES, "service unbound");
 		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (service != null) {
-			Player player = service.getPlayer();
-			State state = player.getState();
-			if (state == State.PLAYING)
-				service.makeNotification();
-			else if (state == State.NOT_PREPARED || state == State.PAUSED || state == State.PREPARING_FOR_IDLE)
-				service.startWaiter();
-		}
-		if (runningThreads.get() == 0)
-			doUnbindService();
-		inFront = false;
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		// TODO Auto-generated method stub
-	}
-
-	private void initUI() {
-		setContentView(R.layout.player);
-
-		initPlayerPage();
-
-		btnPlay = (Button) findViewById(R.id.btnPlay);
-		btnPlay.setOnClickListener(this);
-
-		Button btnFwd = (Button) findViewById(R.id.btnFwd);
-		btnFwd.setOnClickListener(this);
-
-		Button btnRwd = (Button) findViewById(R.id.btnRwd);
-		btnRwd.setOnClickListener(this);
-
-		Button btnPlaylist = (Button) findViewById(R.id.btnPlaylist);
-		btnPlaylist.setOnClickListener(this);
-
-		pagerAdapter = new ViewPagerAdapter(pages);
-
-		viewPager = (ViewPager) findViewById(R.id.viewpager);
-		viewPager.setAdapter(pagerAdapter);
-
-		shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-
-		initPlaylistPage();
-	}
-
-	private void initPlayerPage() {
-		LayoutInflater inflater = LayoutInflater.from(this);
-		View page = inflater.inflate(R.layout.control, null);
-
-		View btnPlsFwd = page.findViewById(R.id.btnPlsFwd);
-		btnPlsFwd.setOnClickListener(this);
-
-		View btnDownload = page.findViewById(R.id.btnDownload);
-		btnDownload.setOnClickListener(this);
-
-		textArtist = (TextView) page.findViewById(R.id.artist);
-		textArtist.setTypeface(typeface);
-
-		textTitle = (TextView) page.findViewById(R.id.title);
-		textTitle.setTypeface(typeface);
-
-		albumImage = (ImageView) page.findViewById(R.id.imageAlbum);
-
-		textBuffering = (TextView) page.findViewById(R.id.textBuffering);
-		textBuffering.setTypeface(typeface);
-
-		progressBuffering = (ProgressBar) page.findViewById(R.id.progressCircle);
-
-		seekbar = (SeekBar) page.findViewById(R.id.seekBar);
-		seekbar.setOnSeekBarChangeListener(this);
-
-		textPassed = (TextView) page.findViewById(R.id.textPassed);
-		textPassed.setTypeface(typeface);
-
-		textLeft = (TextView) page.findViewById(R.id.textLeft);
-		textLeft.setTypeface(typeface);
-
-		btnLove = (Button) page.findViewById(R.id.btnLove);
-		btnLove.setOnClickListener(this);
-
-		btnShuffle = (Button) page.findViewById(R.id.btnShuffle);
-		btnShuffle.setOnClickListener(this);
-		if (app.getSettings().getShuffle())
-			btnShuffle.setBackgroundResource(R.drawable.shuffle_blue);
-		else
-			btnShuffle.setBackgroundResource(R.drawable.shuffle_grey);
-
-		Button btnRepeat = (Button) page.findViewById(R.id.btnRepeat);
-		btnRepeat.setOnClickListener(this);
-
-		pages.add(page);
-	}
-
-	private void initPlaylistPage() {
-		LayoutInflater inflater = LayoutInflater.from(this);
-		View page = inflater.inflate(R.layout.playlist, null);
-
-		Button btnBack = (Button) page.findViewById(R.id.btnBack);
-		btnBack.setOnClickListener(this);
-
-		Button btnUpdate = (Button) page.findViewById(R.id.btnUpdate);
-		btnUpdate.setOnClickListener(this);
-
-		progressUpdating = (ProgressBar) page.findViewById(R.id.progressUpdating);
-
-		playlistAdapter = new PlaylistAdapter(this, typeface);
-		playlist = (ListView) page.findViewById(R.id.list);
-		playlist.setAdapter(playlistAdapter);
-		TextView empty = (TextView) page.findViewById(android.R.id.empty);
-		empty.setTypeface(typeface);
-		playlist.setEmptyView(empty);
-		playlist.setOnItemClickListener(this);
-		registerForContextMenu(playlist);
-
-		pages.add(page);
-		pagerAdapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		if (v == playlist) {
-			int position = ((AdapterView.AdapterContextMenuInfo) menuInfo).position;
-			menu.setHeaderTitle(app.songs.get(position).toString());
-
-			String[] options = getResources().getStringArray(R.array.context_options);
-			if (app.songs.get(position).loved)
-				options[0] = getString(R.string.remove_unlove);
-
-			for (int i = 0; i < options.length; i++)
-				menu.add(Menu.NONE, i, i, options[i]);
-
-		}
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
-		int index = item.getOrder();
-		Log.d(VibesApplication.VIBES, "context menu order: " + index);
-		Song song = app.songs.get(position);
-		switch (index) {
-		case CONTEXT_LOVE_UNLOVE:
-			if (song.loved)
-				unlove(song);
-			else
-				love(song);
-			return true;
-
-		case CONTEXT_REMOVE:
-			Player player = service.getPlayer();
-			if (player.currentTrack == position) {
-				player.current = song;
-				player.currentTrack = -1;
-				playlistAdapter.currentTrack = -1;
-			} else if (player.currentTrack > position) {
-				player.currentTrack--;
-				playlistAdapter.currentTrack--;
-			}
-			app.songs.remove(position);
-			playlistAdapter.notifyDataSetChanged();
-			if (app.getSettings().getShuffle())
-				player.generateShuffleQueue();
-			return true;
-
-		case CONTEXT_DOWNLOAD:
-			service.download(position);
-			return true;
-		}
-		return false;
-	}
-
-	public void getAlbums() {
-		new GetAlbums().execute();
-	}
-
-	private class GetSongs extends AsyncTask<String, Void, Void> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			enteredThread();
-			showLoadingDialog(true);
-			Player player = service.getPlayer();
-			if (player.getState() == State.PLAYING)
-				player.current = player.getCurrentSong();
-			Log.d(VibesApplication.VIBES, "showing getsongs dialog");
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
-			Thread.currentThread().setName("Getting songs");
-			getSongs(params);
-			return null;
-		}
-
-		private void getSongs(String... params) {
-			try {
-				app.getSongs(params[0]);
-			} catch (IOException e) {
-				internetFail();
-			} catch (VkontakteException e) {
-				switch (e.getCode()) {
-				case VkontakteException.UNKNOWN_ERROR_OCCURED:
-					unknownError();
-					break;
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					getSongs(params);
-
-				case VkontakteException.ACCESS_DENIED:
-					accessDenied();
-					app.getSettings().setPlaylist(PLAYLIST_NEWSFEED);
-					break;
-
-				case VkontakteException.PERMISSION_TO_PERFORM_THIS_ACTION_IS_DENIED_BY_USER:
-					accessDenied();
-					app.getSettings().setPlaylist(PLAYLIST_NEWSFEED);
-					break;
-				}
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			hideLoadingDialog();
-			viewPager.setCurrentItem(1, true);
-			playlistAdapter.setSongs(app.songs);
-			if (service != null) {
-				if (service.getPlayer().getState() == State.PLAYING) {
-					service.getPlayer().currentTrack = -1;
-				} else {
-					if (app.songs != null && app.songs.size() > 0) {
-						service.getPlayer().currentTrack = 0;
-						onNewTrack();
-					} else {
-						emptyControlsPage();
-					}
-				}
-				playlistAdapter.currentTrack = -1;
-				playlistAdapter.notifyDataSetChanged();
-				playlist.setSelection(0);
-				if (app.getSettings().getShuffle())
-					service.getPlayer().generateShuffleQueue();
-			}
-			outOfThread();
-		}
-	}
-
-	private class UpdateSongs extends AsyncTask<Void, Void, Integer> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			enteredThread();
-			progressUpdating.setVisibility(View.VISIBLE);
-		}
-
-		private int updateSongs() {
-			try {
-				return app.updateSongs();
-			} catch (IOException e) {
-				internetFail();
-			} catch (VkontakteException e) {
-				switch (e.getCode()) {
-				case VkontakteException.UNKNOWN_ERROR_OCCURED:
-					unknownError();
-					break;
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return updateSongs();
-
-				case VkontakteException.ACCESS_DENIED:
-					accessDenied();
-					break;
-
-				case VkontakteException.PERMISSION_TO_PERFORM_THIS_ACTION_IS_DENIED_BY_USER:
-					accessDenied();
-					break;
-
-				default:
-					return 0;
-				}
-			}
-			return 0;
-		}
-
-		@Override
-		protected Integer doInBackground(Void... params) {
-			Thread.currentThread().setName("Updating songs");
-			return updateSongs();
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-			super.onPostExecute(result);
-			Log.d(VibesApplication.VIBES, "new songs: " + result);
-			progressUpdating.setVisibility(View.INVISIBLE);
-			if (result > 0 && service.getPlayer().currentTrack != -1) {
-				service.getPlayer().currentTrack += result;
-				if (playlistAdapter.currentTrack != -1)
-					playlistAdapter.currentTrack += result;
-			}
-			playlistAdapter.notifyDataSetChanged();
-			if (app.getSettings().getShuffle())
-				service.getPlayer().generateShuffleQueue();
-			outOfThread();
-		}
-	}
-
-	private class GetAlbums extends AsyncTask<Void, Void, List<Album>> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showLoadingDialog(false);
-		}
-
-		private List<Album> getAlbums() {
-			try {
-				if (app.getSettings().getOwnerId() != 0) {
-					if (getUnit().albums == null)
-						return app.getAlbums(getUnit().id);
-					else
-						return getUnit().albums;
-				} else {
-					if (getMyAlbums() == null)
-						return app.getAlbums(0);
-					else
-						return getMyAlbums();
-				}
-			} catch (IOException e) {
-				internetFail();
-			} catch (VkontakteException e) {
-				switch (e.getCode()) {
-				case VkontakteException.UNKNOWN_ERROR_OCCURED:
-					unknownError();
-					break;
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return getAlbums();
-
-				case VkontakteException.ACCESS_DENIED:
-					accessDenied();
-					break;
-
-				default:
-					return null;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected List<Album> doInBackground(Void... params) {
-			Thread.currentThread().setName("Getting albums");
-			return getAlbums();
-		}
-
-		@Override
-		protected void onPostExecute(List<Album> result) {
-			super.onPostExecute(result);
-			if (result != null) {
-				if (app.getSettings().getOwnerId() != 0)
-					getUnit().albums = result;
-				else
-					myAlbums = result;
-				showDialog(DIALOG_ALBUMS);
-			}
-			hideLoadingDialog();
-		}
-	}
-
-	private class GetUnits extends AsyncTask<Void, Void, Void> {
-
-		private boolean success;
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			showLoadingDialog(false);
-		}
-
-		private Void getUnits() {
-			try {
-				if (friendsList)
-					friends = app.getFriends();
-				else
-					groups = app.getGroups();
-				success = true;
-			} catch (IOException e) {
-				success = false;
-				internetFail();
-			} catch (VkontakteException e) {
-				success = false;
-				switch (e.getCode()) {
-				case VkontakteException.UNKNOWN_ERROR_OCCURED:
-					unknownError();
-					break;
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return getUnits();
-
-				default:
-					return null;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			Thread.currentThread().setName("Getting units");
-			return getUnits();
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			if (success)
-				showDialog(DIALOG_UNITS);
-			hideLoadingDialog();
-		}
-
-	}
-
-	private class GetAndSetAlbumImage extends AsyncTask<String, Void, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			Thread.currentThread().setName("Getting and setting an album image");
-			synchronized (this) {
-				if (isCancelled())
-					return null;
-				return app.getLastFM().getAlbumImageURL(params[0], params[1]);
-			}
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			super.onPostExecute(result);
-			if (result != null) {
-				if (imageLoader.getStubId() != R.drawable.music)
-					imageLoader.setStubId(R.drawable.music);
-				imageLoader.displayImage(result, albumImage);
-			} else {
-				Log.d(VibesApplication.VIBES, "result is null");
-				albumImage.setImageResource(R.drawable.music);
-			}
-		}
-
+		doUnbindService();
 	}
 
 	@Override
 	public void onBackPressed() {
-		moveTaskToBack(true);
-	}
-
-	private void showLoadingDialog(boolean playlist) {
-		loadingDialog = new ProgressDialog(this);
-		loadingDialog.setIndeterminate(true);
-		loadingDialog.setCancelable(false);
-		if (playlist) {
-			switch (app.getSettings().getPlaylist()) {
-			case PLAYLIST_SEARCH:
-				loadingDialog.setMessage(getString(R.string.searchingSongs));
-				break;
-
-			case PLAYLIST_MY_AUDIOS:
-				if (app.getSettings().getAlbumId() == 0)
-					loadingDialog.setMessage(getString(R.string.gettingSongsAudios));
-				else
-					loadingDialog.setMessage(getString(R.string.gettingSongsAlbum));
-				break;
-
-			case PLAYLIST_WALL:
-				loadingDialog.setMessage(getString(R.string.gettingSongsWall));
-				break;
-
-			case PLAYLIST_NEWSFEED:
-				loadingDialog.setMessage(getString(R.string.gettingSongsNewsfeed));
-				break;
-
+		if (mMenuDrawer != null) {
+			final int drawerState = mMenuDrawer.getDrawerState();
+			if (getSupportFragmentManager().findFragmentByTag(START).isVisible() && drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
+				mMenuDrawer.closeMenu();
+				return;
 			}
-		} else {
-			loadingDialog.setMessage(getString(R.string.loading));
 		}
-		loadingDialog.show();
+		super.onBackPressed();
 	}
 
-	private void accessDenied() {
+	public void nullEverything() {
+		controlsFragment.nullEverything();
+		playlistFragment.nullEverything();
+	}
+
+	private void setCurrentSong() {
+		final Player player = service.getPlayer();
+		final Song currentSong = player.getCurrentSong();
+		final State state = player.getState();
+
 		runOnUiThread(new Runnable() {
+
 			@Override
 			public void run() {
-				Toast.makeText(PlayerActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
+				controlsFragment.setCurrentSong(currentSong, getApp().getLastFM().getImageRequestQueue());
+				playlistFragment.setCurrentSong(getApp().getPlaylist(), player.currentTrack);
+
+				if (currentSong != null) {
+					if (state == State.PLAYING || state == State.PAUSED) {
+						onBufferingEnded(player.getSongDuration());
+						onProgressChanged(player.getCurrentPosition());
+						if (state == State.PLAYING)
+							setPlayButtonDrawable(R.drawable.pause);
+						else
+							setPlayButtonDrawable(R.drawable.play);
+					} else if (state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
+						onBufferingStrated();
+						setPlayButtonDrawable(R.drawable.play);
+						if (state == State.PREPARING_FOR_IDLE)
+							nullEverything();
+					} else if (state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK) {
+						onBufferingStrated();
+						setPlayButtonDrawable(R.drawable.pause);
+						if (state == State.PREPARING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK)
+							nullEverything();
+					} else if (state == State.NOT_PREPARED) {
+						onBufferingEnded(0);
+						nullEverything();
+						setPlayButtonDrawable(R.drawable.play);
+					}
+				}
 			}
 		});
 	}
 
-	private void authFail() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(PlayerActivity.this, getString(R.string.authProblem), Toast.LENGTH_LONG).show();
-				logOut(false);
-			}
-		});
+	private void setPlayButtonDrawable(int resource) {
+		controlsFragment.setPlayButtonDrawable(resource);
+		if (play != null)
+			play.setBackgroundResource(resource);
 	}
 
-	private void unknownError() {
+	private void initFragments() {
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+		transaction.add(R.id.framePlaylists, StartingFragment.newInstance(getApp().getSelf(), getApp().getPlaylist()), START);
+		transaction.commit();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getSupportMenuInflater().inflate(R.menu.playermenu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.itemLogOut:
+			logOut(true);
+			return true;
+
+		case android.R.id.home:
+			mMenuDrawer.toggleMenu();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void logOut(boolean logout) {
+		getApp().getSettings().resetData();
+		doUnbindService();
+		stopService(new Intent(this, PlayerService.class));
+		Intent intent = new Intent(this, LoginActivity.class);
+		intent.putExtra(LoginActivity.RESET, logout);
+		startActivity(intent);
+		finish();
+	}
+
+	@Override
+	public void unknownError() {
 		runOnUiThread(new Runnable() {
 
 			@Override
@@ -732,10 +275,10 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 				Toast.makeText(PlayerActivity.this, getString(R.string.unknownError), Toast.LENGTH_LONG).show();
 			}
 		});
-
 	}
 
-	private void internetFail() {
+	@Override
+	public void internetFail() {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -746,91 +289,97 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 		});
 	}
 
-	private void hideLoadingDialog() {
-		if (loadingDialog != null)
-			loadingDialog.dismiss();
+	@Override
+	public void authFail() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(PlayerActivity.this, getString(R.string.authProblem), Toast.LENGTH_LONG).show();
+				logOut(false);
+			}
+		});
 	}
 
-	private void emptyControlsPage() {
-		textArtist.setText("");
-		textTitle.setText("");
-		btnLove.setBackgroundResource(R.drawable.love_grey);
-		nullEverything();
-		btnPlay.setBackgroundResource(R.drawable.play);
+	@Override
+	public void accessDenied() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(PlayerActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
-	public void nullEverything() {
-		textPassed.setText("0:00");
-		textLeft.setText("0:00");
-		seekbar.setProgress(0);
-		seekbar.setSecondaryProgress(0);
+	@Override
+	public Typeface getTypeface() {
+		return getApp().getTypeface();
 	}
 
-	private void setCurrentSong(boolean fromPlaylist) {
+	@Override
+	public ImageLoader getImageLoader() {
+		return getApp().getImageLoader();
+	}
 
-		Player player = service.getPlayer();
-		Song currentSong = player.getCurrentSong();
-		if (currentSong != null) {
-			String performer = currentSong.performer;
-			textArtist.setText(performer);
+	@Override
+	public void showUnits(boolean friends) {
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+		UnitsFragment unitsFragment = UnitsFragment.newInstance(friends, friends ? getApp().getFriends() : getApp().getGroups());
+		transaction.replace(R.id.framePlaylists, unitsFragment, UNITS);
+		transaction.addToBackStack(null);
+		transaction.commit();
+	}
 
-			String name = currentSong.title;
-			textTitle.setText(name);
+	@Override
+	public void showUnit(Unit unit) {
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+		transaction.replace(R.id.framePlaylists, UnitFragment.newInstance(unit, getApp().getSelected()), UNIT);
+		transaction.addToBackStack(null);
+		transaction.commit();
+	}
 
-			if (currentSong.loved)
-				btnLove.setBackgroundResource(R.drawable.love_blue);
+	@Override
+	public ArrayList<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException {
+		if (getApp() != null) {
+			if (friends)
+				return getApp().loadFriends();
 			else
-				btnLove.setBackgroundResource(R.drawable.love_grey);
+				return getApp().loadGroups();
+		}
+		return null;
+	}
 
-			synchronized (app.getLastFM()) {
-				List<HttpPost> requests = app.getLastFM().getImageRequestQueue();
-				if (getAlbumImage != null && getAlbumImage.getStatus() == AsyncTask.Status.RUNNING) {
-					Log.e(VibesApplication.VIBES, "cancelling image loader: " + requests.size() + " items in queue");
-					for (HttpPost request : requests) {
-						request.abort();
-					}
-					getAlbumImage.cancel(true);
-				}
-				requests.clear();
-			}
-			getAlbumImage = new GetAndSetAlbumImage();
-			getAlbumImage.execute(performer, name);
+	@Override
+	public ArrayList<Album> loadAlbums(Unit unit) throws ClientProtocolException, IOException, VKontakteException {
+		if (unit != null)
+			return getApp().loadAlbums(unit.id);
+		else
+			return getApp().loadAlbums(0);
+	}
 
-			State state = player.getState();
-			if (state == State.PLAYING || state == State.PAUSED) {
-				onBufferingEnded();
-				onProgressChanged(player.getCurrentPosition());
-				if (state == State.PLAYING)
-					btnPlay.setBackgroundResource(R.drawable.pause);
-				else
-					btnPlay.setBackgroundResource(R.drawable.play);
-			} else if (state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
-				onBufferingStrated();
-				btnPlay.setBackgroundResource(R.drawable.play);
-				if (state == State.PREPARING_FOR_IDLE)
-					nullEverything();
-			} else if (state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK) {
-				onBufferingStrated();
-				btnPlay.setBackgroundResource(R.drawable.pause);
-				if (state == State.PREPARING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK)
-					nullEverything();
-			} else if (state == State.NOT_PREPARED) {
-				onBufferingEnded();
-				nullEverything();
-				btnPlay.setBackgroundResource(R.drawable.play);
-			}
+	@Override
+	public View getFooterView() {
+		return getApp().getFooter();
+	}
 
-			if (!fromPlaylist) {
-				playlistAdapter.currentTrack = player.currentTrack;
-				playlist.smoothScrollToPosition(player.currentTrack);
-				playlistAdapter.notifyDataSetChanged();
-			}
+	@Override
+	public void loadPlaylist(Playlist playlist) {
+		playlistFragment.loadPlaylist(playlist, isPlaying());
+		if (pager != null) {
+			mMenuDrawer.closeMenu(true);
+			pager.setCurrentItem(1, true);
 		}
 	}
 
 	@Override
-	public void onBufferingUpdate(int percent) {
-		seekbar.setSecondaryProgress(seekbar.getMax() * percent / 100);
+	public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
+		return getApp().loadSongs(playlist);
+	}
+
+	@Override
+	public Unit getSelf() {
+		return getApp().getSelf();
 	}
 
 	@Override
@@ -839,25 +388,22 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 
 			@Override
 			public void run() {
-				textBuffering.setVisibility(View.VISIBLE);
-				progressBuffering.setVisibility(View.VISIBLE);
-				buffering = true;
+				playlistFragment.onBufferingStarted();
+				controlsFragment.onBufferingStarted();
 			}
 		});
 	}
 
 	@Override
-	public void onBufferingEnded() {
-		runOnUiThread(new Runnable() {
+	public void onProgressChanged(int progress) {
+		int songDuration = service.getPlayer().getSongDuration();
+		controlsFragment.onProgressChanged(progress, songDuration);
+		playlistFragment.onProgressChanged(progress, songDuration);
+	}
 
-			@Override
-			public void run() {
-				seekbar.setMax(service.getPlayer().getSongDuration());
-				textBuffering.setVisibility(View.INVISIBLE);
-				progressBuffering.setVisibility(View.INVISIBLE);
-				buffering = false;
-			}
-		});
+	@Override
+	public void onBufferingUpdate(int percent) {
+		controlsFragment.updateBuffering(percent);
 	}
 
 	@Override
@@ -871,465 +417,295 @@ public class PlayerActivity extends Activity implements Player.OnActionListener,
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-		playlistAdapter.fromPlaylist = true;
-		playlistAdapter.currentTrack = position;
-		playlistAdapter.notifyDataSetChanged();
-		btnPlay.setBackgroundResource(R.drawable.pause);
-		service.getPlayer().play(position);
-		setCurrentSong(true);
+	public void onNewTrack() {
+		if (service != null && controlsFragment != null && playlistFragment != null)
+			setCurrentSong();
 	}
 
 	@Override
-	public void onStartTrackingTouch(SeekBar arg0) {
+	public void play(int position, boolean hardReset) {
+		setPlayButtonDrawable(R.drawable.pause);
+		service.getPlayer().play(position, hardReset);
+		setCurrentSong();
+	}
+
+	@Override
+	public void download(int position) {
+		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void onStopTrackingTouch(SeekBar arg0) {
+	public void loveUnlove(int position) {
+		Song song = getApp().getSongs().get(position);
 
+		if (song != null) {
+			if (song.loved)
+				controlsFragment.unlove(song);
+			else
+				controlsFragment.love(song);
+		}
 	}
 
-	// private final Runnable playJumper = new Runnable() {
-	//
-	// @Override
-	// public void run() {
-	// btnPlay.startAnimation(shake);
-	// }
-	// };
-
 	@Override
-	public void onClick(View v) {
+	public void remove(int position) {
 		Player player = service.getPlayer();
-		Settings settings = app.getSettings();
-		State state = player.getState();
-
-		switch (v.getId()) {
-		case R.id.btnPlay:
-			v.startAnimation(shake);
-			Log.d(VibesApplication.VIBES, "pressing play and state = " + state);
-			if (state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
-				player.resume();
-				v.setBackgroundResource(R.drawable.pause);
-			} else if (state == State.PLAYING || state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK) {
-				player.pause();
-				v.setBackgroundResource(R.drawable.play);
-			} else if (state == State.NOT_PREPARED && player.getCurrentSong() != null) {
-				player.play();
-				v.setBackgroundResource(R.drawable.pause);
-			}
-			break;
-
-		case R.id.btnFwd:
-			v.startAnimation(shake);
-			// if (state == State.STATE_PREPARING_FOR_PLAYBACK || state ==
-			// State.STATE_PLAYING || state ==
-			// State.STATE_SEEKING_FOR_PLAYBACK)
-			// service.getHandler().postDelayed(playJumper, 75);
+		PlaylistAdapter adapter = playlistFragment.getAdapter();
+		if (player.currentTrack == position) {
 			player.next();
-			break;
-
-		case R.id.btnRwd:
-			v.startAnimation(shake);
-			player.prev();
-			break;
-
-		case R.id.btnBack:
-			viewPager.setCurrentItem(0, true);
-			break;
-
-		case R.id.btnPlsFwd:
-			viewPager.setCurrentItem(1, true);
-			break;
-
-		case R.id.btnUpdate:
-			new UpdateSongs().execute();
-			break;
-
-		case R.id.btnLove:
-			if (player.getCurrentSong().loved)
-				unlove(player.getCurrentSong());
-			else
-				love(player.getCurrentSong());
-			break;
-
-		case R.id.btnShuffle:
-			if (settings.getShuffle()) {
-				v.setBackgroundResource(R.drawable.shuffle_grey);
-				settings.setShuffle(false);
-			} else {
-				v.setBackgroundResource(R.drawable.shuffle_blue);
-				settings.setShuffle(true);
-				player.generateShuffleQueue();
-			}
-			break;
-
-		case R.id.btnRepeat:
-			if (player.isLooping()) {
-				v.setBackgroundResource(R.drawable.repeat_grey);
-				player.setLooping(false);
-			} else {
-				v.setBackgroundResource(R.drawable.repeat_blue);
-				player.setLooping(true);
-			}
-			break;
-
-		case R.id.btnPlaylist:
-			showDialog(DIALOG_PLAYLISTS);
-			break;
-
-		case R.id.btnDownload:
-			service.download(player.currentTrack);
-			break;
+		} else if (player.currentTrack > position) {
+			player.currentTrack--;
+			adapter.currentTrack--;
 		}
+		getApp().getSongs().remove(position);
+		adapter.notifyDataSetChanged();
+		if (getApp().getSettings().getShuffle())
+			player.generateShuffleQueue();
 	}
 
-	private void love(Song song) {
-		if (song == service.getPlayer().getCurrentSong())
-			btnLove.setBackgroundResource(R.drawable.love_blue);
-		new Love().execute(song);
-	}
-
-	private void unlove(Song song) {
-		if (song == service.getPlayer().getCurrentSong())
-			btnLove.setBackgroundResource(R.drawable.love_grey);
-		new UnLove().execute(song);
-	}
-
-	private class Love extends AsyncTask<Song, Void, Integer> {
-
-		boolean own;
-		boolean lastLoved;
-		Settings settings = app.getSettings();
-		private Song song;
-
-		private Integer addSong(Song song) {
-			try {
-				return app.getVkontakte().add(song);
-			} catch (IOException e) {
-				internetFail();
-			} catch (VkontakteException e) {
-				switch (e.getCode()) {
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return addSong(song);
-
-				case VkontakteException.ACCESS_DENIED:
-					accessDenied();
-					break;
-
-				default:
+	@Override
+	public String getAlbumImageUrl() {
+		Song currentSong = service.getPlayer().getCurrentSong();
+		if (currentSong != null) {
+			if (currentSong.albumImageUrl != null) {
+				if (currentSong.albumImageUrl.equals(LastFM.EMPTY))
 					return null;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		protected Integer doInBackground(Song... params) {
-			enteredThread();
-			Thread.currentThread().setName("Loving song");
-			own = settings.getPlaylist() == PLAYLIST_MY_AUDIOS && settings.getOwnerId() == 0;
-			song = params[0];
-			if (settings.getSession() != null)
-				if (app.getLastFM().love(song)) {
-					lastLoved = true;
-					Log.d(VibesApplication.VIBES, "last fm: loved");
-				}
-			if (!own)
-				return addSong(song);
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-			super.onPostExecute(result);
-			if (!own) {
-
-				if (result != null) {
-					song.myAid = result;
-					song.loved = true;
-				} else if (song == service.getPlayer().getCurrentSong())
-					btnLove.setBackgroundResource(R.drawable.love_grey);
-
-			} else if (settings.getSession() != null) {
-
-				if (lastLoved)
-					song.loved = true;
-				else if (song == service.getPlayer().getCurrentSong())
-					btnLove.setBackgroundResource(R.drawable.love_grey);
-			} else {
-				song.loved = true;
-			}
-			outOfThread();
-		}
-	}
-
-	private class UnLove extends AsyncTask<Song, Void, Boolean> {
-
-		boolean own;
-		boolean lastUnloved;
-		Settings settings = app.getSettings();
-		Song song;
-
-		private Boolean deleteSong(Song song) {
-			try {
-				return app.getVkontakte().delete(song);
-			} catch (IOException e) {
-				internetFail();
-			} catch (VkontakteException e) {
-				switch (e.getCode()) {
-
-				case VkontakteException.USER_AUTHORIZATION_FAILED:
-					authFail();
-					break;
-
-				case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return deleteSong(song);
-
-				case VkontakteException.ACCESS_DENIED:
-					accessDenied();
-					break;
-
-				default:
-					return false;
-				}
-			}
-			return false;
-		}
-
-		@Override
-		protected Boolean doInBackground(Song... params) {
-			enteredThread();
-			Thread.currentThread().setName("Unloving song");
-			own = settings.getPlaylist() == PLAYLIST_MY_AUDIOS && settings.getOwnerId() == 0;
-			song = params[0];
-			if (settings.getSession() != null)
-				if (app.getLastFM().unlove(song)) {
-					lastUnloved = true;
-					Log.d(VibesApplication.VIBES, "last fm: unloved");
-				}
-			if (!own)
-				return deleteSong(song);
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			if (!own) {
-				if (result) {
-					song.myAid = 0;
-					song.loved = false;
-				} else if (song == service.getPlayer().getCurrentSong())
-					btnLove.setBackgroundResource(R.drawable.love_blue);
-
-			} else if (settings.getSession() != null) {
-
-				if (lastUnloved)
-					song.loved = false;
-				else if (song == service.getPlayer().getCurrentSong())
-					btnLove.setBackgroundResource(R.drawable.love_blue);
-			} else {
-				song.loved = false;
-			}
-			outOfThread();
-		}
-	}
-
-	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		if (fromUser && service.getPlayer().getState() == State.PLAYING) {
-			onBufferingStrated();
-			service.getPlayer().seekTo(progress);
-		} else if (fromUser && (service.getPlayer().getState() != State.PLAYING || buffering))
-			seekBar.setProgress(0);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.playermenu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		switch (item.getItemId()) {
-
-		case R.id.itemLogOut:
-			logOut(true);
-			return true;
-
-		case R.id.itemLastFM:
-			if (app.getSettings().getSession() == null)
-				showDialog(DIALOG_LAST_FM_AUTH);
-			else
-				showDialog(DIALOG_LAST_FM_USER);
-			return true;
-
-		case R.id.itemPrefs:
-			startActivity(new Intent(this, PreferencesActivity.class));
-			return true;
-
-		default:
-			return super.onMenuItemSelected(featureId, item);
-		}
-	}
-
-	private void logOut(boolean logout) {
-		app.getSettings().resetData();
-		app.getSettings().setPlaylist(PLAYLIST_NEWSFEED);
-		doUnbindService();
-		stopService(new Intent(PlayerActivity.this, PlayerService.class));
-		Intent intent = new Intent(PlayerActivity.this, LoginActivity.class);
-		intent.putExtra(LoginActivity.RESET, logout);
-		startActivity(intent);
-		finish();
-	}
-
-	public Unit getUnit() {
-		return unit;
-	}
-
-	public void setUnit(Unit unit) {
-		this.unit = unit;
-	}
-
-	@Override
-	protected Dialog onCreateDialog(int id) {
-		switch (id) {
-		case DIALOG_UNIT:
-			return new UnitDialog(this, typeface);
-
-		case DIALOG_ALBUMS:
-			List<Album> albums = app.getSettings().getOwnerId() == 0 || unit == null || unit.albums == null ? myAlbums : unit.albums;
-			return new AlbumsDialog(this, albums, typeface);
-
-		case DIALOG_LAST_FM_AUTH:
-			return new LastFMLoginDialog(this);
-
-		case DIALOG_LAST_FM_USER:
-			return new LastFMUserDialog(this, imageLoader);
-
-		case DIALOG_SEARCH:
-			return new SearchDialog(this);
-
-		case DIALOG_UNITS:
-			List<Unit> units = friendsList ? friends : groups;
-			return new UnitsDialog(this, imageLoader, units, typeface);
-
-		case DIALOG_PLAYLISTS:
-			return new PlaylistsDialog(this, typeface);
+				else
+					return currentSong.albumImageUrl;
+			} else
+				return getApp().getLastFM().getAndSetAlbumImageUrl(currentSong);
 		}
 		return null;
 	}
 
 	@Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		super.onPrepareDialog(id, dialog);
-		switch (id) {
-		case DIALOG_ALBUMS:
-			List<Album> albumList = app.getSettings().getOwnerId() != 0 && unit != null ? unit.albums : myAlbums;
-			AlbumsDialog albumsDialog = (AlbumsDialog) dialog;
-			albumsDialog.setAlbums(albumList);
+	public void onBufferingEnded(final int duration) {
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				controlsFragment.onBufferingEnded(duration);
+				playlistFragment.onBufferingEnded();
+			}
+		});
+	}
+
+	@Override
+	public void onPlayButtonPressed(View v) {
+		v.startAnimation(getApp().getShake());
+		Player player = service.getPlayer();
+		State state = player.getState();
+		if (state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
+			player.resume();
+			setPlayButtonDrawable(R.drawable.pause);
+		} else if (state == State.PLAYING || state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK) {
+			player.pause();
+			setPlayButtonDrawable(R.drawable.play);
+		} else if (state == State.NOT_PREPARED && player.getCurrentSong() != null) {
+			player.play();
+			setPlayButtonDrawable(R.drawable.pause);
+		}
+	}
+
+	@Override
+	public void onNextButtonPressed(View v) {
+		v.startAnimation(getApp().getShake());
+		service.getPlayer().next();
+	}
+
+	@Override
+	public void onPrevButtonPressed(View v) {
+		v.startAnimation(getApp().getShake());
+		service.getPlayer().prev();
+	}
+
+	@Override
+	public void onShuffleButtonPressed(View v) {
+		Player player = service.getPlayer();
+		Settings settings = getApp().getSettings();
+		if (settings.getShuffle()) {
+			v.setBackgroundResource(R.drawable.shuffle_grey);
+			settings.setShuffle(false);
+		} else {
+			v.setBackgroundResource(R.drawable.shuffle_blue);
+			settings.setShuffle(true);
+			player.generateShuffleQueue();
+		}
+	}
+
+	@Override
+	public void onRepeatButtonPressed(View v) {
+		Player player = service.getPlayer();
+		if (player.isLooping()) {
+			v.setBackgroundResource(R.drawable.repeat_grey);
+			player.setLooping(false);
+		} else {
+			v.setBackgroundResource(R.drawable.repeat_blue);
+			player.setLooping(true);
+		}
+	}
+
+	@Override
+	public int add(Song song) throws IOException, VKontakteException {
+		return getApp().getVkontakte().add(song);
+	}
+
+	@Override
+	public boolean delete(Song song) throws IOException, VKontakteException {
+		return getApp().getVkontakte().delete(song);
+	}
+
+	@Override
+	public void love(Song song) {
+		if (getApp().getSettings().getSession() != null)
+			getApp().getLastFM().love(song);
+	}
+
+	@Override
+	public void unlove(Song song) {
+		if (getApp().getSettings().getSession() != null)
+			getApp().getLastFM().unlove(song);
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		if (fromUser) {
+			State state = service.getPlayer().getState();
+			if (state == State.PLAYING || state == State.PAUSED || state == State.SEEKING_FOR_IDLE || state == State.SEEKING_FOR_PLAYBACK) {
+				onBufferingStrated();
+				service.getPlayer().seekTo(progress);
+			} else
+				seekBar.setProgress(0);
+		}
+	}
+
+	@Override
+	public void onPlaylistLoaded() {
+		onNewTrack();
+	}
+
+	@Override
+	public Playlist getPlaylist() {
+		return getApp().getPlaylist();
+	}
+
+	@Override
+	public void setPlaylist(Playlist playlist) {
+		getApp().setPlaylist(playlist);
+		if (getApp().getSettings().getShuffle() && service != null)
+			service.getPlayer().generateShuffleQueue();
+		getSupportActionBar().setTitle(playlist.name);
+		if (playlist.unit != null)
+			new LogoLoader().execute(playlist.unit.photo);
+	}
+
+	private class LogoLoader extends AsyncTask<String, Void, Drawable> {
+
+		@Override
+		protected Drawable doInBackground(String... params) {
+			if (params[0] != null) {
+				Bitmap bitmap = getApp().getImageLoader().getBitmap(params[0]);
+				return new BitmapDrawable(getResources(), bitmap);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Drawable result) {
+			super.onPostExecute(result);
+			if (result != null)
+				getSupportActionBar().setIcon(result);
+		}
+
+	}
+
+	@Override
+	public int getCurrentTrack() {
+		return service.getPlayer().currentTrack;
+	}
+
+	@Override
+	public void setPlaylistLoading(boolean loading) {
+		playlistLoading = loading;
+	}
+
+	@Override
+	public boolean isPlaylistLoading() {
+		return playlistLoading;
+	}
+
+	@Override
+	public boolean getShuffle() {
+		return getApp().getSettings().getShuffle();
+	}
+
+	@Override
+	public void onViewCreated(Fragment fragment) {
+		if (pager != null) {
+			if (fragment instanceof ControlsFragment) {
+				controlsFragment = (ControlsFragment) fragment;
+			} else if (fragment instanceof PlaylistFragment) {
+				playlistFragment = (PlaylistFragment) fragment;
+				if (getApp().getSelected() == null) {
+					pager.setCurrentItem(1, true);
+					playlistFragment.loadPlaylist(getPlaylist(), isPlaying());
+				}
+			}
+			onNewTrack();
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.btnPlay:
+			onPlayButtonPressed(v);
 			break;
 
-		case DIALOG_LAST_FM_USER:
-			LastFMUserDialog lastFMUserDialog = (LastFMUserDialog) dialog;
-			lastFMUserDialog.setText(app.getSettings().getUsername());
-			lastFMUserDialog.setUserImage(app.getSettings().getUserImage());
+		case R.id.btnFwd:
+			onNextButtonPressed(v);
 			break;
 
-		case DIALOG_UNITS:
-			String[] array = getResources().getStringArray(R.array.playlist_options);
-			String title = friendsList ? array[1] : array[2];
-			dialog.setTitle(title);
-
-			List<Unit> list = friendsList ? friends : groups;
-			UnitsDialog unitsDialog = (UnitsDialog) dialog;
-			unitsDialog.setList(list);
+		case R.id.btnRwd:
+			onPrevButtonPressed(v);
 			break;
 
-		case DIALOG_UNIT:
-			if (unit != null && unit.name != null)
-				dialog.setTitle(unit.name);
+		case R.id.btnPlaylist:
+			initFragments();
 			break;
 		}
 	}
 
-	public List<Album> getMyAlbums() {
-		return myAlbums;
+	@Override
+	public ArrayList<Song> getSongs(Playlist playlist) {
+		return getApp().getPlaylists().get(playlist);
 	}
 
-	public boolean isFriendsList() {
-		return friendsList;
+	@Override
+	public boolean isPlaying() {
+		return service != null ? service.getPlayer().getState() != State.NOT_PREPARED : false;
 	}
 
-	public void setFriendsList(boolean friendsList) {
-		this.friendsList = friendsList;
+	@Override
+	public Playlist getSelectedPlaylist() {
+		return getApp().getSelected();
+
 	}
 
-	public void runGetUnits() {
-		new GetUnits().execute();
+	@Override
+	public void setSelectedPlaylist(Playlist playlist) {
+		getApp().setSelected(playlist);
 	}
 
-	public VibesApplication getApp() {
+	@Override
+	public ArrayList<Unit> getUnits(boolean friends) {
+		return friends ? getApp().getFriends() : getApp().getGroups();
+	}
+
+	private VibesApplication getApp() {
+		if (app == null)
+			app = (VibesApplication) getApplication();
 		return app;
-	}
-
-	public PlayerService getService() {
-		return service;
-	}
-
-	public List<Unit> getFriends() {
-		return friends;
-	}
-
-	public List<Unit> getGroups() {
-		return groups;
-	}
-
-	@Override
-	public void onProgressChanged(int progress) {
-		seekbar.setProgress(progress);
-
-		int seconds = (progress / 1000) % 60;
-		int minutes = (progress / 1000) / 60;
-		if (seconds > 9)
-			textPassed.setText(String.format("%d:%d", minutes, seconds));
-		else
-			textPassed.setText(String.format("%d:0%d", minutes, seconds));
-
-		int songDuration = service.getPlayer().getSongDuration();
-		seconds = ((songDuration - progress) / 1000) % 60;
-		minutes = ((songDuration - progress) / 1000) / 60;
-		if (seconds > 9)
-			textLeft.setText(String.format("%d:%d", minutes, seconds));
-		else
-			textLeft.setText(String.format("%d:0%d", minutes, seconds));
-	}
-
-	public void runGetSongs(String search) {
-		new GetSongs().execute(search);
-	}
-
-	@Override
-	public void onNewTrack() {
-		setCurrentSong(false);
-	}
-
-	private void enteredThread() {
-		runningThreads.incrementAndGet();
-	}
-
-	private void outOfThread() {
-		if (runningThreads.decrementAndGet() == 0 && !inFront)
-			doUnbindService();
 	}
 
 }

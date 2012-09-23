@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">VK Vibes</string>
@@ -33,6 +32,7 @@
     <string name="empty">No items</string>
     <string name="access_denied">User has limited the access to his audios</string>
     <string name="no_internet">Unable to connect the server, check your network and try again</string>
+    <string name="login">Login</string>
 
     <string-array name="wall_options">
         <item>25</item>
@@ -48,18 +48,15 @@
         <item>500</item>
     </string-array>
     <string-array name="playlist_options">
-        <item>Search</item>
         <item>Friends</item>
         <item>Communities</item>
         <item>My audios</item>
         <item>Wall audios</item>
         <item>Newsfeed audios</item>
-        <item>My albums</item>
     </string-array>
     <string-array name="unit_options">
         <item>All audios</item>
         <item>Wall audios</item>
-        <item>Albums</item>
     </string-array>
     <string-array name="context_options">
         <item>Add and love</item>
@@ -76,5 +73,12 @@
     <string name="finish_download_notification_title">Download is finished notification</string>
     <string name="finish_download_notification_summary">Show notification when download is complete</string>
     <string name="vkontakte">VKontakte</string>
+    <string name="download">Download</string>
+    <string name="search">Search</string>
+    <string name="refresh">Refresh</string>
+    <string name="refresh">Refresh</string>
+    <string name="refresh">Refresh</string>
+    <string name="refresh">Refresh</string>
+    <string name="slash">/</string>
 
 </resources>

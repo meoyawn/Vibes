@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
-import com.stiggpwnz.vibes.Player.OnActionListener;
-
 public class PlayerService extends Service {
 
 	private static final String SONG = "song";
@@ -86,10 +84,6 @@ public class PlayerService extends Service {
 		return notificationManager;
 	}
 
-	public void setPlayerListener(OnActionListener listener) {
-		player.setListener(listener);
-	}
-
 	public List<Integer> getDownloadQueue() {
 		if (downloadQueue == null)
 			downloadQueue = new LinkedList<Integer>();
@@ -98,8 +92,8 @@ public class PlayerService extends Service {
 
 	public void download(int position) {
 		try {
-			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification()).download(app.songs
-					.get(position));
+			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification()).download(app
+					.getSongs().get(position));
 		} catch (IOException e) {
 			onDownloadException(e.getLocalizedMessage());
 		}

@@ -14,14 +14,13 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.stiggpwnz.vibes.restapi.Song;
-import com.stiggpwnz.vibes.restapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.VKontakte;
 
 public class Downloader {
 
@@ -30,12 +29,12 @@ public class Downloader {
 
 	private NotificationManager manager;
 	private Context context;
-	private Vkontakte vkontakte;
+	private VKontakte vkontakte;
 	private List<Integer> downloadQueue;
 	private String path;
 	private boolean finished;
 
-	public Downloader(Context context, Vkontakte vkontakte, List<Integer> downloadQueue, String path, boolean finished) {
+	public Downloader(Context context, VKontakte vkontakte, List<Integer> downloadQueue, String path, boolean finished) {
 		this.context = context;
 		this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.vkontakte = vkontakte;
@@ -148,11 +147,6 @@ public class Downloader {
 			showNotification(messsage == null);
 			if (messsage != null && outputFile.exists())
 				outputFile.delete();
-			else if (messsage == null) {
-				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-				intent.setData(Uri.fromFile(outputFile));
-				context.sendBroadcast(intent);
-			}
 		}
 
 		private void showNotification(boolean success) {

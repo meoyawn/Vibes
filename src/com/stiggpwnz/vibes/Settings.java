@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
-import com.stiggpwnz.vibes.restapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.VKontakte;
 
 public class Settings {
 
@@ -13,11 +13,11 @@ public class Settings {
 
 		public void onLastFmSessionChanged(String session);
 
+		public void onVkontakteAccessTokenChanged(String accessToken);
+
 		public void onVkontakteMaxAudiosChanged(int maxAudios);
 
 		public void onVkontakteMaxNewsChanged(int maxNews);
-
-		public void onVkontakteAccessTokenChanged(String session);
 	}
 
 	public static final String MAX_NEWS = "max news";
@@ -30,7 +30,6 @@ public class Settings {
 	private static final String USER_IMAGE = "user image";
 	private static final String SESSION = "session";
 	private static final String SHUFFLE = "shuffle";
-	private static final String PLAYLIST = "playlist";
 	private static final String OWNER_ID = "owner id";
 	private static final String LAST_SEARCH = "last search";
 	private static final String ALBUM_ID = "album id";
@@ -52,7 +51,6 @@ public class Settings {
 	private String session;
 
 	// player settings
-	private int playlist = -1;
 	private int ownerId = -1;
 	private int albumId = -1;
 	private String lastSearch;
@@ -71,32 +69,34 @@ public class Settings {
 		SharedPreferences.Editor editor = prefs.edit();
 
 		accessToken = params[0];
-		editor.putString(Vkontakte.ACCESS_TOKEN, accessToken);
-		listener.onVkontakteAccessTokenChanged(accessToken);
+		editor.putString(VKontakte.ACCESS_TOKEN, accessToken);
 
 		expiringTime = System.currentTimeMillis() / 1000 + Integer.parseInt(params[1]);
-		editor.putLong(Vkontakte.EXPIRES_IN, expiringTime);
+		editor.putLong(VKontakte.EXPIRES_IN, expiringTime);
 
 		userID = Integer.valueOf(params[2]);
-		editor.putInt(Vkontakte.USER_ID, userID);
+		editor.putInt(VKontakte.USER_ID, userID);
 
 		editor.commit();
+
+		listener.onVkontakteAccessTokenChanged(accessToken);
 	}
 
 	public void resetData() {
 		SharedPreferences.Editor editor = prefs.edit();
 
-		editor.remove(Vkontakte.ACCESS_TOKEN);
+		editor.remove(VKontakte.ACCESS_TOKEN);
 		accessToken = null;
-		listener.onVkontakteAccessTokenChanged(accessToken);
 
-		editor.remove(Vkontakte.EXPIRES_IN);
+		editor.remove(VKontakte.EXPIRES_IN);
 		expiringTime = 0;
 
-		editor.remove(Vkontakte.USER_ID);
+		editor.remove(VKontakte.USER_ID);
 		userID = 0;
 
 		editor.commit();
+
+		listener.onVkontakteAccessTokenChanged(accessToken);
 	}
 
 	public void saveLastFM(String[] params) {
@@ -135,19 +135,19 @@ public class Settings {
 
 	public String getAccessToken() {
 		if (accessToken == null)
-			accessToken = prefs.getString(Vkontakte.ACCESS_TOKEN, null);
+			accessToken = prefs.getString(VKontakte.ACCESS_TOKEN, null);
 		return accessToken;
 	}
 
 	public long getExpiringTime() {
 		if (expiringTime == 0)
-			expiringTime = prefs.getLong(Vkontakte.EXPIRES_IN, 0);
+			expiringTime = prefs.getLong(VKontakte.EXPIRES_IN, 0);
 		return expiringTime;
 	}
 
 	public int getUserID() {
 		if (userID == 0)
-			userID = prefs.getInt(Vkontakte.USER_ID, 0);
+			userID = prefs.getInt(VKontakte.USER_ID, 0);
 		return userID;
 	}
 
@@ -167,21 +167,6 @@ public class Settings {
 		if (session == null)
 			session = prefs.getString(SESSION, null);
 		return session;
-	}
-
-	public int getPlaylist() {
-		if (playlist == -1)
-			playlist = prefs.getInt(PLAYLIST, PlayerActivity.PLAYLIST_NEWSFEED);
-		return playlist;
-	}
-
-	public void setPlaylist(int number) {
-		if (number != playlist) {
-			playlist = number;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(PLAYLIST, number);
-			editor.commit();
-		}
 	}
 
 	public int getOwnerId() {
@@ -277,8 +262,10 @@ public class Settings {
 	}
 
 	public String getDirectoryPath() {
-		if (directoryPath == null)
-			directoryPath = prefs.getString(DIRECTORY_PICKER, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
+		if (directoryPath == null) {
+			String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Music";
+			directoryPath = prefs.getString(DIRECTORY_PICKER, path);
+		}
 		return directoryPath;
 	}
 

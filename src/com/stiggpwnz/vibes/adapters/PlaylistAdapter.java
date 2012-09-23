@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -18,7 +18,7 @@ import com.stiggpwnz.vibes.restapi.Song;
 
 public class PlaylistAdapter extends BaseAdapter {
 
-	private List<Song> songs;
+	private ArrayList<Song> songs;
 	private LayoutInflater inflater;
 	private ColorStateList black;
 	private Animation shakeRight;
@@ -27,11 +27,12 @@ public class PlaylistAdapter extends BaseAdapter {
 	public int currentTrack = -1;
 	private Typeface typeface;
 
-	public PlaylistAdapter(Context context, Typeface typeface) {
+	public PlaylistAdapter(Context context, ArrayList<Song> songs, Typeface typeface) {
 		this.typeface = typeface;
-		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		blue = context.getResources().getColor(R.color.normal);
-		shakeRight = AnimationUtils.loadAnimation(context, R.anim.shake_right);
+		this.songs = songs;
+		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.blue = context.getResources().getColor(R.color.normal);
+		this.shakeRight = AnimationUtils.loadAnimation(context, R.anim.shake_right);
 	}
 
 	@Override
@@ -41,12 +42,13 @@ public class PlaylistAdapter extends BaseAdapter {
 		return 0;
 	}
 
-	public List<Song> getSongs() {
+	public ArrayList<Song> getSongs() {
 		return songs;
 	}
 
-	public void setSongs(List<Song> songs) {
+	public void setSongs(ArrayList<Song> songs) {
 		this.songs = songs;
+		notifyDataSetChanged();
 	}
 
 	@Override
@@ -61,7 +63,7 @@ public class PlaylistAdapter extends BaseAdapter {
 		return position;
 	}
 
-	private class ViewHolder {
+	private static class ViewHolder {
 		TextView artist;
 		TextView title;
 		View stick;
@@ -69,7 +71,6 @@ public class PlaylistAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-
 		ViewHolder viewholder;
 
 		if (convertView == null) {

@@ -19,15 +19,17 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.stiggpwnz.vibes.restapi.Song;
-import com.stiggpwnz.vibes.restapi.VkontakteException;
+import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class Player implements OnCompletionListener, OnPreparedListener, OnSeekCompleteListener, OnBufferingUpdateListener, OnErrorListener, OnInfoListener {
 
-	public static interface OnActionListener {
+	private static final int PROGRESSBAR_UPDATER_DELAY_MILLISECONDS = 250;
+
+	public static interface Listener {
 
 		public void onBufferingStrated();
 
-		public void onBufferingEnded();
+		public void onBufferingEnded(int duration);
 
 		public void onProgressChanged(int progress);
 
@@ -54,7 +56,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	};
 
 	private MediaPlayer player;
-	private OnActionListener listener;
+	private Listener listener;
 	private State state;
 
 	private boolean scrobbled;
@@ -71,7 +73,6 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private PreparePlayer preparePlayer;
 
 	public int currentTrack;
-	public Song current;
 
 	private VibesApplication app;
 	private PlayerService service;
@@ -117,14 +118,14 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 		@Override
 		public void run() {
-			if (app.songs != null) {
+			if (app.getSongs() != null) {
 				synchronized (Player.this) {
 					shuffleQueue.clear();
 					if (seed == -1)
 						seed = 0;
 					shuffleQueue.add(seed);
 					shufflePosition = 0;
-					int n = app.songs.size();
+					int n = app.getSongs().size();
 					for (int i = 1; i < n; i++) {
 						boolean flag;
 						int m;
@@ -172,7 +173,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 					}
 				}.start();
 
-			handler.postDelayed(progressUpdater, 500);
+			handler.postDelayed(progressUpdater, PROGRESSBAR_UPDATER_DELAY_MILLISECONDS);
 		} else
 			handler.removeCallbacks(progressUpdater);
 	}
@@ -189,17 +190,17 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private synchronized void setSongUrl(Song song) {
 		try {
 			app.getVkontakte().setSongUrl(song);
-		} catch (VkontakteException e) {
+		} catch (VKontakteException e) {
 			switch (e.getCode()) {
-			case VkontakteException.UNKNOWN_ERROR_OCCURED:
+			case VKontakteException.UNKNOWN_ERROR_OCCURED:
 				errorStopPlayback();
 				break;
 
-			case VkontakteException.USER_AUTHORIZATION_FAILED:
+			case VKontakteException.USER_AUTHORIZATION_FAILED:
 				authFail();
 				break;
 
-			case VkontakteException.TOO_MANY_REQUESTS_PER_SECOND:
+			case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
 				setSongUrl(song);
 				break;
 
@@ -211,18 +212,17 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		}
 	}
 
-	public void play(int position) {
-		current = null;
+	public void play(int position, boolean hardReset) {
 		scrobbled = false;
 		timeStamped = false;
-		if (currentTrack == position
+		if (currentTrack == position && !hardReset
 				&& (getState() == State.PAUSED || getState() == State.PLAYING || getState() == State.SEEKING_FOR_IDLE || getState() == State.SEEKING_FOR_PLAYBACK)) {
 			setState(State.SEEKING_FOR_PLAYBACK);
 			handler.removeCallbacks(progressUpdater);
 			player.seekTo(0);
 		} else if (currentTrack == position && (getState() == State.PREPARING_FOR_IDLE || getState() == State.PREPARING_FOR_PLAYBACK)) {
 			setState(State.PREPARING_FOR_PLAYBACK);
-		} else if (currentTrack != position || getState() == State.NOT_PREPARED) {
+		} else if (currentTrack != position || getState() == State.NOT_PREPARED || hardReset) {
 			currentTrack = position;
 			if (state != State.NOT_PREPARED)
 				player.reset();
@@ -349,7 +349,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		Log.d(VibesApplication.VIBES, "prepared " + currentTrack + " and state = " + getState());
 		songDuration = player.getDuration();
 		if (listener != null)
-			listener.onBufferingEnded();
+			listener.onBufferingEnded(songDuration);
 		if (getState() == State.PREPARING_FOR_PLAYBACK) {
 			if (listener == null)
 				service.makeNotification();
@@ -371,10 +371,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	public Song getCurrentSong() {
-		if (current != null)
-			return current;
-		if (app.songs != null && app.songs.size() > 0)
-			return app.songs.get(currentTrack);
+		if (app.getSongs() != null && app.getSongs().size() > 0)
+			return app.getSongs().get(currentTrack);
 		return null;
 	}
 
@@ -418,7 +416,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	@Override
 	public void onSeekComplete(MediaPlayer mp) {
 		if (listener != null)
-			listener.onBufferingEnded();
+			listener.onBufferingEnded(0);
 		Log.d(VibesApplication.VIBES, "seeking complete");
 		if (getState() == State.SEEKING_FOR_PLAYBACK) {
 			setState(State.PLAYING);
@@ -461,18 +459,14 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			return true;
 		} else if (what == 702 && extra == 0) {
 			if (listener != null)
-				listener.onBufferingEnded();
+				listener.onBufferingEnded(0);
 			return true;
 		}
 		return false;
 	}
 
-	public void setListener(OnActionListener onActionListener) {
+	public void setListener(Listener onActionListener) {
 		this.listener = onActionListener;
-	}
-
-	public void setCurrent(Song current) {
-		this.current = current;
 	}
 
 	public void resume() {
@@ -514,16 +508,16 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		scrobbled = false;
 		timeStamped = false;
 		timeStamp = System.currentTimeMillis() / 1000;
-		if (app.songs != null && app.songs.size() > 0) {
+		if (app.getSongs() != null && app.getSongs().size() > 0) {
 			Log.d(VibesApplication.VIBES, "onCompleted: playing next song and state = " + getState());
 			if (!settings.getRepeatPlaylist()) {
 				if (settings.getShuffle()) {
-					if (shufflePosition == app.songs.size() - 1)
+					if (shufflePosition == app.getSongs().size() - 1)
 						stop();
 					else
 						next();
 				} else {
-					if (currentTrack == app.songs.size() - 1)
+					if (currentTrack == app.getSongs().size() - 1)
 						stop();
 					else
 						next();
@@ -539,15 +533,14 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	public void next() {
-		if (app.songs != null && app.songs.size() > 0) {
+		if (app.getSongs() != null && app.getSongs().size() > 0) {
 			Log.d(VibesApplication.VIBES, "Invoking next() and state = " + getState());
-			current = null;
 			if (settings.getShuffle()) {
-				if (++shufflePosition >= app.songs.size())
+				if (++shufflePosition >= app.getSongs().size())
 					shufflePosition = 0;
 				currentTrack = shuffleQueue.get(shufflePosition);
 			} else {
-				if (++currentTrack >= app.songs.size())
+				if (++currentTrack >= app.getSongs().size())
 					currentTrack = 0;
 			}
 			resetAndPlay();
@@ -570,25 +563,24 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void nextForIdle() {
 		setState(State.NOT_PREPARED);
 		if (listener != null) {
-			listener.onBufferingEnded();
+			listener.onBufferingEnded(0);
 			listener.onNewTrack();
 		}
 	}
 
 	public void prev() {
-		if (app.songs != null && app.songs.size() > 0) {
+		if (app.getSongs() != null && app.getSongs().size() > 0) {
 			Log.d(VibesApplication.VIBES, "Invoking prev() and state = " + getState());
 			if ((state == State.PLAYING || state == State.SEEKING_FOR_PLAYBACK) && player.getCurrentPosition() >= 5000) {
 				play();
 			} else {
-				current = null;
 				if (settings.getShuffle()) {
 					if (--shufflePosition < 0)
-						shufflePosition = app.songs.size() - 1;
+						shufflePosition = app.getSongs().size() - 1;
 					currentTrack = shuffleQueue.get(shufflePosition);
 				} else {
 					if (--currentTrack < 0)
-						currentTrack = app.songs.size() - 1;
+						currentTrack = app.getSongs().size() - 1;
 				}
 				resetAndPlay();
 			}
