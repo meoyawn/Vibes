@@ -30,9 +30,6 @@ public class Settings {
 	private static final String USER_IMAGE = "user image";
 	private static final String SESSION = "session";
 	private static final String SHUFFLE = "shuffle";
-	private static final String OWNER_ID = "owner id";
-	private static final String LAST_SEARCH = "last search";
-	private static final String ALBUM_ID = "album id";
 
 	private SharedPreferences prefs;
 	private OnActionListener listener;
@@ -51,9 +48,6 @@ public class Settings {
 	private String session;
 
 	// player settings
-	private int ownerId = -1;
-	private int albumId = -1;
-	private String lastSearch;
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
 	private String directoryPath;
@@ -65,7 +59,7 @@ public class Settings {
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
-	public void saveData(String[] params) {
+	public void saveVKontakte(String[] params) {
 		SharedPreferences.Editor editor = prefs.edit();
 
 		accessToken = params[0];
@@ -82,7 +76,7 @@ public class Settings {
 		listener.onVkontakteAccessTokenChanged(accessToken);
 	}
 
-	public void resetData() {
+	public void resetVKontakte() {
 		SharedPreferences.Editor editor = prefs.edit();
 
 		editor.remove(VKontakte.ACCESS_TOKEN);
@@ -167,51 +161,6 @@ public class Settings {
 		if (session == null)
 			session = prefs.getString(SESSION, null);
 		return session;
-	}
-
-	public int getOwnerId() {
-		if (ownerId == -1)
-			ownerId = prefs.getInt(OWNER_ID, 0);
-		return ownerId;
-	}
-
-	public void setOwnerId(int number) {
-		if (ownerId != number) {
-			ownerId = number;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(OWNER_ID, number);
-			editor.commit();
-		}
-	}
-
-	public int getAlbumId() {
-		if (albumId == -1)
-			albumId = prefs.getInt(ALBUM_ID, 0);
-		return albumId;
-	}
-
-	public void setAlbumId(int album) {
-		if (album != this.albumId) {
-			this.albumId = album;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(ALBUM_ID, album);
-			editor.commit();
-		}
-	}
-
-	public String getLastSearch() {
-		if (lastSearch == null)
-			lastSearch = prefs.getString(LAST_SEARCH, null);
-		return lastSearch;
-	}
-
-	public void setLastSearch(String search) {
-		if (lastSearch == null || !lastSearch.equals(search)) {
-			lastSearch = search;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString(LAST_SEARCH, search);
-			editor.commit();
-		}
 	}
 
 	public int getMaxNews() {

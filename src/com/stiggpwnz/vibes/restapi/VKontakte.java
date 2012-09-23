@@ -40,10 +40,12 @@ public class VKontakte extends RestAPI {
 	private static final String FRIENDS_GET = "friends.get?";
 	private static final String GROUPS_GET = "groups.get?";
 	public static final String NEWSFEED_GET = "newsfeed.get?";
+	private static final String USERS_GET = "users.get?";
 	private static final String WALL_GET = "wall.get?";
 
 	private static final String AUDIO = "audio";
 	private static final String AUDIOS = "audios";
+	private static final String FIELDS = "fields";
 	private static final String FILTER = "filter";
 	private static final String FILTERS = "filters";
 	private static final String ATTACHMENTS = "attachments";
@@ -71,6 +73,7 @@ public class VKontakte extends RestAPI {
 	private static final String PHOTO_REC = "photo_rec";
 	private static final String HINTS = "hints";
 	private static final String ORDER = "order";
+	private static final String UNIT_FIELDS = "uid,first_name,last_name,photo_rec&";
 	private static final String ERROR_CODE = "error_code";
 	private static final String ERROR = "error";
 
@@ -98,6 +101,25 @@ public class VKontakte extends RestAPI {
 
 	public void setAccessToken(String accessToken) {
 		this.accessToken = accessToken;
+	}
+
+	public Unit getSelf() throws IOException, VKontakteException {
+		try {
+			URI url = new URI(API_URL + USERS_GET + "&uids=" + userId + "&" + FIELDS + "=" + UNIT_FIELDS + ACCESS_TOKEN + "=" + accessToken);
+
+			JSONObject jsonResponse = execute(url);
+			if (jsonResponse.has(RESPONSE)) {
+				return parseUnit(jsonResponse.getJSONArray(RESPONSE).getJSONObject(0));
+			} else if (jsonResponse.has(ERROR)) {
+				jsonResponse = jsonResponse.getJSONObject(ERROR);
+				throw new VKontakteException(jsonResponse.getInt(ERROR_CODE));
+			}
+		} catch (JSONException e) {
+
+		} catch (URISyntaxException e) {
+
+		}
+		return null;
 	}
 
 	public int add(Song song) throws IOException, VKontakteException {
@@ -348,8 +370,7 @@ public class VKontakte extends RestAPI {
 	public ArrayList<Unit> getFriends(boolean alphabet) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
-
-			buffer.append(API_URL + FRIENDS_GET + "fields=uid,first_name,last_name,photo_rec&" + ACCESS_TOKEN + "=" + accessToken);
+			buffer.append(API_URL + FRIENDS_GET + FIELDS + "=" + UNIT_FIELDS + ACCESS_TOKEN + "=" + accessToken);
 			if (alphabet)
 				buffer.append("&" + ORDER + "=" + NAME);
 			else
@@ -362,14 +383,8 @@ public class VKontakte extends RestAPI {
 				JSONArray friends = jsonResponse.getJSONArray(RESPONSE);
 				ArrayList<Unit> units = new ArrayList<Unit>();
 				int n = friends.length();
-				for (int i = 0; i < n; i++) {
-					JSONObject friend = friends.getJSONObject(i);
-					int gid = friend.getInt(UID);
-					String name = String.format("%s %s", friend.getString(FIRST_NAME), friend.getString(LAST_NAME));
-					name = Jsoup.parse(name).text();
-					String photo = Uri.parse(friend.getString(PHOTO_REC)).toString();
-					units.add(new Unit(gid, name, photo));
-				}
+				for (int i = 0; i < n; i++)
+					units.add(parseUnit(friends.getJSONObject(i)));
 				return units;
 			} else if (jsonResponse.has(ERROR)) {
 				jsonResponse = jsonResponse.getJSONObject(ERROR);
@@ -381,6 +396,14 @@ public class VKontakte extends RestAPI {
 
 		}
 		return null;
+	}
+
+	private Unit parseUnit(JSONObject unit) throws JSONException {
+		int id = unit.getInt(UID);
+		String name = String.format("%s %s", unit.getString(FIRST_NAME), unit.getString(LAST_NAME));
+		name = Jsoup.parse(name).text();
+		String photo = Uri.parse(unit.getString(PHOTO_REC)).toString();
+		return new Unit(id, name, photo);
 	}
 
 	public ArrayList<Unit> getGroups() throws IOException, VKontakteException {
@@ -463,10 +486,11 @@ public class VKontakte extends RestAPI {
 		Log.d(VibesApplication.VIBES, url);
 
 		HttpPost request = new HttpPost(url);
-		if (url.contains(AUDIO_GET_BY_ID) && audioUrlRequests != null)
-			synchronized (this) {
+		if (url.contains(AUDIO_GET_BY_ID) && audioUrlRequests != null) {
+			synchronized (audioUrlRequests) {
 				audioUrlRequests.add(request);
 			}
+		}
 
 		JSONObject jsonResponse = new JSONObject(executeRequest(request));
 		return jsonResponse;

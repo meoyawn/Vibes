@@ -234,7 +234,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		}
 	}
 
-	public void setCurrentSong(final Song song, final List<HttpPost> requests) {
+	public void setCurrentSong(Song song, List<HttpPost> requests) {
 		if (song != null) {
 			ControlsFragment.this.song = song;
 

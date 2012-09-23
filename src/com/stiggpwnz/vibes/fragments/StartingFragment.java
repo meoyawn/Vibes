@@ -1,6 +1,7 @@
 package com.stiggpwnz.vibes.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,8 +11,8 @@ import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
 import com.stiggpwnz.vibes.restapi.Playlist;
-import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.Playlist.Type;
+import com.stiggpwnz.vibes.restapi.Unit;
 
 public class StartingFragment extends AlbumsFragment {
 
@@ -31,13 +32,17 @@ public class StartingFragment extends AlbumsFragment {
 
 	}
 
-	public static StartingFragment newInstance(Unit unit, Playlist playlist) {
+	@SuppressWarnings("incomplete-switch")
+	public static StartingFragment newInstance(Context context, Unit unit, Playlist playlist) {
 		StartingFragment fragment = new StartingFragment();
 		Bundle args = AlbumsFragment.initWithUnit(unit);
-		int selected;
+		int selected = -1;
 		switch (playlist.type) {
 		case AUDIOS:
-			selected = MY_AUDIOS;
+			if (playlist.album == null)
+				selected = MY_AUDIOS;
+			else
+				selected = playlist.unit.albums.indexOf(playlist.album) + 5;
 			break;
 
 		case WALL:
@@ -47,13 +52,13 @@ public class StartingFragment extends AlbumsFragment {
 		case NEWSFEED:
 			selected = NEWSFEED;
 			break;
-
-		default:
-			selected = -1;
-			break;
 		}
 		args.putInt(SELECTED_POSITION, selected);
 		fragment.setArguments(args);
+
+		if (playlist.name == null)
+			playlist.name = context.getResources().getStringArray(R.array.playlist_options)[selected];
+
 		return fragment;
 	}
 
@@ -68,6 +73,10 @@ public class StartingFragment extends AlbumsFragment {
 		String[] options = getResources().getStringArray(R.array.playlist_options);
 		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), listener.getTypeface(), options);
 		super.onViewCreated(view, savedInstanceState, adapter);
+		if (unit == null)
+			unit = savedInstanceState != null ? (Unit) savedInstanceState.getSerializable(UNIT) : (Unit) getArguments().getSerializable(UNIT);
+		if (!listener.getSelectedPlaylist().unit.equals(unit))
+			setSelectedPosition(-1);
 	}
 
 	@Override
@@ -78,9 +87,9 @@ public class StartingFragment extends AlbumsFragment {
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
-		String name = (String) l.getItemAtPosition(position);
+	public void onListItemClick(ListView listView, View view, int position, long id) {
+		super.onListItemClick(listView, view, position, id);
+		String name = (String) listView.getItemAtPosition(position);
 		if (position > 1) {
 			if (listener.isPlaylistLoading())
 				return;
@@ -105,7 +114,7 @@ public class StartingFragment extends AlbumsFragment {
 			break;
 
 		case NEWSFEED:
-			listener.loadPlaylist(new Playlist(Type.NEWSFEED, name));
+			listener.loadPlaylist(new Playlist(Type.NEWSFEED, name, unit));
 			break;
 
 		default:

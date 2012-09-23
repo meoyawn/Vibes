@@ -18,6 +18,12 @@ public class Unit implements Serializable {
 		this.photo = photo;
 	}
 
+	public void initWith(Unit unit) {
+		this.id = unit.id;
+		this.name = unit.name;
+		this.photo = unit.photo;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

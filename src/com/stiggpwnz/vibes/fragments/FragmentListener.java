@@ -24,6 +24,5 @@ public interface FragmentListener {
 
 	public Playlist getSelectedPlaylist();
 
-	public void setSelectedPlaylist(Playlist playlist);
 	
 }

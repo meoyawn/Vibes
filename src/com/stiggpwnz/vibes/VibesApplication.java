@@ -26,11 +26,11 @@ import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
 import com.stiggpwnz.vibes.restapi.Playlist;
+import com.stiggpwnz.vibes.restapi.Playlist.Type;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
-import com.stiggpwnz.vibes.restapi.Playlist.Type;
 
 public class VibesApplication extends Application implements Settings.OnActionListener {
 
@@ -65,7 +65,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	private View loadingFooter;
 	private Typeface font;
 	private Animation shake;
-	private Playlist selected;
+	private Playlist selectedPlaylist;
 
 	@Override
 	public void onCreate() {
@@ -78,14 +78,20 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		settings = new Settings(this, this);
 		vkontakte = new VKontakte(settings.getAccessToken(), client, settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
 		playlists = new HashMap<Playlist, ArrayList<Song>>();
-		playlist = new Playlist(Type.NEWSFEED, VIBES);
+		playlist = new Playlist(Type.NEWSFEED, null, getSelf());
+		selectedPlaylist = playlist;
 	}
 
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
 		playlists.clear();
+		playlists.put(playlist, songs);
+		selectedPlaylist = playlist;
+
 		imageLoader.getMemoryCache().clear();
+		friends = null;
+		groups = null;
 	}
 
 	public VKontakte getVkontakte() {
@@ -221,15 +227,15 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 			new Thread("Loading self") {
 				@Override
 				public void run() {
-					loadSelf();
+					try {
+						self.initWith(vkontakte.getSelf());
+					} catch (Exception e) {
+
+					}
 				}
 			}.start();
 		}
 		return self;
-	}
-
-	private void loadSelf() {
-		// TODO Auto-generated method stub
 	}
 
 	public View getFooter() {
@@ -254,11 +260,11 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	}
 
 	public Playlist getSelected() {
-		return selected;
+		return selectedPlaylist;
 	}
 
 	public void setSelected(Playlist selected) {
-		this.selected = selected;
+		this.selectedPlaylist = selected;
 	}
 
 }

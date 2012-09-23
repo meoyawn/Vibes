@@ -218,29 +218,27 @@ public class PlaylistFragment extends SherlockListFragment {
 		return false;
 	}
 
-	public void loadPlaylist(Playlist playlist, boolean isPlaying) {
-		if (listener.getSelectedPlaylist() == null || !listener.getSelectedPlaylist().equals(playlist)) {
-			ArrayList<Song> songs = listener.getSongs(playlist);
-			if (songs != null) {
-				if (adapter != null) {
-					adapter.setSongs(songs);
-				} else {
-					adapter = new PlaylistAdapter(getSherlockActivity(), songs, listener.getTypeface());
-					setListAdapter(adapter);
-				}
-				listener.setSelectedPlaylist(playlist);
-				if (!playlist.equals(listener.getPlaylist())) {
-					adapter.currentTrack = -1;
-					adapter.notifyDataSetChanged();
-				} else if (isPlaying) {
-					adapter.currentTrack = listener.getCurrentTrack();
-					adapter.notifyDataSetChanged();
-				}
+	public void loadPlaylist(boolean isPlaying) {
+		Playlist playlist = listener.getSelectedPlaylist();
+		ArrayList<Song> songs = listener.getSongs(playlist);
+		if (songs != null) {
+			if (adapter != null) {
+				adapter.setSongs(songs);
 			} else {
-				new LoadSongs(playlist).execute();
+				adapter = new PlaylistAdapter(getSherlockActivity(), songs, listener.getTypeface());
+				setListAdapter(adapter);
 			}
-			getListView().setSelectionAfterHeaderView();
+			if (!playlist.equals(listener.getPlaylist())) {
+				adapter.currentTrack = -1;
+				adapter.notifyDataSetChanged();
+			} else if (isPlaying) {
+				adapter.currentTrack = listener.getCurrentTrack();
+				adapter.notifyDataSetChanged();
+			}
+		} else {
+			new LoadSongs(playlist).execute();
 		}
+		getListView().setSelectionAfterHeaderView();
 	}
 
 	private class LoadSongs extends AsyncTask<Void, Void, ArrayList<Song>> {
@@ -295,6 +293,7 @@ public class PlaylistFragment extends SherlockListFragment {
 
 		@Override
 		protected void onPostExecute(ArrayList<Song> result) {
+			super.onPostExecute(result);
 			if (listener != null) {
 				if (adapter == null) {
 					adapter = new PlaylistAdapter(getSherlockActivity(), result, listener.getTypeface());
@@ -303,15 +302,13 @@ public class PlaylistFragment extends SherlockListFragment {
 					adapter.setSongs(result);
 				}
 				setListShown(true);
-				listener.setSelectedPlaylist(playlist);
 				if (!playlist.equals(listener.getPlaylist())) {
 					adapter.currentTrack = -1;
 					adapter.notifyDataSetChanged();
 				} else {
-					listener.onPlaylistLoaded();
 					listener.setPlaylist(playlist);
+					listener.onPlaylistLoaded();
 				}
-				super.onPostExecute(result);
 			}
 		}
 	}
@@ -329,7 +326,7 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	@SuppressLint("NewApi")
 	public void setCurrentSong(Playlist playlist, int position) {
-		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(playlist)) {
+		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(playlist) && listener.isPlaying()) {
 			adapter.currentTrack = position;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
 				getListView().smoothScrollToPosition(position);

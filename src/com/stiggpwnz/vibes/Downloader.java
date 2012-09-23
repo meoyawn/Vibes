@@ -27,7 +27,7 @@ public class Downloader {
 	private static final String DOWNLOADING = "downloading";
 	private static final String FINISHED = "finished";
 
-	private NotificationManager manager;
+	private NotificationManager notificationManager;
 	private Context context;
 	private VKontakte vkontakte;
 	private List<Integer> downloadQueue;
@@ -36,7 +36,7 @@ public class Downloader {
 
 	public Downloader(Context context, VKontakte vkontakte, List<Integer> downloadQueue, String path, boolean finished) {
 		this.context = context;
-		this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.vkontakte = vkontakte;
 		this.downloadQueue = downloadQueue;
 		this.path = path;
@@ -124,7 +124,7 @@ public class Downloader {
 					if (progress > lastprogress) {
 						lastprogress = progress;
 						notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
-						manager.notify(DOWNLOADING, song.aid, notification);
+						notificationManager.notify(DOWNLOADING, song.aid, notification);
 					}
 					output.write(buffer, 0, bufferLength);
 				}
@@ -171,13 +171,13 @@ public class Downloader {
 				PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 				notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
 				notification.flags |= Notification.FLAG_AUTO_CANCEL;
-				manager.notify(FINISHED, song.aid, notification);
+				notificationManager.notify(FINISHED, song.aid, notification);
 			}
 		}
 
 		private void showNotification() {
 			notification = new Notification(R.drawable.download_icon, song.toString(), System.currentTimeMillis());
-			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 
 			Intent notifyIntent = new Intent(context, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -186,11 +186,11 @@ public class Downloader {
 			notification.contentIntent = intent;
 			notification.contentView.setTextViewText(R.id.downloadTitle, song.toString());
 
-			manager.notify(DOWNLOADING, song.aid, notification);
+			notificationManager.notify(DOWNLOADING, song.aid, notification);
 		}
 
 		private void cancelNotification() {
-			manager.cancel(DOWNLOADING, song.aid);
+			notificationManager.cancel(DOWNLOADING, song.aid);
 		}
 
 	}

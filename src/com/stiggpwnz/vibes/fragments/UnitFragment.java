@@ -72,9 +72,7 @@ public class UnitFragment extends AlbumsFragment {
 		String name = (String) l.getItemAtPosition(position);
 		if (listener.isPlaylistLoading())
 			return;
-		AlbumsAdapter albumsAdapter = (AlbumsAdapter) getListAdapter();
-		albumsAdapter.setSelected(position);
-		albumsAdapter.notifyDataSetChanged();
+		setSelectedPosition(position);
 		switch (position) {
 		case AUDIOS:
 			listener.loadPlaylist(new Playlist(Type.AUDIOS, name, unit));

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.apache.http.client.ClientProtocolException;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -27,6 +28,7 @@ public class AlbumsFragment extends SherlockListFragment {
 		public View getFooterView();
 
 		public boolean isPlaylistLoading();
+
 	}
 
 	protected static final String UNIT = "unit";
@@ -61,8 +63,14 @@ public class AlbumsFragment extends SherlockListFragment {
 			this.unit = unit;
 		}
 		getListView().setSelection(savedInstanceState != null ? savedInstanceState.getInt(SCROLL_POSITION) : scrollPosition);
-		setSelectedPosition(savedInstanceState != null ? savedInstanceState.getInt(SELECTED_POSITION) : selectedPosition);
-		// getListView().setCacheColorHint(0);
+		int position = savedInstanceState != null ? savedInstanceState.getInt(SELECTED_POSITION) : selectedPosition;
+		setSelectedPosition(position);
+		if (position > 0) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
+				getListView().smoothScrollToPosition(position);
+			else
+				getListView().setSelection(position);
+		}
 		super.onViewCreated(view, savedInstanceState);
 	}
 
@@ -149,11 +157,8 @@ public class AlbumsFragment extends SherlockListFragment {
 			super.onPostExecute(result);
 			adapter.setAlbums(result);
 			adapter.notifyDataSetChanged();
-			try {
+			if (isVisible())
 				getListView().removeFooterView(footer);
-			} catch (Exception e) {
-				// fragment view already destroyed, just do nothing
-			}
 			unit.albums = result;
 			AlbumsFragment.this.unit = unit;
 		}

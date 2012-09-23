@@ -8,10 +8,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.stiggpwnz.vibes.fragments.WebViewFragment;
+import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 
-public class LoginActivity extends SherlockFragmentActivity implements OnClickListener, WebViewFragment.Listener {
+public class LoginActivity extends SherlockFragmentActivity implements OnClickListener, LoginFragment.Listener {
 
 	public static final String RESET = "RESET";
 
@@ -37,12 +37,12 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 		switch (v.getId()) {
 		case R.id.btnLogin:
 			v.startAnimation(shake);
-			WebViewFragment.newInstance(VKontakte.loginUrl()).show(getSupportFragmentManager(), "webview");
+			LoginFragment.newInstance(VKontakte.loginUrl()).show(getSupportFragmentManager(), "webview");
 		}
 	}
 
 	@Override
 	public void saveData(String[] params) {
-		app.getSettings().saveData(params);
+		app.getSettings().saveVKontakte(params);
 	}
 }
