@@ -13,7 +13,7 @@ public class Settings {
 
 		public void onLastFmSessionChanged(String session);
 
-		public void onVkontakteAccessTokenChanged(String accessToken);
+		public void onVkontakteAccessTokenChanged(int userId, String accessToken);
 
 		public void onVkontakteMaxAudiosChanged(int maxAudios);
 
@@ -73,7 +73,7 @@ public class Settings {
 
 		editor.commit();
 
-		listener.onVkontakteAccessTokenChanged(accessToken);
+		listener.onVkontakteAccessTokenChanged(userID, accessToken);
 	}
 
 	public void resetVKontakte() {
@@ -90,7 +90,7 @@ public class Settings {
 
 		editor.commit();
 
-		listener.onVkontakteAccessTokenChanged(accessToken);
+		listener.onVkontakteAccessTokenChanged(userID, accessToken);
 	}
 
 	public void saveLastFM(String[] params) {

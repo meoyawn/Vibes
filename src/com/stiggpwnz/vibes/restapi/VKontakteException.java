@@ -13,6 +13,7 @@ public class VKontakteException extends Exception {
 	public static final int ONE_OF_THE_PARAMETERS_IS_MISSING_OR_INVALID = 100;
 	public static final int INVALID_MESSAGE = 120;
 	public static final int ACCESS_DENIED = 201;
+	public static final int CACHE_EXPIRED = 202;
 
 	private int code;
 

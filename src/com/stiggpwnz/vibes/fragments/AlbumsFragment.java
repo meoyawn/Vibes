@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.apache.http.client.ClientProtocolException;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -65,13 +64,9 @@ public class AlbumsFragment extends SherlockListFragment {
 		getListView().setSelection(savedInstanceState != null ? savedInstanceState.getInt(SCROLL_POSITION) : scrollPosition);
 		int position = savedInstanceState != null ? savedInstanceState.getInt(SELECTED_POSITION) : selectedPosition;
 		setSelectedPosition(position);
-		if (position > 0) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
-				getListView().smoothScrollToPosition(position);
-			else
-				getListView().setSelection(position);
-		}
 		super.onViewCreated(view, savedInstanceState);
+		if (unit != null && !unit.equals(listener.getSelectedPlaylist().unit))
+			setSelectedPosition(-1);
 	}
 
 	// save current scroll position

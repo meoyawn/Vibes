@@ -154,7 +154,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 			break;
 
 		case SEARCH:
-			songs = vkontakte.search(playlist.search, 0);
+			songs = vkontakte.search(playlist.query, 0);
 			break;
 		}
 
@@ -182,8 +182,10 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	}
 
 	@Override
-	public void onVkontakteAccessTokenChanged(String accessToken) {
+	public void onVkontakteAccessTokenChanged(int userId, String accessToken) {
+		vkontakte.setUserId(userId);
 		vkontakte.setAccessToken(accessToken);
+		self = null;
 	}
 
 	@Override
@@ -259,7 +261,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		songs = playlists.get(playlist);
 	}
 
-	public Playlist getSelected() {
+	public Playlist getSelectedPlaylist() {
 		return selectedPlaylist;
 	}
 

@@ -16,44 +16,26 @@
         android:layout_weight="0"
         android:orientation="horizontal" >
 
-        <RelativeLayout
-            android:layout_width="185dp"
-            android:layout_height="85dp"
-            android:layout_marginLeft="30dp" >
-
-            <Button
-                android:id="@+id/btnPlay"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:layout_centerInParent="true"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/play" />
-
-            <Button
-                android:id="@+id/btnFwd"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@+id/btnPlay"
-                android:background="@drawable/forward" />
-
-            <Button
-                android:id="@+id/btnRwd"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/btnPlay"
-                android:background="@drawable/rewind" />
-        </RelativeLayout>
+        <Button
+            android:id="@+id/btnRwd"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/rewind" />
 
         <Button
-            android:id="@+id/btnPlaylist"
+            android:id="@+id/btnPlay"
             android:layout_width="75dp"
-            android:layout_height="65dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/playlist" />
+            android:layout_height="75dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/play" />
+
+        <Button
+            android:id="@+id/btnFwd"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/forward" />
     </LinearLayout>
 
 </LinearLayout>

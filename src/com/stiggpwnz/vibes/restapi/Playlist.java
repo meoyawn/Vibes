@@ -9,7 +9,7 @@ public class Playlist {
 	public Type type;
 	public Unit unit;
 	public Album album;
-	public String search;
+	public String query;
 	public String name;
 
 	public Playlist(Type type, String name) {
@@ -27,9 +27,9 @@ public class Playlist {
 		this.album = album;
 	}
 
-	public Playlist(Type type, String name, String search) {
+	public Playlist(Type type, String name, String query) {
 		this(type, name);
-		this.search = search;
+		this.query = query;
 	}
 
 	@Override
@@ -37,8 +37,7 @@ public class Playlist {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((album == null) ? 0 : album.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((search == null) ? 0 : search.hashCode());
+		result = prime * result + ((query == null) ? 0 : query.toLowerCase().hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
 		return result;
@@ -58,15 +57,10 @@ public class Playlist {
 				return false;
 		} else if (!album.equals(other.album))
 			return false;
-		if (name == null) {
-			if (other.name != null)
+		if (query == null) {
+			if (other.query != null)
 				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (search == null) {
-			if (other.search != null)
-				return false;
-		} else if (!search.equals(other.search))
+		} else if (other.query != null && !query.toLowerCase().equals(other.query.toLowerCase()))
 			return false;
 		if (type != other.type)
 			return false;

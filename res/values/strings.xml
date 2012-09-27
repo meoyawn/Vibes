@@ -74,10 +74,7 @@
     <string name="finish_download_notification_summary">Show notification when download is complete</string>
     <string name="vkontakte">VKontakte</string>
     <string name="download">Download</string>
-    <string name="search">Search</string>
-    <string name="refresh">Refresh</string>
-    <string name="refresh">Refresh</string>
-    <string name="refresh">Refresh</string>
+    <string name="search">Search for music</string>
     <string name="refresh">Refresh</string>
     <string name="slash">/</string>
 

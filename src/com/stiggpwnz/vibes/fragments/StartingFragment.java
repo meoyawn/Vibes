@@ -73,10 +73,6 @@ public class StartingFragment extends AlbumsFragment {
 		String[] options = getResources().getStringArray(R.array.playlist_options);
 		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), listener.getTypeface(), options);
 		super.onViewCreated(view, savedInstanceState, adapter);
-		if (unit == null)
-			unit = savedInstanceState != null ? (Unit) savedInstanceState.getSerializable(UNIT) : (Unit) getArguments().getSerializable(UNIT);
-		if (!listener.getSelectedPlaylist().unit.equals(unit))
-			setSelectedPosition(-1);
 	}
 
 	@Override

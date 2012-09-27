@@ -8,6 +8,7 @@ import net.simonvt.widget.MenuDrawerManager;
 
 import org.apache.http.client.ClientProtocolException;
 
+import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -17,6 +18,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -34,60 +36,43 @@ import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
 import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
+import com.stiggpwnz.vibes.fragments.AlbumsFragment;
 import com.stiggpwnz.vibes.fragments.ControlsFragment;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment;
 import com.stiggpwnz.vibes.fragments.StartingFragment;
 import com.stiggpwnz.vibes.fragments.UnitFragment;
-import com.stiggpwnz.vibes.fragments.UnitsFragment;
+import com.stiggpwnz.vibes.fragments.UnitsListFragment;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
 import com.stiggpwnz.vibes.restapi.Playlist;
+import com.stiggpwnz.vibes.restapi.Playlist.Type;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsFragment.Listener, PlaylistFragment.Listener, ControlsFragment.Listener,
-		Player.Listener, OnClickListener {
+public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsListFragment.Listener, PlaylistFragment.Listener,
+		ControlsFragment.Listener, Player.Listener, OnClickListener {
 
-	private static final String ICON = "icon";
-	private static final String TITLE = "title";
-	private static final String START = "init";
-	private static final String UNITS = "units";
-	private static final String UNIT = "unit";
+	private static final String STARTING_FRAGMENT = "starting fragment";
+	private static final String UNITS_LIST_FRAGMENT = "units list fragment";
+	private static final String UNIT_FRAGMENT = "unit fragment";
 
-	private final ServiceConnection connection = new ServiceConnection() {
-
-		@Override
-		public void onServiceConnected(ComponentName className, IBinder binder) {
-			service = ((ServiceBinder) binder).getService();
-			service.getPlayer().setListener(PlayerActivity.this);
-			bound = true;
-			service.cancelNotification();
-			service.stopWaiter();
-			onNewTrack();
-			Log.d(VibesApplication.VIBES, "service bound");
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-
-		}
-	};
-
+	// system stuff
 	private PlayerService service;
 	private VibesApplication app;
 
+	// fragments
 	private PlaylistFragment playlistFragment;
 	private ControlsFragment controlsFragment;
 
-	private boolean bound;
-	private boolean playlistLoading;
-	private ViewPager pager;
-	private View play;
-	private MenuDrawerManager mMenuDrawer;
-	private String title;
-	private String icon;
+	// GUI
+	private ViewPager fragmentPager;
+	private View playButton;
+	private MenuDrawerManager menuDrawer;
+
+	// fragments util
+	private boolean playlistIsLoading;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -95,43 +80,31 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 		FragmentManager supportFragmentManager = getSupportFragmentManager();
-		Fragment startFragment = supportFragmentManager.findFragmentByTag(START);
+		Fragment startFragment = supportFragmentManager.findFragmentByTag(STARTING_FRAGMENT);
 		if (findViewById(R.id.framePlaylists) != null) {
 			controlsFragment = (ControlsFragment) supportFragmentManager.findFragmentById(R.id.fragment_controls);
 			playlistFragment = (PlaylistFragment) supportFragmentManager.findFragmentById(R.id.fragmentPlaylist);
-			if (startFragment == null) {
-				if (getApp().getSelected() == null)
-					playlistFragment.loadPlaylist(isPlaying());
-			}
 		} else {
-			mMenuDrawer = new MenuDrawerManager(this, MenuDrawer.MENU_DRAG_CONTENT);
-			mMenuDrawer.setContentView(R.layout.activity_player);
-			mMenuDrawer.setMenuView(R.layout.side_menu);
+			menuDrawer = new MenuDrawerManager(this, MenuDrawer.MENU_DRAG_CONTENT);
+			menuDrawer.setContentView(R.layout.activity_player);
+			menuDrawer.setMenuView(R.layout.side_menu);
 
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 			FragmentPagesAdapter adapter = new FragmentPagesAdapter(supportFragmentManager);
-			pager = (ViewPager) findViewById(R.id.pager);
-			pager.setAdapter(adapter);
+			fragmentPager = (ViewPager) findViewById(R.id.pager);
+			fragmentPager.setAdapter(adapter);
 
-			play = findViewById(R.id.btnPlay);
-			play.setOnClickListener(this);
+			playButton = findViewById(R.id.btnPlay);
+			playButton.setOnClickListener(this);
 
 			findViewById(R.id.btnFwd).setOnClickListener(this);
 			findViewById(R.id.btnRwd).setOnClickListener(this);
-			findViewById(R.id.btnPlaylist).setOnClickListener(this);
 		}
 
 		if (startFragment == null)
 			initFragments();
 
-		if (savedInstanceState != null) {
-			title = savedInstanceState.getString(TITLE);
-			icon = savedInstanceState.getString(ICON);
-		} else {
-			title = getApp().getPlaylist().name;
-			icon = getApp().getPlaylist().unit.photo;
-		}
 		setTitleAndIcon();
 	}
 
@@ -147,14 +120,32 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			Log.d(VibesApplication.VIBES, "starting service");
 			startService(intent);
 		}
-		if (!bound) {
+		if (service == null) {
 			Log.d(VibesApplication.VIBES, "binding service");
 			bindService(intent, connection, 0);
 		}
 	}
 
+	private final ServiceConnection connection = new ServiceConnection() {
+
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder binder) {
+			service = ((ServiceBinder) binder).getService();
+			service.getPlayer().setListener(PlayerActivity.this);
+			service.cancelNotification();
+			service.stopWaiter();
+			onNewTrack();
+			Log.d(VibesApplication.VIBES, "service bound");
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName arg0) {
+
+		}
+	};
+
 	private void doUnbindService() {
-		if (bound) {
+		if (service != null) {
 			State state = service.getPlayer().getState();
 			if (state == State.PLAYING)
 				service.makeNotification();
@@ -163,7 +154,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			service.getPlayer().setListener(null);
 			unbindService(connection);
 			service = null;
-			bound = false;
 			Log.d(VibesApplication.VIBES, "service unbound");
 		}
 	}
@@ -176,13 +166,14 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onBackPressed() {
-		if (mMenuDrawer != null) {
-			final int drawerState = mMenuDrawer.getDrawerState();
-			if (getSupportFragmentManager().findFragmentByTag(START).isVisible() && (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING)) {
-				mMenuDrawer.closeMenu();
+		if (menuDrawer != null) {
+			int drawerState = menuDrawer.getDrawerState();
+			Fragment startingFragment = getSupportFragmentManager().findFragmentByTag(STARTING_FRAGMENT);
+			if (startingFragment.isVisible() && (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING)) {
+				menuDrawer.closeMenu();
 				return;
-			} else if (!getSupportFragmentManager().findFragmentByTag(START).isVisible() && (drawerState == MenuDrawer.STATE_CLOSED || drawerState == MenuDrawer.STATE_CLOSING)) {
-				mMenuDrawer.openMenu();
+			} else if (!startingFragment.isVisible() && (drawerState == MenuDrawer.STATE_CLOSED || drawerState == MenuDrawer.STATE_CLOSING)) {
+				menuDrawer.openMenu();
 				return;
 			}
 		}
@@ -204,7 +195,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			@Override
 			public void run() {
 				controlsFragment.setCurrentSong(currentSong, getApp().getLastFM().getImageRequestQueue());
-				playlistFragment.setCurrentSong(getApp().getPlaylist(), player.currentTrack);
+				playlistFragment.setCurrentSong(player.currentTrack);
 
 				if (currentSong != null) {
 					if (state == State.PLAYING || state == State.PAUSED) {
@@ -236,14 +227,14 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	private void setPlayButtonDrawable(int resource) {
 		controlsFragment.setPlayButtonDrawable(resource);
-		if (play != null)
-			play.setBackgroundResource(resource);
+		if (playButton != null)
+			playButton.setBackgroundResource(resource);
 	}
 
 	private void initFragments() {
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-		transaction.add(R.id.framePlaylists, StartingFragment.newInstance(this, getApp().getSelf(), getApp().getSelected()), START);
+		transaction.add(R.id.framePlaylists, StartingFragment.newInstance(this, getApp().getSelf(), getApp().getSelectedPlaylist()), STARTING_FRAGMENT);
 		transaction.commit();
 	}
 
@@ -254,14 +245,44 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		handleIntent(intent);
+	}
+
+	private void handleIntent(Intent intent) {
+		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+			String query = intent.getStringExtra(SearchManager.QUERY);
+			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchProvider.AUTHORITY, SearchProvider.MODE);
+			suggestions.saveRecentQuery(query, null);
+
+			loadPlaylist(new Playlist(Type.SEARCH, query, query));
+
+			Fragment startingFragment = getSupportFragmentManager().findFragmentByTag(STARTING_FRAGMENT);
+			Fragment unitFragment = getSupportFragmentManager().findFragmentByTag(UNIT_FRAGMENT);
+			if (startingFragment != null)
+				((AlbumsFragment) startingFragment).setSelectedPosition(-1);
+			else if (unitFragment != null)
+				((AlbumsFragment) unitFragment).setSelectedPosition(-1);
+		}
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.itemLogOut:
 			logOut(true);
 			return true;
 
+		case R.id.itemSearch:
+			onSearchRequested();
+			return true;
+
+		case R.id.itemDownload:
+			return true;
+
 		case android.R.id.home:
-			mMenuDrawer.toggleMenu();
+			menuDrawer.toggleMenu();
 			return true;
 
 		default:
@@ -269,12 +290,12 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		}
 	}
 
-	private void logOut(boolean logout) {
+	private void logOut(boolean reset) {
 		getApp().getSettings().resetVKontakte();
 		doUnbindService();
 		stopService(new Intent(this, PlayerService.class));
 		Intent intent = new Intent(this, LoginActivity.class);
-		intent.putExtra(LoginActivity.RESET, logout);
+		intent.putExtra(LoginActivity.RESET, reset);
 		startActivity(intent);
 		finish();
 	}
@@ -339,8 +360,8 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public void showUnits(boolean friends) {
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-		UnitsFragment unitsFragment = UnitsFragment.newInstance(friends, friends ? getApp().getFriends() : getApp().getGroups());
-		transaction.replace(R.id.framePlaylists, unitsFragment, UNITS);
+		UnitsListFragment unitsFragment = UnitsListFragment.newInstance(friends, friends ? getApp().getFriends() : getApp().getGroups());
+		transaction.replace(R.id.framePlaylists, unitsFragment, UNITS_LIST_FRAGMENT);
 		transaction.addToBackStack(null);
 		transaction.commit();
 	}
@@ -349,7 +370,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public void showUnit(Unit unit) {
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
-		transaction.replace(R.id.framePlaylists, UnitFragment.newInstance(unit, getApp().getSelected()), UNIT);
+		transaction.replace(R.id.framePlaylists, UnitFragment.newInstance(unit, getApp().getSelectedPlaylist()), UNIT_FRAGMENT);
 		transaction.addToBackStack(null);
 		transaction.commit();
 	}
@@ -380,13 +401,13 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void loadPlaylist(Playlist playlist) {
-		if (!app.getSelected().equals(playlist)) {
+		if (!app.getSelectedPlaylist().equals(playlist)) {
 			getApp().setSelected(playlist);
 			playlistFragment.loadPlaylist(isPlaying());
 		}
-		if (pager != null) {
-			mMenuDrawer.closeMenu(true);
-			pager.setCurrentItem(1, true);
+		if (fragmentPager != null) {
+			menuDrawer.closeMenu();
+			fragmentPager.setCurrentItem(1, true);
 		}
 	}
 
@@ -455,7 +476,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void loveUnlove(int position) {
-		Song song = getApp().getSongs().get(position);
+		Song song = app.getPlaylists().get(app.getSelectedPlaylist()).get(position);
 
 		if (song != null) {
 			if (song.loved)
@@ -469,15 +490,18 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public void remove(int position) {
 		Player player = service.getPlayer();
 		PlaylistAdapter adapter = playlistFragment.getAdapter();
-		if (player.currentTrack == position) {
-			player.next();
-		} else if (player.currentTrack > position) {
-			player.currentTrack--;
-			adapter.currentTrack--;
+		boolean equals = app.getSelectedPlaylist().equals(app.getPlaylist());
+		if (equals) {
+			if (player.currentTrack == position) {
+				player.next();
+			} else if (player.currentTrack > position) {
+				player.currentTrack--;
+				adapter.currentTrack--;
+			}
 		}
-		getApp().getSongs().remove(position);
+		app.getPlaylists().get(app.getSelectedPlaylist()).remove(position);
 		adapter.notifyDataSetChanged();
-		if (getApp().getSettings().getShuffle())
+		if (equals && getApp().getSettings().getShuffle())
 			player.generateShuffleQueue();
 	}
 
@@ -612,22 +636,32 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		getApp().setPlaylist(playlist);
 		if (getApp().getSettings().getShuffle() && service != null)
 			service.getPlayer().generateShuffleQueue();
-		title = playlist.name;
-		icon = playlist.unit.photo;
 		setTitleAndIcon();
 	}
 
-	private void setTitleAndIcon() {
-		if (title != null)
-			getSupportActionBar().setTitle(title);
-		new LogoLoader().execute(icon);
+	public static String capitalizeString(String string) {
+		char[] chars = string.toLowerCase().toCharArray();
+		boolean found = false;
+		for (int i = 0; i < chars.length; i++) {
+			if (!found && Character.isLetter(chars[i])) {
+				chars[i] = Character.toUpperCase(chars[i]);
+				found = true;
+			} else if (Character.isWhitespace(chars[i]) || chars[i] == '.' || chars[i] == '\'') {
+				found = false;
+			}
+		}
+		return String.valueOf(chars);
 	}
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(TITLE, title);
-		outState.putString(ICON, icon);
+	private void setTitleAndIcon() {
+		Playlist playlist = getApp().getPlaylist();
+		if (playlist.name != null)
+			getSupportActionBar().setTitle(capitalizeString(playlist.name));
+
+		if (playlist.unit != null)
+			new LogoLoader().execute(playlist.unit.photo);
+		else
+			getSupportActionBar().setIcon(getResources().getDrawable(R.drawable.ic_action_search));
 	}
 
 	private class LogoLoader extends AsyncTask<String, Void, Drawable> {
@@ -655,12 +689,12 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void setPlaylistLoading(boolean loading) {
-		playlistLoading = loading;
+		playlistIsLoading = loading;
 	}
 
 	@Override
 	public boolean isPlaylistLoading() {
-		return playlistLoading;
+		return playlistIsLoading;
 	}
 
 	@Override
@@ -670,13 +704,12 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onViewCreated(Fragment fragment) {
-		if (pager != null) {
+		if (fragmentPager != null) {
 			if (fragment instanceof ControlsFragment) {
 				controlsFragment = (ControlsFragment) fragment;
 			} else if (fragment instanceof PlaylistFragment) {
 				playlistFragment = (PlaylistFragment) fragment;
-				playlistFragment.loadPlaylist(isPlaying());
-				pager.setCurrentItem(1, true);
+				fragmentPager.setCurrentItem(1, true);
 			}
 			onNewTrack();
 		}
@@ -696,10 +729,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		case R.id.btnRwd:
 			onPrevButtonPressed(v);
 			break;
-
-		case R.id.btnPlaylist:
-			initFragments();
-			break;
 		}
 	}
 
@@ -715,7 +744,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public Playlist getSelectedPlaylist() {
-		return getApp().getSelected();
+		return getApp().getSelectedPlaylist();
 
 	}
 

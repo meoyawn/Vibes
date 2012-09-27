@@ -3,10 +3,8 @@ package com.stiggpwnz.vibes.fragments;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -324,14 +322,10 @@ public class PlaylistFragment extends SherlockListFragment {
 		}
 	}
 
-	@SuppressLint("NewApi")
-	public void setCurrentSong(Playlist playlist, int position) {
-		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(playlist) && listener.isPlaying()) {
+	public void setCurrentSong(int position) {
+		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(listener.getPlaylist()) && listener.isPlaying()) {
 			adapter.currentTrack = position;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
-				getListView().smoothScrollToPosition(position);
-			else
-				getListView().setSelection(position);
+			getListView().smoothScrollToPosition(position);
 			adapter.notifyDataSetChanged();
 		}
 	}

@@ -36,6 +36,7 @@ public class VKontakte extends RestAPI {
 	private static final String AUDIO_GET = "audio.get?";
 	private static final String AUDIO_GET_BY_ID = "audio.getById?";
 	private static final String AUDIO_GET_ALBUMS = "audio.getAlbums?";
+	private static final String AUDIO_RESTORE = "audio.restore?";
 	private static final String AUDIO_SEARCH = "/method/audio.search";
 	private static final String FRIENDS_GET = "friends.get?";
 	private static final String GROUPS_GET = "groups.get?";
@@ -81,9 +82,8 @@ public class VKontakte extends RestAPI {
 	public int maxAudios;
 
 	private String accessToken;
-
 	private int userId;
-	private URI newsFeedUri;
+
 	private List<HttpPost> audioUrlRequests;
 
 	public VKontakte(String accesToken, HttpClient client, int userId, int maxNews, int maxAudios) {
@@ -124,6 +124,9 @@ public class VKontakte extends RestAPI {
 
 	public int add(Song song) throws IOException, VKontakteException {
 		try {
+			if (song.ownerid == userId)
+				return restore(song);
+
 			URI url = new URI(API_URL + AUDIO_ADD + ACCESS_TOKEN + "=" + accessToken + "&" + AID + "=" + song.aid + "&" + OID + "=" + song.ownerid);
 
 			JSONObject jsonResponse = execute(url);
@@ -139,6 +142,21 @@ public class VKontakte extends RestAPI {
 		} catch (URISyntaxException e) {
 
 		}
+		Log.d(VibesApplication.VIBES, "add() returning null: some fail ");
+		return 0;
+	}
+
+	private int restore(Song song) throws IOException, VKontakteException, URISyntaxException, JSONException {
+		URI url = new URI(API_URL + AUDIO_RESTORE + ACCESS_TOKEN + "=" + accessToken + "&" + AID + "=" + song.aid);
+
+		JSONObject jsonResponse = execute(url);
+		if (jsonResponse.has(RESPONSE))
+			return jsonResponse.getJSONObject(RESPONSE).getInt(AID);
+		else if (jsonResponse.has(ERROR)) {
+			jsonResponse = jsonResponse.getJSONObject(ERROR);
+			throw new VKontakteException(jsonResponse.getInt(ERROR_CODE));
+		}
+
 		Log.d(VibesApplication.VIBES, "add() returning null: some fail ");
 		return 0;
 	}
@@ -206,7 +224,7 @@ public class VKontakte extends RestAPI {
 			JSONObject jsonResponse = execute(uri);
 
 			if (jsonResponse.has(RESPONSE)) {
-				boolean own = ownerId == 0;
+				boolean own = ownerId == userId || ownerId == 0;
 				ArrayList<Song> result = songsFromJson(jsonResponse, false, own);
 				return result;
 			} else if (jsonResponse.has(ERROR)) {
@@ -367,11 +385,11 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	public ArrayList<Unit> getFriends(boolean alphabet) throws IOException, VKontakteException {
+	public ArrayList<Unit> getFriends(boolean orderByAlphabet) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(API_URL + FRIENDS_GET + FIELDS + "=" + UNIT_FIELDS + ACCESS_TOKEN + "=" + accessToken);
-			if (alphabet)
+			if (orderByAlphabet)
 				buffer.append("&" + ORDER + "=" + NAME);
 			else
 				buffer.append("&" + ORDER + "=" + HINTS);
@@ -500,8 +518,8 @@ public class VKontakte extends RestAPI {
 		return audioUrlRequests;
 	}
 
-	public URI getNewsFeedUri() {
-		return newsFeedUri;
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 }

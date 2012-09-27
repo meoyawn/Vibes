@@ -19,7 +19,7 @@ import com.stiggpwnz.vibes.adapters.UnitsAdapter;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class UnitsFragment extends SherlockListFragment {
+public class UnitsListFragment extends SherlockListFragment {
 
 	public static interface Listener extends FragmentListener {
 
@@ -38,12 +38,12 @@ public class UnitsFragment extends SherlockListFragment {
 	private Listener listener;
 	private int scrollPosition;
 
-	public UnitsFragment() {
+	public UnitsListFragment() {
 
 	}
 
-	public static UnitsFragment newInstance(boolean friends, ArrayList<Unit> units) {
-		UnitsFragment fragment = new UnitsFragment();
+	public static UnitsListFragment newInstance(boolean friends, ArrayList<Unit> units) {
+		UnitsListFragment fragment = new UnitsListFragment();
 		Bundle args = new Bundle();
 		args.putBoolean(FRIENDS, friends);
 		args.putSerializable(UNITS, units);

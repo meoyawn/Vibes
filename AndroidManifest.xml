@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stiggpwnz.vibes"
     android:installLocation="preferExternal"
-    android:versionCode="1"
+    android:versionCode="2"
     android:versionName="1.0" >
 
     <uses-sdk
@@ -29,11 +29,25 @@
         </activity>
         <activity
             android:name=".PlayerActivity"
-            android:label="@string/vibes" >
+            android:label="@string/vibes"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan" >
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
         </activity>
 
         <service android:name=".PlayerService" >
         </service>
+
+        <provider
+            android:name=".SearchProvider"
+            android:authorities="@string/vibes" >
+        </provider>
     </application>
 
 </manifest>
