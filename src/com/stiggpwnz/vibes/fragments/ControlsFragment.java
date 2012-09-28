@@ -52,7 +52,6 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser);
 
 		public boolean getShuffle();
-
 	}
 
 	private Listener listener;

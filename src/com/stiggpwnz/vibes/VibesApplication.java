@@ -32,14 +32,12 @@ import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class VibesApplication extends Application implements Settings.OnActionListener {
+public class VibesApplication extends Application implements Settings.Listener {
 
 	public static final String VIBES = "vibes";
 
 	public static final int TIMEOUT_CONNECTION = 3000;
 	public static final int TIMEOUT_SOCKET = 5000;
-
-	private static final int UPDATE_PLAYLIST_TIMEOUT_SECONDS = 4;
 
 	// common system stuff
 	private Settings settings;
@@ -53,19 +51,20 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 
 	// player data
 	private Playlist playlist;
+	private Playlist selectedPlaylist;
 	private ArrayList<Song> songs;
 
 	// cached stuff
 	private ArrayList<Unit> friends;
 	private ArrayList<Unit> groups;
 	private Unit self;
-	private Map<Playlist, ArrayList<Song>> playlists;
+	private Map<Playlist, ArrayList<Song>> playlistsCache;
+	private Map<Song, String> albumImagesCache;
 
 	// common interface objects
 	private View loadingFooter;
 	private Typeface font;
 	private Animation shake;
-	private Playlist selectedPlaylist;
 
 	@Override
 	public void onCreate() {
@@ -77,7 +76,8 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		client = threadSafeHttpClient();
 		settings = new Settings(this, this);
 		vkontakte = new VKontakte(settings.getAccessToken(), client, settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
-		playlists = new HashMap<Playlist, ArrayList<Song>>();
+		playlistsCache = new HashMap<Playlist, ArrayList<Song>>();
+		albumImagesCache = new HashMap<Song, String>();
 		playlist = new Playlist(Type.NEWSFEED, null, getSelf());
 		selectedPlaylist = playlist;
 	}
@@ -85,8 +85,9 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		playlists.clear();
-		playlists.put(playlist, songs);
+		albumImagesCache.clear();
+		playlistsCache.clear();
+		playlistsCache.put(playlist, songs);
 		selectedPlaylist = playlist;
 
 		imageLoader.getMemoryCache().clear();
@@ -112,6 +113,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 
 	public static AbstractHttpClient threadSafeHttpClient() {
 		AbstractHttpClient client = new DefaultHttpClient();
+
 		HttpParams params = client.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_CONNECTION);
 		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SOCKET);
@@ -119,8 +121,8 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		SchemeRegistry registry = client.getConnectionManager().getSchemeRegistry();
 
 		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, registry);
-		client = new DefaultHttpClient(manager, params);
-		return client;
+
+		return new DefaultHttpClient(manager, params);
 	}
 
 	public LastFM getLastFM() {
@@ -131,8 +133,8 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		return lastfm;
 	}
 
-	public Map<Playlist, ArrayList<Song>> getPlaylists() {
-		return playlists;
+	public Map<Playlist, ArrayList<Song>> getPlaylistsCache() {
+		return playlistsCache;
 	}
 
 	public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
@@ -158,7 +160,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 			break;
 		}
 
-		playlists.put(playlist, songs);
+		playlistsCache.put(playlist, songs);
 		return songs;
 	}
 
@@ -186,12 +188,16 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		vkontakte.setUserId(userId);
 		vkontakte.setAccessToken(accessToken);
 		self = null;
+		playlist = new Playlist(Type.NEWSFEED, null, getSelf());
+		selectedPlaylist = playlist;
+		playlistsCache.clear();
+		albumImagesCache.clear();
+		songs = null;
 	}
 
 	@Override
 	public void onVkontakteMaxAudiosChanged(int maxAudios) {
 		vkontakte.maxAudios = maxAudios;
-
 	}
 
 	@Override
@@ -227,6 +233,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 		if (self == null) {
 			self = new Unit(0, null, null);
 			new Thread("Loading self") {
+
 				@Override
 				public void run() {
 					try {
@@ -258,7 +265,7 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 
 	public void setPlaylist(Playlist playlist) {
 		this.playlist = playlist;
-		songs = playlists.get(playlist);
+		songs = playlistsCache.get(playlist);
 	}
 
 	public Playlist getSelectedPlaylist() {
@@ -267,6 +274,10 @@ public class VibesApplication extends Application implements Settings.OnActionLi
 
 	public void setSelected(Playlist selected) {
 		this.selectedPlaylist = selected;
+	}
+
+	public Map<Song, String> getAlbumImagesCache() {
+		return albumImagesCache;
 	}
 
 }

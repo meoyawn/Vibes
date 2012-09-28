@@ -2,6 +2,7 @@ package com.stiggpwnz.vibes;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import net.simonvt.widget.MenuDrawer;
 import net.simonvt.widget.MenuDrawerManager;
@@ -38,6 +39,8 @@ import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
 import com.stiggpwnz.vibes.fragments.AlbumsFragment;
 import com.stiggpwnz.vibes.fragments.ControlsFragment;
+import com.stiggpwnz.vibes.fragments.LastFMLoginFragment;
+import com.stiggpwnz.vibes.fragments.LastFMUserFragment;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment;
 import com.stiggpwnz.vibes.fragments.StartingFragment;
 import com.stiggpwnz.vibes.fragments.UnitFragment;
@@ -52,8 +55,11 @@ import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsListFragment.Listener, PlaylistFragment.Listener,
-		ControlsFragment.Listener, Player.Listener, OnClickListener {
+		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener {
 
+	public static final String LAST_FM_LOGIN = "last fm login";
+
+	private static final String LAST_FM_USER = "last fm user";
 	private static final String STARTING_FRAGMENT = "starting fragment";
 	private static final String UNITS_LIST_FRAGMENT = "units list fragment";
 	private static final String UNIT_FRAGMENT = "unit fragment";
@@ -71,8 +77,9 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	private View playButton;
 	private MenuDrawerManager menuDrawer;
 
-	// fragments util
+	// util
 	private boolean playlistIsLoading;
+	private Song currentSongWhileRefreshing;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -245,6 +252,49 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+
+		case android.R.id.home:
+			menuDrawer.toggleMenu();
+			return true;
+
+		case R.id.itemSearch:
+			onSearchRequested();
+			return true;
+
+		case R.id.itemDownload:
+			download();
+			return true;
+
+		case R.id.itemRefresh:
+			playlistFragment.refresh();
+			if (isPlaying() && app.getPlaylist().equals(app.getSelectedPlaylist()))
+				currentSongWhileRefreshing = service.getPlayer().getCurrentSong();
+			return true;
+
+		case R.id.itemLastFM:
+			Settings settings = app.getSettings();
+			if (settings.getSession() == null)
+				new LastFMLoginFragment().show(getSupportFragmentManager(), LAST_FM_LOGIN);
+			else
+				LastFMUserFragment.newInstance(settings.getUsername(), settings.getUserImage()).show(getSupportFragmentManager(), LAST_FM_USER);
+			return true;
+
+		case R.id.itemPrefs:
+			startActivity(new Intent(this, PreferencesActivity.class));
+			return true;
+
+		case R.id.itemLogOut:
+			logOut(true);
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		handleIntent(intent);
@@ -264,29 +314,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				((AlbumsFragment) startingFragment).setSelectedPosition(-1);
 			else if (unitFragment != null)
 				((AlbumsFragment) unitFragment).setSelectedPosition(-1);
-		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.itemLogOut:
-			logOut(true);
-			return true;
-
-		case R.id.itemSearch:
-			onSearchRequested();
-			return true;
-
-		case R.id.itemDownload:
-			return true;
-
-		case android.R.id.home:
-			menuDrawer.toggleMenu();
-			return true;
-
-		default:
-			return super.onOptionsItemSelected(item);
 		}
 	}
 
@@ -470,13 +497,18 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void download(int position) {
-		// TODO Auto-generated method stub
+		Song song = app.getPlaylistsCache().get(app.getSelectedPlaylist()).get(position);
+		service.download(song);
+	}
 
+	private void download() {
+		Song song = service.getPlayer().getCurrentSong();
+		service.download(song);
 	}
 
 	@Override
 	public void loveUnlove(int position) {
-		Song song = app.getPlaylists().get(app.getSelectedPlaylist()).get(position);
+		Song song = app.getPlaylistsCache().get(app.getSelectedPlaylist()).get(position);
 
 		if (song != null) {
 			if (song.loved)
@@ -499,7 +531,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				adapter.currentTrack--;
 			}
 		}
-		app.getPlaylists().get(app.getSelectedPlaylist()).remove(position);
+		app.getPlaylistsCache().get(app.getSelectedPlaylist()).remove(position);
 		adapter.notifyDataSetChanged();
 		if (equals && getApp().getSettings().getShuffle())
 			player.generateShuffleQueue();
@@ -509,13 +541,18 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public String getAlbumImageUrl() {
 		Song currentSong = service.getPlayer().getCurrentSong();
 		if (currentSong != null) {
-			if (currentSong.albumImageUrl != null) {
-				if (currentSong.albumImageUrl.equals(LastFM.EMPTY))
+			Map<Song, String> albumImagesCache = app.getAlbumImagesCache();
+			String image = albumImagesCache.get(currentSong);
+			if (image != null) {
+				if (image.equals(LastFM.NO_IMAGE))
 					return null;
 				else
-					return currentSong.albumImageUrl;
-			} else
-				return getApp().getLastFM().getAndSetAlbumImageUrl(currentSong);
+					return image;
+			} else {
+				String imageUrl = getApp().getLastFM().getAlbumImageUrl(currentSong);
+				albumImagesCache.put(currentSong, imageUrl);
+				return imageUrl;
+			}
 		}
 		return null;
 	}
@@ -613,7 +650,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		if (fromUser) {
 			State state = service.getPlayer().getState();
-			if (state == State.PLAYING || state == State.PAUSED || state == State.SEEKING_FOR_IDLE || state == State.SEEKING_FOR_PLAYBACK) {
+			if (state == State.PLAYING || state == State.PAUSED) {
 				onBufferingStrated();
 				service.getPlayer().seekTo(progress);
 			} else
@@ -633,13 +670,19 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void setPlaylist(Playlist playlist) {
+		if (currentSongWhileRefreshing != null) {
+			int position = app.getSongs().indexOf(currentSongWhileRefreshing);
+			service.getPlayer().currentTrack = position;
+			playlistFragment.getAdapter().currentTrack = position;
+			currentSongWhileRefreshing = null;
+		}
 		getApp().setPlaylist(playlist);
 		if (getApp().getSettings().getShuffle() && service != null)
 			service.getPlayer().generateShuffleQueue();
 		setTitleAndIcon();
 	}
 
-	public static String capitalizeString(String string) {
+	private static String capitalizeString(String string) {
 		char[] chars = string.toLowerCase().toCharArray();
 		boolean found = false;
 		for (int i = 0; i < chars.length; i++) {
@@ -734,7 +777,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public ArrayList<Song> getSongs(Playlist playlist) {
-		return getApp().getPlaylists().get(playlist);
+		return getApp().getPlaylistsCache().get(playlist);
 	}
 
 	@Override
@@ -757,6 +800,21 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		if (app == null)
 			app = (VibesApplication) getApplication();
 		return app;
+	}
+
+	@Override
+	public String[] lastFmAuth(String username, String password) {
+		return app.getLastFM().auth(username, password);
+	}
+
+	@Override
+	public void saveLastFM(String[] params) {
+		app.getSettings().saveLastFM(params);
+	}
+
+	@Override
+	public void resetLastFM() {
+		app.getSettings().resetLastFM();
 	}
 
 }

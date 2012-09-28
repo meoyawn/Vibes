@@ -28,7 +28,8 @@ import com.stiggpwnz.vibes.VibesApplication;
 
 public class LastFM extends RestAPI {
 
-	public static final String EMPTY = "empty";
+	public static final String NO_IMAGE = "no image";
+
 	private static final String API_KEY = "59ce954b080ef3eb99cca836896dbf5e";
 	private static final String API_SECRET = "d4c1fab919d52f46fd1d2829a37d127c";
 
@@ -261,7 +262,7 @@ public class LastFM extends RestAPI {
 		return null;
 	}
 
-	public String getAndSetAlbumImageUrl(Song song) {
+	public String getAlbumImageUrl(Song song) {
 		try {
 			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_GET_INFO + "&" + API_KEY_STRING + "=" + API_KEY + "&" + ARTIST + "="
 					+ song.performer.replace("&", "%26") + "&" + TRACK + "=" + song.title.replace("&", "%26") + "&" + AUTOCORRECT + "=1", null);
@@ -276,11 +277,9 @@ public class LastFM extends RestAPI {
 					if (element != null) {
 						list = element.getElementsByTagName(IMAGE);
 						element = (Element) list.item(3);
-						String imageURL = element.getFirstChild().getNodeValue();
-						song.albumImageUrl = imageURL;
-						return imageURL;
+						return element.getFirstChild().getNodeValue();
 					}
-					song.albumImageUrl = EMPTY;
+					return NO_IMAGE;
 				}
 			}
 		} catch (Exception e) {

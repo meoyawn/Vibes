@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,6 +15,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
+
+import com.stiggpwnz.vibes.restapi.Song;
 
 public class PlayerService extends Service {
 
@@ -90,11 +91,11 @@ public class PlayerService extends Service {
 		return downloadQueue;
 	}
 
-	public void download(int position) {
+	public void download(Song song) {
 		try {
-			new Downloader(this, app.getVkontakte(), getDownloadQueue(), app.getSettings().getDirectoryPath(), app.getSettings().getFinishedNotification()).download(app
-					.getSongs().get(position));
-		} catch (IOException e) {
+			Settings settings = app.getSettings();
+			new Downloader(this, app.getVkontakte(), getDownloadQueue(), settings.getDirectoryPath(), settings.getFinishedNotification()).download(song);
+		} catch (Exception e) {
 			onDownloadException(e.getLocalizedMessage());
 		}
 	}

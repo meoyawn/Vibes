@@ -1,6 +1,5 @@
 <resources>
 
-    <string name="app_name">VK Vibes</string>
     <string name="vibes">Vibes</string>
     <string name="sign_in">Sign in</string>
     <string name="logout">Logout</string>
@@ -21,10 +20,8 @@
     <string name="summary_repeat">Repeat playlist when the end is reached</string>
     <string name="title_max_news">Posts count</string>
     <string name="summary_max_news">Posts count to get audios from</string>
-    <string name="default_max_news">100</string>
     <string name="title_max_audio">Audios count</string>
     <string name="summary_max_audio">Audios count to fill the playlist</string>
-    <string name="default_max_audio">200</string>
     <string name="prefs">Settings</string>
     <string name="tracklist">tracklist</string>
     <string name="playlist">Playlists</string>
@@ -32,7 +29,6 @@
     <string name="empty">No items</string>
     <string name="access_denied">User has limited the access to his audios</string>
     <string name="no_internet">Unable to connect the server, check your network and try again</string>
-    <string name="login">Login</string>
 
     <string-array name="wall_options">
         <item>25</item>
@@ -76,6 +72,5 @@
     <string name="download">Download</string>
     <string name="search">Search for music</string>
     <string name="refresh">Refresh</string>
-    <string name="slash">/</string>
 
 </resources>

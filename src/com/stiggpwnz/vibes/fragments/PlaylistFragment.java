@@ -362,4 +362,9 @@ public class PlaylistFragment extends SherlockListFragment {
 		}
 	}
 
+	public void refresh() {
+		Playlist playlist = listener.getSelectedPlaylist();
+		new LoadSongs(playlist).execute();
+	}
+
 }

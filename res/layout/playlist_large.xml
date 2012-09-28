@@ -54,7 +54,8 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
         android:layout_toLeftOf="@+id/textLeft"
-        android:text="@string/slash" />
+        android:text="/"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/textPassed"

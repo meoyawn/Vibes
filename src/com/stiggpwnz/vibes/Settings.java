@@ -9,7 +9,7 @@ import com.stiggpwnz.vibes.restapi.VKontakte;
 
 public class Settings {
 
-	public static interface OnActionListener {
+	public static interface Listener {
 
 		public void onLastFmSessionChanged(String session);
 
@@ -30,10 +30,11 @@ public class Settings {
 	private static final String USER_IMAGE = "user image";
 	private static final String SESSION = "session";
 	private static final String SHUFFLE = "shuffle";
+	private static final String DEFAULT_MAX_AUDIOS = "200";
+	private static final String DEFAULT_MAX_NEWS = "100";
 
 	private SharedPreferences prefs;
-	private OnActionListener listener;
-	private Context context;
+	private Listener listener;
 
 	// vkontakte settings
 	private String accessToken;
@@ -50,11 +51,10 @@ public class Settings {
 	// player settings
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
-	private String directoryPath;
+	private String downloadsDirectoryPath;
 	private Boolean finishedNotification;
 
-	public Settings(Context context, OnActionListener listener) {
-		this.context = context;
+	public Settings(Context context, Listener listener) {
 		this.listener = listener;
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
@@ -165,23 +165,23 @@ public class Settings {
 
 	public int getMaxNews() {
 		if (maxNews == 0)
-			maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, context.getString(R.string.default_max_news)));
+			maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, DEFAULT_MAX_NEWS));
 		return maxNews;
 	}
 
 	public void updateMaxNews() {
-		maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, context.getString(R.string.default_max_news)));
+		maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, DEFAULT_MAX_NEWS));
 		listener.onVkontakteMaxNewsChanged(maxNews);
 	}
 
 	public int getMaxAudio() {
 		if (maxAudios == 0)
-			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, DEFAULT_MAX_AUDIOS));
 		return maxAudios;
 	}
 
 	public void updateMaxAudio() {
-		maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+		maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, DEFAULT_MAX_AUDIOS));
 		listener.onVkontakteMaxAudiosChanged(maxAudios);
 	}
 
@@ -211,16 +211,16 @@ public class Settings {
 	}
 
 	public String getDirectoryPath() {
-		if (directoryPath == null) {
+		if (downloadsDirectoryPath == null) {
 			String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Music";
-			directoryPath = prefs.getString(DIRECTORY_PICKER, path);
+			downloadsDirectoryPath = prefs.getString(DIRECTORY_PICKER, path);
 		}
-		return directoryPath;
+		return downloadsDirectoryPath;
 	}
 
 	public void setDirectoryPath(String path) {
-		if (directoryPath == null || !directoryPath.equals(path)) {
-			directoryPath = path;
+		if (downloadsDirectoryPath == null || !downloadsDirectoryPath.equals(path)) {
+			downloadsDirectoryPath = path;
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString(DIRECTORY_PICKER, path);
 			editor.commit();
