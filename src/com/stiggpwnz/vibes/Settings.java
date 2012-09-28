@@ -5,19 +5,19 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
-import com.stiggpwnz.vibes.restapi.Vkontakte;
+import com.stiggpwnz.vibes.restapi.VKontakte;
 
 public class Settings {
 
-	public static interface OnActionListener {
+	public static interface Listener {
 
 		public void onLastFmSessionChanged(String session);
+
+		public void onVkontakteAccessTokenChanged(int userId, String accessToken);
 
 		public void onVkontakteMaxAudiosChanged(int maxAudios);
 
 		public void onVkontakteMaxNewsChanged(int maxNews);
-
-		public void onVkontakteAccessTokenChanged(String session);
 	}
 
 	public static final String MAX_NEWS = "max news";
@@ -30,14 +30,11 @@ public class Settings {
 	private static final String USER_IMAGE = "user image";
 	private static final String SESSION = "session";
 	private static final String SHUFFLE = "shuffle";
-	private static final String PLAYLIST = "playlist";
-	private static final String OWNER_ID = "owner id";
-	private static final String LAST_SEARCH = "last search";
-	private static final String ALBUM_ID = "album id";
+	private static final String DEFAULT_MAX_AUDIOS = "200";
+	private static final String DEFAULT_MAX_NEWS = "100";
 
 	private SharedPreferences prefs;
-	private OnActionListener listener;
-	private Context context;
+	private Listener listener;
 
 	// vkontakte settings
 	private String accessToken;
@@ -52,51 +49,48 @@ public class Settings {
 	private String session;
 
 	// player settings
-	private int playlist = -1;
-	private int ownerId = -1;
-	private int albumId = -1;
-	private String lastSearch;
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
-	private String directoryPath;
+	private String downloadsDirectoryPath;
 	private Boolean finishedNotification;
 
-	public Settings(Context context, OnActionListener listener) {
-		this.context = context;
+	public Settings(Context context, Listener listener) {
 		this.listener = listener;
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
-	public void saveData(String[] params) {
+	public void saveVKontakte(String[] params) {
 		SharedPreferences.Editor editor = prefs.edit();
 
 		accessToken = params[0];
-		editor.putString(Vkontakte.ACCESS_TOKEN, accessToken);
-		listener.onVkontakteAccessTokenChanged(accessToken);
+		editor.putString(VKontakte.ACCESS_TOKEN, accessToken);
 
 		expiringTime = System.currentTimeMillis() / 1000 + Integer.parseInt(params[1]);
-		editor.putLong(Vkontakte.EXPIRES_IN, expiringTime);
+		editor.putLong(VKontakte.EXPIRES_IN, expiringTime);
 
 		userID = Integer.valueOf(params[2]);
-		editor.putInt(Vkontakte.USER_ID, userID);
+		editor.putInt(VKontakte.USER_ID, userID);
 
 		editor.commit();
+
+		listener.onVkontakteAccessTokenChanged(userID, accessToken);
 	}
 
-	public void resetData() {
+	public void resetVKontakte() {
 		SharedPreferences.Editor editor = prefs.edit();
 
-		editor.remove(Vkontakte.ACCESS_TOKEN);
+		editor.remove(VKontakte.ACCESS_TOKEN);
 		accessToken = null;
-		listener.onVkontakteAccessTokenChanged(accessToken);
 
-		editor.remove(Vkontakte.EXPIRES_IN);
+		editor.remove(VKontakte.EXPIRES_IN);
 		expiringTime = 0;
 
-		editor.remove(Vkontakte.USER_ID);
+		editor.remove(VKontakte.USER_ID);
 		userID = 0;
 
 		editor.commit();
+
+		listener.onVkontakteAccessTokenChanged(userID, accessToken);
 	}
 
 	public void saveLastFM(String[] params) {
@@ -135,19 +129,19 @@ public class Settings {
 
 	public String getAccessToken() {
 		if (accessToken == null)
-			accessToken = prefs.getString(Vkontakte.ACCESS_TOKEN, null);
+			accessToken = prefs.getString(VKontakte.ACCESS_TOKEN, null);
 		return accessToken;
 	}
 
 	public long getExpiringTime() {
 		if (expiringTime == 0)
-			expiringTime = prefs.getLong(Vkontakte.EXPIRES_IN, 0);
+			expiringTime = prefs.getLong(VKontakte.EXPIRES_IN, 0);
 		return expiringTime;
 	}
 
 	public int getUserID() {
 		if (userID == 0)
-			userID = prefs.getInt(Vkontakte.USER_ID, 0);
+			userID = prefs.getInt(VKontakte.USER_ID, 0);
 		return userID;
 	}
 
@@ -169,85 +163,25 @@ public class Settings {
 		return session;
 	}
 
-	public int getPlaylist() {
-		if (playlist == -1)
-			playlist = prefs.getInt(PLAYLIST, PlayerActivity.PLAYLIST_NEWSFEED);
-		return playlist;
-	}
-
-	public void setPlaylist(int number) {
-		if (number != playlist) {
-			playlist = number;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(PLAYLIST, number);
-			editor.commit();
-		}
-	}
-
-	public int getOwnerId() {
-		if (ownerId == -1)
-			ownerId = prefs.getInt(OWNER_ID, 0);
-		return ownerId;
-	}
-
-	public void setOwnerId(int number) {
-		if (ownerId != number) {
-			ownerId = number;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(OWNER_ID, number);
-			editor.commit();
-		}
-	}
-
-	public int getAlbumId() {
-		if (albumId == -1)
-			albumId = prefs.getInt(ALBUM_ID, 0);
-		return albumId;
-	}
-
-	public void setAlbumId(int album) {
-		if (album != this.albumId) {
-			this.albumId = album;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putInt(ALBUM_ID, album);
-			editor.commit();
-		}
-	}
-
-	public String getLastSearch() {
-		if (lastSearch == null)
-			lastSearch = prefs.getString(LAST_SEARCH, null);
-		return lastSearch;
-	}
-
-	public void setLastSearch(String search) {
-		if (lastSearch == null || !lastSearch.equals(search)) {
-			lastSearch = search;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString(LAST_SEARCH, search);
-			editor.commit();
-		}
-	}
-
 	public int getMaxNews() {
 		if (maxNews == 0)
-			maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, context.getString(R.string.default_max_news)));
+			maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, DEFAULT_MAX_NEWS));
 		return maxNews;
 	}
 
 	public void updateMaxNews() {
-		maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, context.getString(R.string.default_max_news)));
+		maxNews = Integer.valueOf(prefs.getString(MAX_NEWS, DEFAULT_MAX_NEWS));
 		listener.onVkontakteMaxNewsChanged(maxNews);
 	}
 
 	public int getMaxAudio() {
 		if (maxAudios == 0)
-			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, DEFAULT_MAX_AUDIOS));
 		return maxAudios;
 	}
 
 	public void updateMaxAudio() {
-		maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, context.getString(R.string.default_max_audio)));
+		maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, DEFAULT_MAX_AUDIOS));
 		listener.onVkontakteMaxAudiosChanged(maxAudios);
 	}
 
@@ -277,14 +211,16 @@ public class Settings {
 	}
 
 	public String getDirectoryPath() {
-		if (directoryPath == null)
-			directoryPath = prefs.getString(DIRECTORY_PICKER, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath());
-		return directoryPath;
+		if (downloadsDirectoryPath == null) {
+			String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Music";
+			downloadsDirectoryPath = prefs.getString(DIRECTORY_PICKER, path);
+		}
+		return downloadsDirectoryPath;
 	}
 
 	public void setDirectoryPath(String path) {
-		if (directoryPath == null || !directoryPath.equals(path)) {
-			directoryPath = path;
+		if (downloadsDirectoryPath == null || !downloadsDirectoryPath.equals(path)) {
+			downloadsDirectoryPath = path;
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString(DIRECTORY_PICKER, path);
 			editor.commit();

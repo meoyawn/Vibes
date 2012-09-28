@@ -2,22 +2,34 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:orderingFromXml="true" >
 
-    <CheckBoxPreference android:defaultValue="false" android:key="repeat" android:summary="@string/summary_repeat" android:title="@string/title_repeat" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="repeat"
+        android:summary="@string/summary_repeat"
+        android:title="@string/title_repeat" />
 
-    <PreferenceCategory android:title="@string/downloading"><Preference android:key="directory picker" android:title="@string/downloads_directory" /><CheckBoxPreference android:defaultValue="false" android:key="finish download notification" android:summary="@string/finish_download_notification_summary" android:title="@string/finish_download_notification_title" /></PreferenceCategory>
-    
+    <PreferenceCategory android:title="@string/downloading" >
+        <Preference
+            android:key="directory picker"
+            android:title="@string/downloads_directory" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="finish download notification"
+            android:summary="@string/finish_download_notification_summary"
+            android:title="@string/finish_download_notification_title" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/vkontakte" >
         <ListPreference
-            android:defaultValue="@string/default_max_audio"
+            android:defaultValue="200"
             android:dialogTitle="@string/title_max_audio"
             android:entries="@array/audios_options"
             android:entryValues="@array/audios_options"
-            android:key="max audio"
+            android:key="max audios"
             android:summary="@string/summary_max_audio"
             android:title="@string/title_max_audio" />
         <ListPreference
-            android:defaultValue="@string/default_max_news"
+            android:defaultValue="100"
             android:dialogTitle="@string/title_max_news"
             android:entries="@array/wall_options"
             android:entryValues="@array/wall_options"
@@ -25,6 +37,5 @@
             android:summary="@string/summary_max_news"
             android:title="@string/title_max_news" />
     </PreferenceCategory>
-    
 
 </PreferenceScreen>

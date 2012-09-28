@@ -2,18 +2,39 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/itemPrefs"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/prefs">
+        android:id="@+id/itemSearch"
+        android:icon="@drawable/ic_action_search"
+        android:showAsAction="always"
+        android:title="@string/search">
+    </item>
+    <item
+        android:id="@+id/itemDownload"
+        android:icon="@drawable/ic_action_download"
+        android:showAsAction="ifRoom"
+        android:title="@string/download">
+    </item>
+    <item
+        android:id="@+id/itemRefresh"
+        android:icon="@drawable/ic_action_refresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/refresh">
     </item>
     <item
         android:id="@+id/itemLastFM"
         android:icon="@drawable/last_fm_menu"
+        android:showAsAction="ifRoom"
         android:title="@string/account">
     </item>
     <item
+        android:id="@+id/itemPrefs"
+        android:icon="@drawable/ic_action_settings"
+        android:showAsAction="ifRoom"
+        android:title="@string/prefs">
+    </item>
+    <item
         android:id="@+id/itemLogOut"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/ic_action_undo"
+        android:showAsAction="ifRoom"
         android:title="@string/logout">
     </item>
 

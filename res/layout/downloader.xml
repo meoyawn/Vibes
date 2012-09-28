@@ -8,16 +8,14 @@
     android:paddingTop="5dp" >
 
     <ImageView
-        android:layout_width="fill_parent"
+        android:layout_width="75dp"
         android:layout_height="fill_parent"
         android:layout_gravity="center_vertical"
-        android:layout_weight="4"
         android:contentDescription="@string/downloading"
         android:src="@drawable/downloading" />
 
     <RelativeLayout
-        android:id="@+id/RelativeLayout1"
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
         android:layout_height="fill_parent"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
@@ -31,7 +29,9 @@
             android:layout_alignParentTop="true"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <ProgressBar
             android:id="@+id/downloadProgress"

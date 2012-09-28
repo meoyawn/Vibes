@@ -8,15 +8,17 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-public class PreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener {
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+
+public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener {
 
 	private VibesApplication app;
 	private SharedPreferences prefs;
 	private Preference picker;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,7 +60,6 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == picker) {
 			Intent intent = new Intent(this, DirectoryPicker.class);
-			// intent.putExtra(DirectoryPicker.ONLY_DIRS, false);
 			startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
 			return true;
 		}

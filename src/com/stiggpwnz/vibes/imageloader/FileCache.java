@@ -15,7 +15,7 @@ public class FileCache {
 	}
 
 	public File getFile(String url) {
-		String filename = String.valueOf(url.hashCode());
+		String filename = url.substring(url.lastIndexOf('/') + 1, url.length());
 		return new File(cacheDir, filename);
 	}
 
