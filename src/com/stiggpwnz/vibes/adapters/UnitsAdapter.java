@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -16,9 +15,7 @@ import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Unit;
 
-public class UnitsAdapter extends BaseAdapter implements Serializable {
-
-	private static final long serialVersionUID = -8488498887314081280L;
+public class UnitsAdapter extends BaseAdapter {
 
 	private ArrayList<Unit> units;
 	private LayoutInflater inflater;
