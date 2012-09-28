@@ -14,6 +14,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -30,22 +31,22 @@ public class Downloader {
 	private NotificationManager notificationManager;
 	private Context context;
 	private VKontakte vkontakte;
-	private List<Integer> downloadQueue;
+	private List<Integer> downloadList;
 	private String path;
-	private boolean finished;
+	private boolean showFinishedNotification;
 
-	public Downloader(Context context, VKontakte vkontakte, List<Integer> downloadQueue, String path, boolean finished) {
+	public Downloader(Context context, VKontakte vkontakte, List<Integer> downloadList, String path, boolean showFinishedNotification) {
 		this.context = context;
 		this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		this.vkontakte = vkontakte;
-		this.downloadQueue = downloadQueue;
+		this.downloadList = downloadList;
 		this.path = path;
-		this.finished = finished;
+		this.showFinishedNotification = showFinishedNotification;
 	}
 
 	public void download(Song song) throws IOException {
-		if (!downloadQueue.contains(Integer.valueOf(song.aid))) {
-			downloadQueue.add(Integer.valueOf(song.aid));
+		if (!downloadList.contains(Integer.valueOf(song.aid))) {
+			downloadList.add(Integer.valueOf(song.aid));
 			new DownloaderThread(song).execute();
 		}
 	}
@@ -86,6 +87,7 @@ public class Downloader {
 			showNotification();
 		}
 
+		@SuppressWarnings("resource")
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
@@ -101,13 +103,9 @@ public class Downloader {
 				urlConnection.setReadTimeout(VibesApplication.TIMEOUT_SOCKET);
 				urlConnection.connect();
 
-				// this will be useful so that you can show a typical 0-100%
-				// progress bar
 				int fileLength = urlConnection.getContentLength();
 
-				// download the file
 				InputStream input = urlConnection.getInputStream();
-				@SuppressWarnings("resource")
 				OutputStream output = new FileOutputStream(outputFile);
 
 				byte buffer[] = new byte[1024];
@@ -126,6 +124,7 @@ public class Downloader {
 						notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
 						notificationManager.notify(DOWNLOADING, song.aid, notification);
 					}
+
 					output.write(buffer, 0, bufferLength);
 				}
 
@@ -143,14 +142,19 @@ public class Downloader {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			cancelNotification();
-			downloadQueue.remove(Integer.valueOf(song.aid));
+			downloadList.remove(Integer.valueOf(song.aid));
 			showNotification(messsage == null);
 			if (messsage != null && outputFile.exists())
 				outputFile.delete();
+			else if (messsage == null) {
+				Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+				intent.setData(Uri.fromFile(outputFile));
+				context.sendBroadcast(intent);
+			}
 		}
 
 		private void showNotification(boolean success) {
-			if (finished) {
+			if (showFinishedNotification) {
 				int icon;
 				if (success)
 					icon = R.drawable.ok;

@@ -169,7 +169,6 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 						app.getLastFM().scrobble(getCurrentSong(), timeStamp);
 						scrobbling = false;
 						scrobbled = true;
-						// app.getLastFM().updateNowPlaying(getCurrentSong());
 					}
 				}.start();
 
