@@ -286,7 +286,9 @@ public class PlaylistFragment extends SherlockListFragment {
 		@Override
 		protected ArrayList<Song> doInBackground(Void... params) {
 			Thread.currentThread().setName("Getting songs");
-			return loadSongs();
+			if (listener != null)
+				return loadSongs();
+			return null;
 		}
 
 		@Override

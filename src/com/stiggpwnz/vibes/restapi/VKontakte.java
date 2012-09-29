@@ -95,7 +95,7 @@ public class VKontakte extends RestAPI {
 		audioUrlRequests = new LinkedList<HttpPost>();
 	}
 
-	public static String loginUrl() {
+	public static String getAuthUrl() {
 		return AUTH_URL + "?client_id=" + CLIENT_ID + "&scope=" + SCOPE + "&redirect_uri=" + CALLBACK_URL + "&display=touch&response_type=token";
 	}
 

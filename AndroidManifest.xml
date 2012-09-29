@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stiggpwnz.vibes"
-    android:installLocation="preferExternal"
-    android:versionCode="5"
+    android:installLocation="auto"
+    android:versionCode="50"
     android:versionName="1.0" >
 
     <uses-sdk
@@ -20,7 +20,7 @@
         android:theme="@style/Theme.Sherlock.Light.DarkActionBar.ForceOverflow" >
         <activity
             android:name=".LoginActivity"
-            android:label="@string/vibes" >
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,7 +29,6 @@
         </activity>
         <activity
             android:name=".PlayerActivity"
-            android:label="@string/vibes"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustPan" >
             <meta-data

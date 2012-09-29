@@ -116,24 +116,23 @@ public class AlbumsFragment extends SherlockListFragment {
 				} catch (IOException e) {
 					listener.internetFail();
 				} catch (VKontakteException e) {
-					switch (e.getCode()) {
-					case VKontakteException.UNKNOWN_ERROR_OCCURED:
-						listener.unknownError();
-						break;
+					if (listener != null) {
+						switch (e.getCode()) {
+						case VKontakteException.UNKNOWN_ERROR_OCCURED:
+							listener.unknownError();
+							break;
 
-					case VKontakteException.USER_AUTHORIZATION_FAILED:
-						listener.authFail();
-						break;
+						case VKontakteException.USER_AUTHORIZATION_FAILED:
+							listener.authFail();
+							break;
 
-					case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-						return getAlbums(unit);
+						case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
+							return getAlbums(unit);
 
-					case VKontakteException.ACCESS_DENIED:
-						listener.accessDenied();
-						break;
-
-					default:
-						return null;
+						case VKontakteException.ACCESS_DENIED:
+							listener.accessDenied();
+							break;
+						}
 					}
 				}
 			}

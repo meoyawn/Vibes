@@ -68,13 +68,14 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 				@Override
 				public void run() {
 					final Drawable drawable = new BitmapDrawable(getResources(), listener.getImageLoader().getBitmap(url));
-					getSherlockActivity().runOnUiThread(new Runnable() {
+					if (getSherlockActivity() != null)
+						getSherlockActivity().runOnUiThread(new Runnable() {
 
-						@Override
-						public void run() {
-							imageLastFmUser.setImageDrawable(drawable);
-						}
-					});
+							@Override
+							public void run() {
+								imageLastFmUser.setImageDrawable(drawable);
+							}
+						});
 				}
 			}.start();
 	}

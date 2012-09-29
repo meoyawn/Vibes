@@ -268,17 +268,11 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			return true;
 
 		case R.id.itemRefresh:
-			playlistFragment.refresh();
-			if (isPlaying() && app.getPlaylist().equals(app.getSelectedPlaylist()))
-				currentSongWhileRefreshing = service.getPlayer().getCurrentSong();
+			refresh();
 			return true;
 
 		case R.id.itemLastFM:
-			Settings settings = app.getSettings();
-			if (settings.getSession() == null)
-				new LastFMLoginFragment().show(getSupportFragmentManager(), LAST_FM_LOGIN);
-			else
-				LastFMUserFragment.newInstance(settings.getUsername(), settings.getUserImage()).show(getSupportFragmentManager(), LAST_FM_USER);
+			launchLastFM();
 			return true;
 
 		case R.id.itemPrefs:
@@ -291,6 +285,24 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void launchLastFM() {
+		Settings settings = app.getSettings();
+		if (settings.getSession() == null)
+			new LastFMLoginFragment().show(getSupportFragmentManager(), LAST_FM_LOGIN);
+		else
+			LastFMUserFragment.newInstance(settings.getUsername(), settings.getUserImage()).show(getSupportFragmentManager(), LAST_FM_USER);
+	}
+
+	private void refresh() {
+		playlistFragment.refresh();
+		if (isPlaying() && app.getPlaylist().equals(app.getSelectedPlaylist()))
+			currentSongWhileRefreshing = service.getPlayer().getCurrentSong();
+		if (fragmentPager != null) {
+			menuDrawer.closeMenu();
+			fragmentPager.setCurrentItem(1, true);
 		}
 	}
 
@@ -308,12 +320,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 			loadPlaylist(new Playlist(Type.SEARCH, query, query));
 
-			Fragment startingFragment = getSupportFragmentManager().findFragmentByTag(STARTING_FRAGMENT);
-			Fragment unitFragment = getSupportFragmentManager().findFragmentByTag(UNIT_FRAGMENT);
-			if (startingFragment != null)
-				((AlbumsFragment) startingFragment).setSelectedPosition(-1);
-			else if (unitFragment != null)
-				((AlbumsFragment) unitFragment).setSelectedPosition(-1);
 		}
 	}
 
@@ -436,6 +442,16 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			menuDrawer.closeMenu();
 			fragmentPager.setCurrentItem(1, true);
 		}
+
+		if (playlist.type == Type.SEARCH) {
+			Fragment startingFragment = getSupportFragmentManager().findFragmentByTag(STARTING_FRAGMENT);
+			if (startingFragment != null)
+				((AlbumsFragment) startingFragment).setSelectedPosition(-1);
+
+			Fragment unitFragment = getSupportFragmentManager().findFragmentByTag(UNIT_FRAGMENT);
+			if (unitFragment != null)
+				((AlbumsFragment) unitFragment).setSelectedPosition(-1);
+		}
 	}
 
 	@Override
@@ -462,14 +478,19 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onProgressChanged(int progress) {
-		int songDuration = service.getPlayer().getSongDuration();
-		controlsFragment.onProgressChanged(progress, songDuration);
-		playlistFragment.onProgressChanged(progress, songDuration);
+		if (service != null) {
+			int songDuration = service.getPlayer().getSongDuration();
+			if (controlsFragment != null)
+				controlsFragment.onProgressChanged(progress, songDuration);
+			if (playlistFragment != null)
+				playlistFragment.onProgressChanged(progress, songDuration);
+		}
 	}
 
 	@Override
 	public void onBufferingUpdate(int percent) {
-		controlsFragment.updateBuffering(percent);
+		if (controlsFragment != null)
+			controlsFragment.updateBuffering(percent);
 	}
 
 	@Override
@@ -571,7 +592,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onPlayButtonPressed(View v) {
-		v.startAnimation(getApp().getShake());
+		v.startAnimation(getApp().getShakeAnimation());
 		Player player = service.getPlayer();
 		State state = player.getState();
 		if (state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE) {
@@ -588,13 +609,13 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onNextButtonPressed(View v) {
-		v.startAnimation(getApp().getShake());
+		v.startAnimation(getApp().getShakeAnimation());
 		service.getPlayer().next();
 	}
 
 	@Override
 	public void onPrevButtonPressed(View v) {
-		v.startAnimation(getApp().getShake());
+		v.startAnimation(getApp().getShakeAnimation());
 		service.getPlayer().prev();
 	}
 
@@ -682,24 +703,29 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		setTitleAndIcon();
 	}
 
-	private static String capitalizeString(String string) {
-		char[] chars = string.toLowerCase().toCharArray();
-		boolean found = false;
-		for (int i = 0; i < chars.length; i++) {
-			if (!found && Character.isLetter(chars[i])) {
-				chars[i] = Character.toUpperCase(chars[i]);
-				found = true;
-			} else if (Character.isWhitespace(chars[i]) || chars[i] == '.' || chars[i] == '\'') {
-				found = false;
-			}
-		}
-		return String.valueOf(chars);
+	// private static String capitalizeString(String string) {
+	// char[] chars = string.toLowerCase().toCharArray();
+	// boolean found = false;
+	// for (int i = 0; i < chars.length; i++) {
+	// if (!found && Character.isLetter(chars[i])) {
+	// chars[i] = Character.toUpperCase(chars[i]);
+	// found = true;
+	// } else if (Character.isWhitespace(chars[i]) || chars[i] == '.' ||
+	// chars[i] == '\'') {
+	// found = false;
+	// }
+	// }
+	// return String.valueOf(chars);
+	// }
+
+	private static String capitalize(String line) {
+		return Character.toUpperCase(line.charAt(0)) + line.substring(1);
 	}
 
 	private void setTitleAndIcon() {
 		Playlist playlist = getApp().getPlaylist();
 		if (playlist.name != null)
-			getSupportActionBar().setTitle(capitalizeString(playlist.name));
+			getSupportActionBar().setTitle(capitalize(playlist.name));
 
 		if (playlist.unit != null)
 			new LogoLoader().execute(playlist.unit.photo);

@@ -279,6 +279,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		@Override
 		protected Void doInBackground(Void... params) {
 			Thread.currentThread().setName("Preparing New Track");
+			if (getCurrentSong() == null)
+				cancel(true);
 			if (isCancelled())
 				return null;
 			if (getState() != State.PLAYING) {

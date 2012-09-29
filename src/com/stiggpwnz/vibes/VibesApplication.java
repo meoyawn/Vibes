@@ -255,7 +255,7 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return songs;
 	}
 
-	public Animation getShake() {
+	public Animation getShakeAnimation() {
 		return shake;
 	}
 

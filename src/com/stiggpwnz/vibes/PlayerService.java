@@ -115,7 +115,7 @@ public class PlayerService extends Service {
 		Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
 		notification.setLatestEventInfo(app, contentTitle, contentText, intent);
-		notification.flags |= Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT;
+		notification.flags |= Notification.FLAG_ONGOING_EVENT;
 		getNotificationManager().notify(SONG, NOTIFICATION, notification);
 	}
 

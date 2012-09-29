@@ -24,7 +24,7 @@ import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 import com.stiggpwnz.vibes.util.MyWebView;
 
-public class LoginFragment extends SherlockDialogFragment {
+public class WebViewFragment extends SherlockDialogFragment {
 
 	public static interface Listener {
 
@@ -35,12 +35,12 @@ public class LoginFragment extends SherlockDialogFragment {
 
 	private Listener listener;
 
-	public LoginFragment() {
+	public WebViewFragment() {
 
 	}
 
-	public static LoginFragment newInstance(String url) {
-		LoginFragment dialog = new LoginFragment();
+	public static WebViewFragment newInstance(String url) {
+		WebViewFragment dialog = new WebViewFragment();
 		Bundle args = new Bundle();
 		args.putString(URL, url);
 		dialog.setArguments(args);

@@ -4,19 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.stiggpwnz.vibes.fragments.LoginFragment;
+import com.stiggpwnz.vibes.fragments.WebViewFragment;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 
-public class LoginActivity extends SherlockFragmentActivity implements OnClickListener, LoginFragment.Listener {
+public class LoginActivity extends SherlockFragmentActivity implements OnClickListener, WebViewFragment.Listener {
 
-	public static final String RESET = "RESET";
+	public static final String RESET = "reset";
+	private static final String WEBVIEW = "webview";
 
-	private Animation shake;
 	private VibesApplication app;
+	private View playButton;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -27,17 +26,17 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 			finish();
 		} else {
 			setContentView(R.layout.login);
-			shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-			findViewById(R.id.btnLogin).setOnClickListener(this);
+			playButton = findViewById(R.id.btnLogin);
+			findViewById(android.R.id.content).setOnClickListener(this);
 		}
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.btnLogin:
-			v.startAnimation(shake);
-			LoginFragment.newInstance(VKontakte.loginUrl()).show(getSupportFragmentManager(), "webview");
+		case android.R.id.content:
+			playButton.startAnimation(app.getShakeAnimation());
+			WebViewFragment.newInstance(VKontakte.getAuthUrl()).show(getSupportFragmentManager(), WEBVIEW);
 		}
 	}
 

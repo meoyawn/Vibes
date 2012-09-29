@@ -213,12 +213,14 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		@Override
 		protected void onPostExecute(String result) {
 			super.onPostExecute(result);
-			if (result != null) {
-				ImageLoader imageLoader = listener.getImageLoader();
-				imageLoader.setStubId(R.drawable.music);
-				imageLoader.displayImage(result, album);
-			} else {
-				album.setImageResource(R.drawable.music);
+			if (listener != null) {
+				if (result != null) {
+					ImageLoader imageLoader = listener.getImageLoader();
+					imageLoader.setStubId(R.drawable.music);
+					imageLoader.displayImage(result, album);
+				} else {
+					album.setImageResource(R.drawable.music);
+				}
 			}
 		}
 

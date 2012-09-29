@@ -60,23 +60,27 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 		getDialog().setTitle(R.string.auth);
 		getDialog().setCanceledOnTouchOutside(true);
 
-		// show soft keyboard 50 ms after the launch
 		new Handler().postDelayed(new Runnable() {
 
 			@Override
 			public void run() {
+				// show keyboard
 				editUsername.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
 				editUsername.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
 			}
 		}, 50);
 
-		// and hide it when password is ready
 		editPassword.setOnEditorActionListener(new OnEditorActionListener() {
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				// hide keyboard
 				InputMethodManager imm = (InputMethodManager) getSherlockActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+				// login
+				if (editUsername.getText().length() > 0 && editPassword.getText().length() > 0)
+					new LastFmSignIn().execute();
 				return true;
 			}
 		});
