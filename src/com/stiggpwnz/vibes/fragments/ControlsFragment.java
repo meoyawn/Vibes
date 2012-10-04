@@ -13,12 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
@@ -59,13 +62,17 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 
 	private TextView title;
 	private TextView artist;
-	private ImageView album;
-	private View love;
-	private View play;
+
+	private ImageView albumImage;
+
+	private Button love;
+	private Button playButton;
+
 	private SeekBar seekBar;
 	private TextView textPassed;
 	private TextView textLeft;
-	private View buffering;
+
+	private ProgressBar buffering;
 	private TextView textBuffering;
 
 	private boolean large;
@@ -96,17 +103,17 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		artist = (TextView) view.findViewById(R.id.artist);
 		artist.setTypeface(listener.getTypeface());
 
-		album = (ImageView) view.findViewById(R.id.imageAlbum);
+		albumImage = (ImageView) view.findViewById(R.id.imageAlbum);
 
 		seekBar = (SeekBar) view.findViewById(R.id.seekBar);
 		seekBar.setOnSeekBarChangeListener(this);
 
-		love = view.findViewById(R.id.btnLove);
+		love = (Button) view.findViewById(R.id.btnLove);
 		love.setOnClickListener(this);
 
-		play = view.findViewById(R.id.btnPlay);
-		if (play != null) {
-			play.setOnClickListener(this);
+		playButton = (Button) view.findViewById(R.id.btnPlay);
+		if (playButton != null) {
+			playButton.setOnClickListener(this);
 
 			View next = view.findViewById(R.id.btnNext);
 			next.setOnClickListener(this);
@@ -122,7 +129,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 			textLeft = (TextView) view.findViewById(R.id.textLeft);
 			textLeft.setTypeface(listener.getTypeface());
 
-			buffering = view.findViewById(R.id.progressCircle);
+			buffering = (ProgressBar) view.findViewById(R.id.progressCircle);
 
 			textBuffering = (TextView) view.findViewById(R.id.textBuffering);
 			textBuffering.setTypeface(listener.getTypeface());
@@ -217,9 +224,9 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 				if (result != null) {
 					ImageLoader imageLoader = listener.getImageLoader();
 					imageLoader.setStubId(R.drawable.music);
-					imageLoader.displayImage(result, album);
+					imageLoader.displayImage(result, albumImage);
 				} else {
-					album.setImageResource(R.drawable.music);
+					albumImage.setImageResource(R.drawable.music);
 				}
 			}
 		}
@@ -265,8 +272,10 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 	}
 
 	public void setPlayButtonDrawable(int resource) {
-		if (large)
-			play.setBackgroundResource(resource);
+		if (large) {
+			PlayerActivity.recycle(playButton);
+			playButton.setBackgroundResource(resource);
+		}
 	}
 
 	public void updateBuffering(int percent) {

@@ -109,14 +109,16 @@ public class PlayerService extends Service {
 	}
 
 	public void makeNotification() {
-		Notification notification = new Notification(R.drawable.notification_icon, player.getCurrentSong().toString(), System.currentTimeMillis());
-		CharSequence contentTitle = player.getCurrentSong().title;
-		CharSequence contentText = player.getCurrentSong().performer;
-		Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
-		notification.setLatestEventInfo(app, contentTitle, contentText, intent);
-		notification.flags |= Notification.FLAG_ONGOING_EVENT;
-		getNotificationManager().notify(SONG, NOTIFICATION, notification);
+		if (player.getCurrentSong() != null) {
+			Notification notification = new Notification(R.drawable.notification_icon, player.getCurrentSong().toString(), System.currentTimeMillis());
+			CharSequence contentTitle = player.getCurrentSong().title;
+			CharSequence contentText = player.getCurrentSong().performer;
+			Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
+			notification.setLatestEventInfo(app, contentTitle, contentText, intent);
+			notification.flags |= Notification.FLAG_ONGOING_EVENT;
+			getNotificationManager().notify(SONG, NOTIFICATION, notification);
+		}
 	}
 
 	public void cancelNotification() {

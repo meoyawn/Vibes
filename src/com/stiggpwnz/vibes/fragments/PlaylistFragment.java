@@ -23,6 +23,7 @@ import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
 import com.stiggpwnz.vibes.restapi.Playlist;
+import com.stiggpwnz.vibes.restapi.Playlist.Type;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
@@ -142,7 +143,7 @@ public class PlaylistFragment extends SherlockListFragment {
 					adapter.notifyDataSetChanged();
 				}
 			} else {
-				new LoadSongs(selectedPlaylist).execute();
+				new LoadSongs().execute();
 			}
 			getListView().setSelectionAfterHeaderView();
 		}
@@ -234,18 +235,12 @@ public class PlaylistFragment extends SherlockListFragment {
 				adapter.notifyDataSetChanged();
 			}
 		} else {
-			new LoadSongs(playlist).execute();
+			new LoadSongs().execute();
 		}
 		getListView().setSelectionAfterHeaderView();
 	}
 
 	private class LoadSongs extends AsyncTask<Void, Void, ArrayList<Song>> {
-
-		private Playlist playlist;
-
-		public LoadSongs(Playlist playlist) {
-			this.playlist = playlist;
-		}
 
 		@Override
 		protected void onPreExecute() {
@@ -255,29 +250,33 @@ public class PlaylistFragment extends SherlockListFragment {
 
 		private ArrayList<Song> loadSongs() {
 			try {
-				return listener.loadSongs(playlist);
+				if (listener != null)
+					return listener.loadSongs(listener.getSelectedPlaylist());
 			} catch (IOException e) {
-				listener.internetFail();
+				if (listener != null)
+					listener.internetFail();
 			} catch (VKontakteException e) {
-				switch (e.getCode()) {
-				case VKontakteException.UNKNOWN_ERROR_OCCURED:
-					listener.unknownError();
-					break;
+				if (listener != null) {
+					switch (e.getCode()) {
+					case VKontakteException.UNKNOWN_ERROR_OCCURED:
+						listener.unknownError();
+						break;
 
-				case VKontakteException.USER_AUTHORIZATION_FAILED:
-					listener.authFail();
-					break;
+					case VKontakteException.USER_AUTHORIZATION_FAILED:
+						listener.authFail();
+						break;
 
-				case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return loadSongs();
+					case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
+						return loadSongs();
 
-				case VKontakteException.ACCESS_DENIED:
-					listener.accessDenied();
-					break;
+					case VKontakteException.ACCESS_DENIED:
+						listener.accessDenied();
+						break;
 
-				case VKontakteException.PERMISSION_TO_PERFORM_THIS_ACTION_IS_DENIED_BY_USER:
-					listener.accessDenied();
-					break;
+					case VKontakteException.PERMISSION_TO_PERFORM_THIS_ACTION_IS_DENIED_BY_USER:
+						listener.accessDenied();
+						break;
+					}
 				}
 			}
 			return null;
@@ -302,11 +301,11 @@ public class PlaylistFragment extends SherlockListFragment {
 					adapter.setSongs(result);
 				}
 				setListShown(true);
-				if (!playlist.equals(listener.getPlaylist())) {
+				if (!listener.getSelectedPlaylist().equals(listener.getPlaylist())) {
 					adapter.currentTrack = -1;
 					adapter.notifyDataSetChanged();
 				} else {
-					listener.setPlaylist(playlist);
+					listener.setPlaylist(listener.getSelectedPlaylist());
 					listener.onPlaylistLoaded();
 				}
 			}
@@ -365,8 +364,7 @@ public class PlaylistFragment extends SherlockListFragment {
 	}
 
 	public void refresh() {
-		Playlist playlist = listener.getSelectedPlaylist();
-		new LoadSongs(playlist).execute();
+		if (listener.getSelectedPlaylist().type != Type.SEARCH)
+			new LoadSongs().execute();
 	}
-
 }

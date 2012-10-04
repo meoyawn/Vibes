@@ -2,7 +2,7 @@ package com.stiggpwnz.vibes.restapi;
 
 public class VKontakteException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1773332531752352104L;
 
 	public static final int UNKNOWN_ERROR_OCCURED = 1;
 	public static final int APPLICATION_IS_DISABLED = 2;
@@ -18,6 +18,11 @@ public class VKontakteException extends Exception {
 	private int code;
 
 	public VKontakteException(int code) {
+		this.code = code;
+	}
+
+	public VKontakteException(int code, String message) {
+		super(message);
 		this.code = code;
 	}
 

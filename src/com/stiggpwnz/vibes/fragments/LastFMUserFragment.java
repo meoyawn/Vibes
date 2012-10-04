@@ -35,6 +35,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	}
 
 	private Listener listener;
+	private ImageView imageLastFmUser;
 
 	public LastFMUserFragment() {
 
@@ -60,7 +61,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 		((Button) view.findViewById(R.id.btnSingOut)).setOnClickListener(this);
 		((TextView) view.findViewById(R.id.textUser)).setText(getArguments().getString(USERNAME));
 
-		final ImageView imageLastFmUser = (ImageView) view.findViewById(R.id.imageUser);
+		imageLastFmUser = (ImageView) view.findViewById(R.id.imageUser);
 		final String url = getArguments().getString(USER_IMAGE);
 		if (url != null)
 			new Thread("loading user image") {
@@ -84,6 +85,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	public void onDetach() {
 		super.onDetach();
 		listener = null;
+		PlayerActivity.recycle(imageLastFmUser);
 	}
 
 	@Override

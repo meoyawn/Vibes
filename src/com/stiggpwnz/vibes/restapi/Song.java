@@ -37,12 +37,9 @@ public class Song {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + aid;
-		result = prime * result + (loved ? 1231 : 1237);
-		result = prime * result + myAid;
 		result = prime * result + ownerid;
 		result = prime * result + ((performer == null) ? 0 : performer.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		return result;
 	}
 
@@ -57,10 +54,6 @@ public class Song {
 		Song other = (Song) obj;
 		if (aid != other.aid)
 			return false;
-		if (loved != other.loved)
-			return false;
-		if (myAid != other.myAid)
-			return false;
 		if (ownerid != other.ownerid)
 			return false;
 		if (performer == null) {
@@ -72,11 +65,6 @@ public class Song {
 			if (other.title != null)
 				return false;
 		} else if (!title.equals(other.title))
-			return false;
-		if (url == null) {
-			if (other.url != null)
-				return false;
-		} else if (!url.equals(other.url))
 			return false;
 		return true;
 	}

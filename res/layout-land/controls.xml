@@ -105,6 +105,8 @@
         android:layout_width="match_parent"
         android:layout_height="13dp"
         android:layout_alignParentLeft="true"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
         android:progressDrawable="@drawable/seek_bar_background"
         android:thumb="@drawable/thumb_zabil" />
 

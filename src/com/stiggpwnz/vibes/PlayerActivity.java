@@ -27,12 +27,15 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
 import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
@@ -72,25 +75,25 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	private PlaylistFragment playlistFragment;
 	private ControlsFragment controlsFragment;
 
-	// GUI
-	private ViewPager fragmentPager;
-	private View playButton;
+	// portrait mode gui
 	private MenuDrawerManager menuDrawer;
+	private ViewPager fragmentPager;
+	private Button playButton;
 
-	// util
+	// utils
 	private boolean playlistIsLoading;
 	private Song currentSongWhileRefreshing;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(VibesApplication.VIBES, "onCreate activity");
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
-		FragmentManager supportFragmentManager = getSupportFragmentManager();
-		Fragment startFragment = supportFragmentManager.findFragmentByTag(STARTING_FRAGMENT);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+
 		if (findViewById(R.id.framePlaylists) != null) {
-			controlsFragment = (ControlsFragment) supportFragmentManager.findFragmentById(R.id.fragment_controls);
-			playlistFragment = (PlaylistFragment) supportFragmentManager.findFragmentById(R.id.fragmentPlaylist);
+			controlsFragment = (ControlsFragment) fragmentManager.findFragmentById(R.id.fragment_controls);
+			playlistFragment = (PlaylistFragment) fragmentManager.findFragmentById(R.id.fragmentPlaylist);
 		} else {
 			menuDrawer = new MenuDrawerManager(this, MenuDrawer.MENU_DRAG_CONTENT);
 			menuDrawer.setContentView(R.layout.activity_player);
@@ -98,21 +101,23 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-			FragmentPagesAdapter adapter = new FragmentPagesAdapter(supportFragmentManager);
+			FragmentPagesAdapter adapter = new FragmentPagesAdapter(fragmentManager);
 			fragmentPager = (ViewPager) findViewById(R.id.pager);
 			fragmentPager.setAdapter(adapter);
 
-			playButton = findViewById(R.id.btnPlay);
+			playButton = (Button) findViewById(R.id.btnPlay);
 			playButton.setOnClickListener(this);
 
 			findViewById(R.id.btnFwd).setOnClickListener(this);
 			findViewById(R.id.btnRwd).setOnClickListener(this);
 		}
 
-		if (startFragment == null)
-			initFragments();
+		if (fragmentManager.findFragmentByTag(STARTING_FRAGMENT) == null)
+			initNavigationMenu();
 
 		setTitleAndIcon();
+
+		setSupportProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
@@ -187,6 +192,12 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		super.onBackPressed();
 	}
 
+	@Override
+	protected void onDestroy() {
+		getApp().getImageLoader().getMemoryCache().clear();
+		super.onDestroy();
+	}
+
 	public void nullEverything() {
 		controlsFragment.nullEverything();
 		playlistFragment.nullEverything();
@@ -234,11 +245,13 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	private void setPlayButtonDrawable(int resource) {
 		controlsFragment.setPlayButtonDrawable(resource);
-		if (playButton != null)
+		if (playButton != null) {
+			recycle(playButton);
 			playButton.setBackgroundResource(resource);
+		}
 	}
 
-	private void initFragments() {
+	private void initNavigationMenu() {
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
 		transaction.add(R.id.framePlaylists, StartingFragment.newInstance(this, getApp().getSelf(), getApp().getSelectedPlaylist()), STARTING_FRAGMENT);
@@ -320,6 +333,20 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 			loadPlaylist(new Playlist(Type.SEARCH, query, query));
 
+		}
+	}
+
+	public static void recycle(View view) {
+		if (view != null) {
+			Drawable background = view.getBackground();
+			if (background != null && background instanceof BitmapDrawable)
+				((BitmapDrawable) background).getBitmap().recycle();
+
+			if (view instanceof ImageView) {
+				Drawable drawable = ((ImageView) view).getDrawable();
+				if (drawable != null && drawable instanceof BitmapDrawable)
+					((BitmapDrawable) drawable).getBitmap().recycle();
+			}
 		}
 	}
 
@@ -691,32 +718,28 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void setPlaylist(Playlist playlist) {
-		if (currentSongWhileRefreshing != null) {
-			int position = app.getSongs().indexOf(currentSongWhileRefreshing);
-			service.getPlayer().currentTrack = position;
-			playlistFragment.getAdapter().currentTrack = position;
-			currentSongWhileRefreshing = null;
-		}
+		boolean noSongFound = false;
 		getApp().setPlaylist(playlist);
-		if (getApp().getSettings().getShuffle() && service != null)
-			service.getPlayer().generateShuffleQueue();
+		if (service != null) {
+			Player player = service.getPlayer();
+			if (currentSongWhileRefreshing != null) {
+				int position = app.getSongs().indexOf(currentSongWhileRefreshing);
+				currentSongWhileRefreshing = null;
+				if (position != -1) {
+					player.currentTrack = position;
+					playlistFragment.getAdapter().currentTrack = position;
+				} else
+					noSongFound = true;
+			}
+
+			if (getApp().getSettings().getShuffle())
+				player.generateShuffleQueue();
+			if (noSongFound)
+				player.next();
+		}
+
 		setTitleAndIcon();
 	}
-
-	// private static String capitalizeString(String string) {
-	// char[] chars = string.toLowerCase().toCharArray();
-	// boolean found = false;
-	// for (int i = 0; i < chars.length; i++) {
-	// if (!found && Character.isLetter(chars[i])) {
-	// chars[i] = Character.toUpperCase(chars[i]);
-	// found = true;
-	// } else if (Character.isWhitespace(chars[i]) || chars[i] == '.' ||
-	// chars[i] == '\'') {
-	// found = false;
-	// }
-	// }
-	// return String.valueOf(chars);
-	// }
 
 	private static String capitalize(String line) {
 		return Character.toUpperCase(line.charAt(0)) + line.substring(1);

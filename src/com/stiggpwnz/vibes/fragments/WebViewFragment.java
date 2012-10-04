@@ -10,15 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
-import com.stiggpwnz.vibes.LoginActivity;
 import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.restapi.VKontakte;
@@ -64,17 +61,10 @@ public class WebViewFragment extends SherlockDialogFragment {
 		super.onViewCreated(view, savedInstanceState);
 		getDialog().setTitle(R.string.auth);
 
-		boolean reset = getSherlockActivity().getIntent().getBooleanExtra(LoginActivity.RESET, false);
 		String url = getArguments().getString(URL);
 
 		MyWebView webView = (MyWebView) view.findViewById(R.id.MyWebView1);
 		final ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBrowser);
-
-		CookieSyncManager.createInstance(webView.getContext());
-		CookieManager cm = CookieManager.getInstance();
-		if (reset) {
-			cm.removeAllCookie();
-		}
 
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.setWebViewClient(new WebViewClient() {

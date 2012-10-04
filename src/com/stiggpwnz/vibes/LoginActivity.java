@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.stiggpwnz.vibes.fragments.WebViewFragment;
@@ -21,13 +23,19 @@ public class LoginActivity extends SherlockFragmentActivity implements OnClickLi
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		app = (VibesApplication) getApplication();
-		if (app.getSettings().getExpiringTime() > System.currentTimeMillis() / 1000) {
+		long currentTimeInSeconds = System.currentTimeMillis() / 1000;
+		if (app.getSettings().getExpiringTime() > currentTimeInSeconds) {
 			startActivity(new Intent(this, PlayerActivity.class));
 			finish();
 		} else {
 			setContentView(R.layout.login);
 			playButton = findViewById(R.id.btnLogin);
 			findViewById(android.R.id.content).setOnClickListener(this);
+
+			if (getIntent().getBooleanExtra(RESET, false)) {
+				CookieSyncManager.createInstance(this);
+				CookieManager.getInstance().removeAllCookie();
+			}
 		}
 	}
 

@@ -8,7 +8,7 @@
         android:id="@+id/fragment_controls"
         android:name="com.stiggpwnz.vibes.fragments.ControlsFragment"
         android:layout_width="wrap_content"
-        android:layout_height="90dp"
+        android:layout_height="95dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
