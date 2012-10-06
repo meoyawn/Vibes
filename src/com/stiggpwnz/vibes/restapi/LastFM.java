@@ -293,6 +293,9 @@ public class LastFM extends RestAPI {
 
 		Log.d(VibesApplication.VIBES, url);
 
+		if (false)
+			url.trim();
+
 		HttpPost request = new HttpPost(url);
 		if (url.contains(TRACK_GET_INFO) && imageRequestQueue != null)
 			synchronized (this) {

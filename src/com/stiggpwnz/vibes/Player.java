@@ -399,13 +399,19 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	public void stop() {
-		player.reset();
-		setState(State.NOT_PREPARED);
-		service.cancelSongNotification();
-		if (listener == null)
-			service.startWaiter();
-		else
-			listener.onNewTrack();
+		new Thread() {
+
+			@Override
+			public void run() {
+				setState(Player.State.NOT_PREPARED);
+				player.reset();
+				service.cancelSongNotification();
+				if (listener == null)
+					service.startWaiter();
+				else
+					listener.onNewTrack();
+			};
+		}.start();
 	}
 
 	@Override

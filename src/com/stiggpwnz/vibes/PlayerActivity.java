@@ -46,6 +46,7 @@ import com.stiggpwnz.vibes.fragments.LastFMLoginFragment;
 import com.stiggpwnz.vibes.fragments.LastFMUserFragment;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment;
 import com.stiggpwnz.vibes.fragments.StartingFragment;
+import com.stiggpwnz.vibes.fragments.TutorialFragment;
 import com.stiggpwnz.vibes.fragments.UnitFragment;
 import com.stiggpwnz.vibes.fragments.UnitsListFragment;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
@@ -58,7 +59,8 @@ import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsListFragment.Listener, PlaylistFragment.Listener,
-		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener, OnDrawerStateChangeListener {
+		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener, OnDrawerStateChangeListener,
+		TutorialFragment.Listener {
 
 	public static final String LAST_FM_LOGIN = "last fm login";
 
@@ -381,7 +383,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (service != null)
+				if (service != null && service.getPlayer().getState() != State.NOT_PREPARED)
 					service.getPlayer().stop();
 				Toast.makeText(PlayerActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
 			}
@@ -743,6 +745,11 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				player.next();
 		}
 
+		if (fragmentPager != null && !getApp().getSettings().getTutorial()) {
+			fragmentPager.setCurrentItem(1);
+			new TutorialFragment().show(getSupportFragmentManager(), Settings.TUTORIAL);
+		}
+
 		setTitleAndIcon();
 	}
 
@@ -806,7 +813,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				controlsFragment = (ControlsFragment) fragment;
 			} else if (fragment instanceof PlaylistFragment) {
 				playlistFragment = (PlaylistFragment) fragment;
-				fragmentPager.setCurrentItem(1, true);
+				fragmentPager.setCurrentItem(1);
 			}
 			onNewTrack();
 		}
@@ -876,6 +883,14 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		if (service != null)
 			return service.getPlayer().isLooping();
 		return false;
+	}
+
+	@Override
+	public void onTutorialSwipe() {
+		if (fragmentPager != null) {
+			fragmentPager.setCurrentItem(0);
+			app.getSettings().setTutorial(true);
+		}
 	}
 
 }

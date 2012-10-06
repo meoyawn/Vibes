@@ -91,10 +91,10 @@
 
     <Button
         android:id="@+id/btnLove"
-        android:layout_width="37dp"
+        android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignTop="@+id/imageAlbum"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="10dp"
         android:layout_toRightOf="@+id/imageAlbum"
         android:background="@drawable/love_grey" />
 
@@ -102,10 +102,9 @@
         android:id="@+id/btnShuffle"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_alignLeft="@id/btnLove"
         android:layout_below="@+id/btnLove"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="50dp"
-        android:layout_toRightOf="@id/imageAlbum"
         android:background="@drawable/shuffle_grey" />
 
     <Button

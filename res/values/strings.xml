@@ -64,5 +64,6 @@
     <string name="search">Search for music…</string>
     <string name="refresh">Refresh</string>
     <string name="lastfm">last.fm</string>
+    <string name="swipe">Swipe for more</string>
 
 </resources>

@@ -25,6 +25,7 @@ public class Settings {
 	public static final String REPEAT_PLAYLIST = "repeat";
 	public static final String DIRECTORY_PICKER = "directory picker";
 	public static final String FINISHED_NOTIFICATION = "finish download notification";
+	public static final String TUTORIAL = "tutorial";
 
 	private static final String USERNAME = "username";
 	private static final String USER_IMAGE = "user image";
@@ -53,6 +54,9 @@ public class Settings {
 	private Boolean repeatPlaylist;
 	private String downloadsDirectoryPath;
 	private Boolean finishedNotification;
+
+	// misc
+	private Boolean tutorial;
 
 	public Settings(Context context, Listener listener) {
 		this.listener = listener;
@@ -235,6 +239,17 @@ public class Settings {
 
 	public void updateFinishedNotification() {
 		finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, false);
+	}
+
+	public Boolean getTutorial() {
+		if (tutorial == null)
+			tutorial = prefs.getBoolean(TUTORIAL, false);
+		return tutorial;
+	}
+
+	public void setTutorial(Boolean tutorial) {
+		this.tutorial = tutorial;
+		prefs.edit().putBoolean(TUTORIAL, tutorial);
 	}
 
 }
