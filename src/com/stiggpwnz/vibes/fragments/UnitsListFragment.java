@@ -59,14 +59,11 @@ public class UnitsListFragment extends SherlockListFragment {
 	}
 
 	// download units, create and set an adapter
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		ArrayList<Unit> units = (ArrayList<Unit>) getArguments().getSerializable(UNITS);
 		boolean friends = getArguments().getBoolean(FRIENDS);
-		if(units==null)
-			units = listener.getUnits(friends);
+		ArrayList<Unit> units = listener.getUnits(friends);
 		if (units == null)
 			new GetUnits().execute(friends);
 		else {

@@ -56,7 +56,6 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	};
 
 	private MediaPlayer player;
-	private Listener listener;
 	private State state;
 
 	private boolean scrobbled;
@@ -79,6 +78,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private Settings settings;
 
 	private Handler handler;
+	private Listener listener;
 
 	public Player(PlayerService playerService, Handler handler) {
 		this.handler = handler;
@@ -322,7 +322,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 				if (isCancelled())
 					return;
 				Log.d(VibesApplication.VIBES, "preparing " + Player.this.currentTrack + "...");
-				player.prepare();
+				player.prepareAsync();
 			} catch (IllegalStateException e) {
 				// reseting and recursively preparing if in wrong state
 				if (Player.this.currentTrack == currentSong) {
@@ -353,7 +353,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			listener.onBufferingEnded(songDuration);
 		if (getState() == State.PREPARING_FOR_PLAYBACK) {
 			if (listener == null)
-				service.makeNotification();
+				service.showSongNotification();
 
 			startPlaying();
 			if (settings.getSession() != null)
@@ -401,7 +401,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void stop() {
 		player.reset();
 		setState(State.NOT_PREPARED);
-		service.cancelNotification();
+		service.cancelSongNotification();
 		if (listener == null)
 			service.startWaiter();
 		else
@@ -479,7 +479,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		else if (getState() != State.PLAYING && getState() != State.PREPARING_FOR_IDLE) {
 			startPlaying();
 			if (listener == null) {
-				service.makeNotification();
+				service.showSongNotification();
 			}
 		} else if (getState() == State.PREPARING_FOR_IDLE) {
 			setState(State.PREPARING_FOR_PLAYBACK);
@@ -494,7 +494,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			setState(State.PAUSED);
 			handler.removeCallbacks(progressUpdater);
 			if (listener == null) {
-				service.cancelNotification();
+				service.cancelSongNotification();
 				service.startWaiter();
 			}
 		} else if (getState() == State.PREPARING_FOR_PLAYBACK) {

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,7 +56,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		getDialog().setTitle(R.string.account);
+		getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getDialog().setCanceledOnTouchOutside(true);
 
 		((Button) view.findViewById(R.id.btnSingOut)).setOnClickListener(this);

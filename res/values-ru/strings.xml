@@ -3,10 +3,17 @@
     <string name="vibes">Vibes</string>
     <string name="sign_in">Sign in</string>
     <string name="logout">Logout</string>
+    <string name="gettingSongsNewsfeed">Getting newsfeed audios…</string>
+    <string name="searchingSongs">Searching…</string>
+    <string name="gettingSongsWall">Getting wall audios…</string>
+    <string name="gettingSongsAudios">Getting audios…</string>
+    <string name="gettingSongsAlbum">Getting album audios…</string>
     <string name="authProblem">Authorization error</string>
     <string name="buffering">Buffering…</string>
+    <string name="loading">Loading…</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="account">Last.fm</string>
     <string name="last_success">Scrobbling is enabled</string>
     <string name="auth">Authorization…</string>
     <string name="title_repeat">Repeat playlist</string>
@@ -16,6 +23,8 @@
     <string name="title_max_audio">Audios count</string>
     <string name="summary_max_audio">Audios count to fill the playlist</string>
     <string name="prefs">Settings</string>
+    <string name="tracklist">tracklist</string>
+    <string name="playlist">Playlists</string>
     <string name="unknownError">Unknown error is occured</string>
     <string name="empty">No items</string>
     <string name="access_denied">User has limited the access to his audios</string>
@@ -57,11 +66,11 @@
     <string name="downloads_directory">Downloads directory</string>
     <string name="download_success">Successfully downloaded</string>
     <string name="download_fail">Couldn\'t finish the download</string>
-    <string name="finish_download_notification_title">Download has finished notification</string>
+    <string name="finish_download_notification_title">Download is finished notification</string>
     <string name="finish_download_notification_summary">Show notification when download is complete</string>
     <string name="vkontakte">VKontakte</string>
     <string name="download">Download</string>
-    <string name="search">Search for music…</string>
+    <string name="search">Search for music</string>
     <string name="refresh">Refresh</string>
     <string name="lastfm">last.fm</string>
 

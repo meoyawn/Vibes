@@ -63,7 +63,7 @@ public class PlayerService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		app.setServiceRunning(false);
-		cancelNotification();
+		cancelSongNotification();
 		wifiLock.release();
 		player.release();
 		notificationManager = null;
@@ -108,7 +108,7 @@ public class PlayerService extends Service {
 		}
 	}
 
-	public void makeNotification() {
+	public void showSongNotification() {
 		if (player.getCurrentSong() != null) {
 			Notification notification = new Notification(R.drawable.notification_icon, player.getCurrentSong().toString(), System.currentTimeMillis());
 			CharSequence contentTitle = player.getCurrentSong().title;
@@ -121,7 +121,7 @@ public class PlayerService extends Service {
 		}
 	}
 
-	public void cancelNotification() {
+	public void cancelSongNotification() {
 		getNotificationManager().cancel(SONG, NOTIFICATION);
 	}
 

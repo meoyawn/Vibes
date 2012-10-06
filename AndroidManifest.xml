@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stiggpwnz.vibes"
-    android:installLocation="auto"
-    android:versionCode="51"
+    android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
@@ -45,12 +44,11 @@
         </activity>
         <activity android:name="net.bgreco.DirectoryPicker" />
 
-        <service android:name=".PlayerService" >
-        </service>
+        <service android:name=".PlayerService" />
 
         <provider
             android:name=".SearchProvider"
-            android:authorities="@string/vibes" >
+            android:authorities="Vibes" >
         </provider>
     </application>
 

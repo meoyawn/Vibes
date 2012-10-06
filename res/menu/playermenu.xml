@@ -23,7 +23,7 @@
         android:id="@+id/itemLastFM"
         android:icon="@drawable/last_fm_menu"
         android:showAsAction="ifRoom"
-        android:title="@string/account">
+        android:title="@string/lastfm">
     </item>
     <item
         android:id="@+id/itemPrefs"

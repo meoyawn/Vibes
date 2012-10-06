@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -57,7 +58,7 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 		editUsername = (EditText) view.findViewById(R.id.editUsername);
 		editPassword = (EditText) view.findViewById(R.id.editPassword);
 		view.findViewById(R.id.btnSingIn).setOnClickListener(this);
-		getDialog().setTitle(R.string.auth);
+		getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getDialog().setCanceledOnTouchOutside(true);
 
 		new Handler().postDelayed(new Runnable() {
@@ -74,13 +75,14 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				// login
+				if (editUsername.getText().length() > 0 && editPassword.getText().length() > 0)
+					new LastFmSignIn().execute();
+
 				// hide keyboard
 				InputMethodManager imm = (InputMethodManager) getSherlockActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 
-				// login
-				if (editUsername.getText().length() > 0 && editPassword.getText().length() > 0)
-					new LastFmSignIn().execute();
 				return true;
 			}
 		});

@@ -55,6 +55,8 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser);
 
 		public boolean getShuffle();
+
+		public boolean getRepeat();
 	}
 
 	private Listener listener;
@@ -77,6 +79,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 
 	private boolean large;
 	private Song song;
+	private View repeat;
 
 	public ControlsFragment() {
 		Log.d(VibesApplication.VIBES, "creating new controls");
@@ -140,7 +143,9 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 			shuffle.setBackgroundResource(R.drawable.shuffle_blue);
 		shuffle.setOnClickListener(this);
 
-		View repeat = view.findViewById(R.id.btnRepeat);
+		repeat = view.findViewById(R.id.btnRepeat);
+		if (listener.getRepeat())
+			repeat.setBackgroundResource(R.drawable.repeat_blue);
 		repeat.setOnClickListener(this);
 
 		super.onViewCreated(view, savedInstanceState);
@@ -243,7 +248,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 	}
 
 	public void setCurrentSong(Song song, List<HttpPost> requests) {
-		if (song != null) {
+		if (song != null && listener != null) {
 			ControlsFragment.this.song = song;
 
 			String performer = song.performer;
@@ -256,6 +261,11 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 				love.setBackgroundResource(R.drawable.love_blue);
 			else
 				love.setBackgroundResource(R.drawable.love_grey);
+
+			if (listener.getRepeat())
+				repeat.setBackgroundResource(R.drawable.repeat_blue);
+			else
+				repeat.setBackgroundResource(R.drawable.repeat_grey);
 
 			synchronized (requests) {
 				if (loadAndSetAlbumImage != null && loadAndSetAlbumImage.getStatus() == AsyncTask.Status.RUNNING) {

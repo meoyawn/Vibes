@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import net.simonvt.widget.MenuDrawer;
+import net.simonvt.widget.MenuDrawer.OnDrawerStateChangeListener;
 import net.simonvt.widget.MenuDrawerManager;
 
 import org.apache.http.client.ClientProtocolException;
@@ -35,7 +36,6 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
 import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
@@ -58,7 +58,7 @@ import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsListFragment.Listener, PlaylistFragment.Listener,
-		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener {
+		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener, OnDrawerStateChangeListener {
 
 	public static final String LAST_FM_LOGIN = "last fm login";
 
@@ -86,7 +86,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 		FragmentManager fragmentManager = getSupportFragmentManager();
@@ -98,6 +97,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			menuDrawer = new MenuDrawerManager(this, MenuDrawer.MENU_DRAG_CONTENT);
 			menuDrawer.setContentView(R.layout.activity_player);
 			menuDrawer.setMenuView(R.layout.side_menu);
+			menuDrawer.getMenuDrawer().setOnDrawerStateChangeListener(this);
 
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -116,8 +116,11 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			initNavigationMenu();
 
 		setTitleAndIcon();
+	}
 
-		setSupportProgressBarIndeterminateVisibility(false);
+	@Override
+	public void onDrawerStateChange(int oldState, int newState) {
+		getSupportActionBar().setDisplayHomeAsUpEnabled(newState == MenuDrawer.STATE_CLOSED);
 	}
 
 	@Override
@@ -144,7 +147,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			service = ((ServiceBinder) binder).getService();
 			service.getPlayer().setListener(PlayerActivity.this);
-			service.cancelNotification();
+			service.cancelSongNotification();
 			service.stopWaiter();
 			onNewTrack();
 			Log.d(VibesApplication.VIBES, "service bound");
@@ -160,7 +163,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		if (service != null) {
 			State state = service.getPlayer().getState();
 			if (state == State.PLAYING)
-				service.makeNotification();
+				service.showSongNotification();
 			else if (state == State.NOT_PREPARED || state == State.PAUSED || state == State.PREPARING_FOR_IDLE || state == State.SEEKING_FOR_IDLE)
 				service.startWaiter();
 			service.getPlayer().setListener(null);
@@ -462,7 +465,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	@Override
 	public void loadPlaylist(Playlist playlist) {
 		if (!app.getSelectedPlaylist().equals(playlist)) {
-			getApp().setSelected(playlist);
+			getApp().setSelectedPlaylist(playlist);
 			playlistFragment.loadPlaylist(isPlaying());
 		}
 		if (fragmentPager != null) {
@@ -662,13 +665,15 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void onRepeatButtonPressed(View v) {
-		Player player = service.getPlayer();
-		if (player.isLooping()) {
-			v.setBackgroundResource(R.drawable.repeat_grey);
-			player.setLooping(false);
-		} else {
-			v.setBackgroundResource(R.drawable.repeat_blue);
-			player.setLooping(true);
+		if (service != null) {
+			Player player = service.getPlayer();
+			if (player.isLooping()) {
+				v.setBackgroundResource(R.drawable.repeat_grey);
+				player.setLooping(false);
+			} else {
+				v.setBackgroundResource(R.drawable.repeat_blue);
+				player.setLooping(true);
+			}
 		}
 	}
 
@@ -864,6 +869,13 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	@Override
 	public void resetLastFM() {
 		app.getSettings().resetLastFM();
+	}
+
+	@Override
+	public boolean getRepeat() {
+		if (service != null)
+			return service.getPlayer().isLooping();
+		return false;
 	}
 
 }

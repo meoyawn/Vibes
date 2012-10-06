@@ -34,7 +34,7 @@
             android:layout_marginLeft="21dp"
             android:layout_marginTop="10dp"
             android:text="@string/empty"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
     </LinearLayout>
 
     <TextView

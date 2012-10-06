@@ -41,100 +41,57 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	// common system stuff
 	private Settings settings;
-	private AbstractHttpClient client;
+	private AbstractHttpClient httpClient;
 	private ImageLoader imageLoader;
-	private boolean serviceRunning = false;
+	private boolean serviceRunning;
+
+	// general gui objects
+	private View loadingFooter;
+	private Typeface typeface;
+	private Animation shake;
 
 	// web services
 	private VKontakte vkontakte;
 	private LastFM lastfm;
 
-	// player data
+	// general player data
 	private Playlist playlist;
 	private Playlist selectedPlaylist;
 	private ArrayList<Song> songs;
 
-	// cached stuff
+	// cached units
 	private ArrayList<Unit> friends;
 	private ArrayList<Unit> groups;
 	private Unit self;
+
+	// other cached stuff
 	private Map<Playlist, ArrayList<Song>> playlistsCache;
 	private Map<Song, String> albumImagesCache;
-
-	// common interface objects
-	private View loadingFooter;
-	private Typeface font;
-	private Animation shake;
-
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		font = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
-		imageLoader = new ImageLoader(this, R.drawable.music);
-		loadingFooter = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer, null);
-		shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-		client = threadSafeHttpClient();
-		settings = new Settings(this, this);
-		vkontakte = new VKontakte(settings.getAccessToken(), client, settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
-		playlistsCache = new HashMap<Playlist, ArrayList<Song>>();
-		albumImagesCache = new HashMap<Song, String>();
-		playlist = new Playlist(Type.NEWSFEED, null, getSelf());
-		selectedPlaylist = playlist;
-	}
 
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		albumImagesCache.clear();
-		playlistsCache.clear();
-		playlistsCache.put(playlist, songs);
-		selectedPlaylist = playlist;
+		settings = null;
+		httpClient = null;
+		imageLoader = null;
 
-		imageLoader.getMemoryCache().clear();
+		vkontakte = null;
+		lastfm = null;
+
+		playlist = null;
+		selectedPlaylist = null;
+		songs = null;
+
 		friends = null;
 		groups = null;
-	}
+		self = null;
 
-	public VKontakte getVkontakte() {
-		return vkontakte;
-	}
+		playlistsCache = null;
+		albumImagesCache = null;
 
-	public Settings getSettings() {
-		return settings;
-	}
-
-	public boolean isServiceRunning() {
-		return serviceRunning;
-	}
-
-	public void setServiceRunning(boolean serviceRunning) {
-		this.serviceRunning = serviceRunning;
-	}
-
-	public static AbstractHttpClient threadSafeHttpClient() {
-		AbstractHttpClient client = new DefaultHttpClient();
-
-		HttpParams params = client.getParams();
-		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_CONNECTION);
-		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SOCKET);
-
-		SchemeRegistry registry = client.getConnectionManager().getSchemeRegistry();
-
-		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, registry);
-
-		return new DefaultHttpClient(manager, params);
-	}
-
-	public LastFM getLastFM() {
-		if (lastfm == null) {
-			int density = getResources().getDisplayMetrics().densityDpi;
-			lastfm = new LastFM(client, settings.getSession(), density);
-		}
-		return lastfm;
-	}
-
-	public Map<Playlist, ArrayList<Song>> getPlaylistsCache() {
-		return playlistsCache;
+		loadingFooter = null;
+		typeface = null;
+		shake = null;
 	}
 
 	public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
@@ -144,37 +101,37 @@ public class VibesApplication extends Application implements Settings.Listener {
 		ArrayList<Song> songs = null;
 		switch (playlist.type) {
 		case AUDIOS:
-			songs = vkontakte.getAudios(ownerId, albumId, 0);
+			songs = getVkontakte().getAudios(ownerId, albumId, 0);
 			break;
 
 		case WALL:
-			songs = vkontakte.getWallAudios(ownerId, 0, false);
+			songs = getVkontakte().getWallAudios(ownerId, 0, false);
 			break;
 
 		case NEWSFEED:
-			songs = vkontakte.getNewsFeedAudios(0, 0);
+			songs = getVkontakte().getNewsFeedAudios(0, 0);
 			break;
 
 		case SEARCH:
-			songs = vkontakte.search(playlist.query, 0);
+			songs = getVkontakte().search(playlist.query, 0);
 			break;
 		}
 
-		playlistsCache.put(playlist, songs);
+		getPlaylistsCache().put(playlist, songs);
 		return songs;
 	}
 
 	public ArrayList<Album> loadAlbums(int id) throws ClientProtocolException, IOException, VKontakteException {
-		return vkontakte.getAlbums(id, 0);
+		return getVkontakte().getAlbums(id, 0);
 	}
 
 	public ArrayList<Unit> loadFriends() throws ClientProtocolException, IOException, VKontakteException {
-		friends = vkontakte.getFriends(false);
+		friends = getVkontakte().getFriends(false);
 		return friends;
 	}
 
 	public ArrayList<Unit> loadGroups() throws ClientProtocolException, IOException, VKontakteException {
-		groups = vkontakte.getGroups();
+		groups = getVkontakte().getGroups();
 		return groups;
 	}
 
@@ -185,31 +142,65 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	@Override
 	public void onVkontakteAccessTokenChanged(int userId, String accessToken) {
-		vkontakte.setUserId(userId);
-		vkontakte.setAccessToken(accessToken);
+		getVkontakte().setUserId(userId);
+		getVkontakte().setAccessToken(accessToken);
+		
 		self = null;
-		playlist = new Playlist(Type.NEWSFEED, null, getSelf());
-		selectedPlaylist = playlist;
-		playlistsCache.clear();
-		albumImagesCache.clear();
+		setPlaylist(new Playlist(Type.NEWSFEED, null, getSelf()));
+		setSelectedPlaylist(getPlaylist());
+		getPlaylistsCache().clear();
+		getAlbumImagesCache().clear();
 		songs = null;
 	}
 
 	@Override
 	public void onVkontakteMaxAudiosChanged(int maxAudios) {
-		vkontakte.maxAudios = maxAudios;
+		getVkontakte().maxAudios = maxAudios;
 	}
 
 	@Override
 	public void onVkontakteMaxNewsChanged(int maxNews) {
-		vkontakte.maxNews = maxNews;
+		getVkontakte().maxNews = maxNews;
 	}
 
-	public Typeface getTypeface() {
-		return font;
+	public Unit getSelf() {
+		if (self == null) {
+			self = new Unit(0, null, null);
+			new Thread("Loading self") {
+
+				@Override
+				public void run() {
+					try {
+						self.initWith(getVkontakte().getSelf());
+					} catch (Exception e) {
+
+					}
+				}
+			}.start();
+		}
+		return self;
+	}
+
+	private static AbstractHttpClient createNewThreadSafeHttpClient() {
+		// create a new simple client
+		AbstractHttpClient defaultHttpClient = new DefaultHttpClient();
+
+		// set timeout
+		HttpParams params = defaultHttpClient.getParams();
+		HttpConnectionParams.setConnectionTimeout(params, TIMEOUT_CONNECTION);
+		HttpConnectionParams.setSoTimeout(params, TIMEOUT_SOCKET);
+
+		// create a threadsafe manager
+		SchemeRegistry registry = defaultHttpClient.getConnectionManager().getSchemeRegistry();
+		ClientConnectionManager manager = new ThreadSafeClientConnManager(params, registry);
+
+		// create a new threadsafe client
+		return new DefaultHttpClient(manager, params);
 	}
 
 	public ImageLoader getImageLoader() {
+		if (imageLoader == null)
+			imageLoader = new ImageLoader(this, R.drawable.music);
 		return imageLoader;
 	}
 
@@ -221,63 +212,95 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return groups;
 	}
 
-	public void setFriends(ArrayList<Unit> friends) {
-		this.friends = friends;
+	public boolean isServiceRunning() {
+		return serviceRunning;
 	}
 
-	public void setGroups(ArrayList<Unit> groups) {
-		this.groups = groups;
+	public void setServiceRunning(boolean serviceRunning) {
+		this.serviceRunning = serviceRunning;
 	}
 
-	public Unit getSelf() {
-		if (self == null) {
-			self = new Unit(0, null, null);
-			new Thread("Loading self") {
-
-				@Override
-				public void run() {
-					try {
-						self.initWith(vkontakte.getSelf());
-					} catch (Exception e) {
-
-					}
-				}
-			}.start();
+	public LastFM getLastFM() {
+		if (lastfm == null) {
+			int density = getResources().getDisplayMetrics().densityDpi;
+			lastfm = new LastFM(getHttpClient(), getSettings().getSession(), density);
 		}
-		return self;
+		return lastfm;
 	}
 
-	public View getFooter() {
-		return loadingFooter;
+	public Map<Playlist, ArrayList<Song>> getPlaylistsCache() {
+		if (playlistsCache == null)
+			playlistsCache = new HashMap<Playlist, ArrayList<Song>>();
+		return playlistsCache;
 	}
 
 	public ArrayList<Song> getSongs() {
 		return songs;
 	}
 
-	public Animation getShakeAnimation() {
-		return shake;
-	}
-
 	public Playlist getPlaylist() {
+		if (playlist == null)
+			playlist = new Playlist(Type.NEWSFEED, null, getSelf());
 		return playlist;
 	}
 
 	public void setPlaylist(Playlist playlist) {
 		this.playlist = playlist;
-		songs = playlistsCache.get(playlist);
+		songs = getPlaylistsCache().get(playlist);
 	}
 
 	public Playlist getSelectedPlaylist() {
+		if (selectedPlaylist == null)
+			selectedPlaylist = getPlaylist();
 		return selectedPlaylist;
 	}
 
-	public void setSelected(Playlist selected) {
+	public void setSelectedPlaylist(Playlist selected) {
 		this.selectedPlaylist = selected;
 	}
 
 	public Map<Song, String> getAlbumImagesCache() {
+		if (albumImagesCache == null)
+			albumImagesCache = new HashMap<Song, String>();
 		return albumImagesCache;
+	}
+
+	private AbstractHttpClient getHttpClient() {
+		if (httpClient == null)
+			httpClient = createNewThreadSafeHttpClient();
+		return httpClient;
+	}
+
+	public Settings getSettings() {
+		if (settings == null)
+			settings = new Settings(this, this);
+		return settings;
+	}
+
+	public VKontakte getVkontakte() {
+		if (vkontakte == null) {
+			Settings settings = getSettings();
+			vkontakte = new VKontakte(settings.getAccessToken(), getHttpClient(), settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
+		}
+		return vkontakte;
+	}
+
+	public Typeface getTypeface() {
+		if (typeface == null)
+			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
+		return typeface;
+	}
+
+	public View getFooter() {
+		if (loadingFooter == null)
+			loadingFooter = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer, null);
+		return loadingFooter;
+	}
+
+	public Animation getShakeAnimation() {
+		if (shake == null)
+			shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+		return shake;
 	}
 
 }
