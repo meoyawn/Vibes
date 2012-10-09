@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -18,7 +18,7 @@ import com.stiggpwnz.vibes.restapi.Song;
 
 public class PlaylistAdapter extends BaseAdapter {
 
-	private ArrayList<Song> songs;
+	private List<Song> songs;
 	private LayoutInflater inflater;
 	private ColorStateList black;
 	private Animation shakeRight;
@@ -27,7 +27,7 @@ public class PlaylistAdapter extends BaseAdapter {
 	public int currentTrack = -1;
 	private Typeface typeface;
 
-	public PlaylistAdapter(Context context, ArrayList<Song> songs, Typeface typeface) {
+	public PlaylistAdapter(Context context, List<Song> songs, Typeface typeface) {
 		this.typeface = typeface;
 		this.songs = songs;
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -42,11 +42,11 @@ public class PlaylistAdapter extends BaseAdapter {
 		return 0;
 	}
 
-	public ArrayList<Song> getSongs() {
+	public List<Song> getSongs() {
 		return songs;
 	}
 
-	public void setSongs(ArrayList<Song> songs) {
+	public void setSongs(List<Song> songs) {
 		this.songs = songs;
 		notifyDataSetChanged();
 	}

@@ -37,19 +37,19 @@ public class Settings {
 	private SharedPreferences prefs;
 	private Listener listener;
 
-	// vkontakte settings
+	// vkontakte
 	private String accessToken;
 	private long expiringTime;
 	private int userID;
 	private int maxNews;
 	private int maxAudios;
 
-	// last.fm settings
+	// last.fm
 	private String username;
 	private String userImage;
 	private String session;
 
-	// player settings
+	// player
 	private Boolean shuffle;
 	private Boolean repeatPlaylist;
 	private String downloadsDirectoryPath;
@@ -178,7 +178,7 @@ public class Settings {
 		listener.onVkontakteMaxNewsChanged(maxNews);
 	}
 
-	public int getMaxAudio() {
+	public int getMaxAudios() {
 		if (maxAudios == 0)
 			maxAudios = Integer.valueOf(prefs.getString(MAX_AUDIOS, DEFAULT_MAX_AUDIOS));
 		return maxAudios;

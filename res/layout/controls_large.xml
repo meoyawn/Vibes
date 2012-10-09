@@ -93,7 +93,7 @@
 
     <Button
         android:id="@+id/btnLove"
-        android:layout_width="22dp"
+        android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_alignBaseline="@+id/btnShuffle"
         android:layout_alignBottom="@+id/btnShuffle"

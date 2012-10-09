@@ -21,7 +21,6 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.stiggpwnz.vibes.PlayerActivity;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
@@ -282,10 +281,8 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 	}
 
 	public void setPlayButtonDrawable(int resource) {
-		if (large) {
-			PlayerActivity.recycle(playButton);
+		if (large)
 			playButton.setBackgroundResource(resource);
-		}
 	}
 
 	public void updateBuffering(int percent) {

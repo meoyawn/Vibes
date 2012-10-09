@@ -159,22 +159,28 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			int progress = player.getCurrentPosition();
 			if (listener != null)
 				listener.onProgressChanged(progress);
+			else
+				service.showSongNotification();
 
 			if (settings.getSession() != null && !scrobbled && !scrobbling && songDuration > 30000 && (progress >= (songDuration / 2) || (progress / 60000) >= 4))
-				new Thread("Scrobbling") {
-
-					@Override
-					public void run() {
-						scrobbling = true;
-						app.getLastFM().scrobble(getCurrentSong(), timeStamp);
-						scrobbling = false;
-						scrobbled = true;
-					}
-				}.start();
+				scrobble();
 
 			handler.postDelayed(progressUpdater, PROGRESSBAR_UPDATER_DELAY_MILLISECONDS);
 		} else
 			handler.removeCallbacks(progressUpdater);
+	}
+
+	private void scrobble() {
+		new Thread("Scrobbling") {
+
+			@Override
+			public void run() {
+				scrobbling = true;
+				app.getLastFM().scrobble(getCurrentSong(), timeStamp);
+				scrobbling = false;
+				scrobbled = true;
+			}
+		}.start();
 	}
 
 	private void generateShuffleQueue(int seed) {
@@ -217,6 +223,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		if (currentTrack == position && !hardReset
 				&& (getState() == State.PAUSED || getState() == State.PLAYING || getState() == State.SEEKING_FOR_IDLE || getState() == State.SEEKING_FOR_PLAYBACK)) {
 			setState(State.SEEKING_FOR_PLAYBACK);
+			if (getState() == State.PAUSED)
+				resume();
 			handler.removeCallbacks(progressUpdater);
 			player.seekTo(0);
 		} else if (currentTrack == position && (getState() == State.PREPARING_FOR_IDLE || getState() == State.PREPARING_FOR_PLAYBACK)) {

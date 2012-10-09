@@ -10,6 +10,7 @@ import android.widget.ListView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
+import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Playlist;
 import com.stiggpwnz.vibes.restapi.Playlist.Type;
 import com.stiggpwnz.vibes.restapi.Unit;
@@ -102,19 +103,20 @@ public class StartingFragment extends AlbumsFragment {
 			break;
 
 		case MY_AUDIOS:
-			listener.loadPlaylist(new Playlist(Type.AUDIOS, name, unit));
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
 			break;
 
 		case WALL:
-			listener.loadPlaylist(new Playlist(Type.WALL, name, unit));
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.WALL, name, unit)));
 			break;
 
 		case NEWSFEED:
-			listener.loadPlaylist(new Playlist(Type.NEWSFEED, name, unit));
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.NEWSFEED, name, unit)));
 			break;
 
 		default:
-			listener.loadPlaylist(new Playlist(Type.AUDIOS, name, unit, unit.albums.get(position - 5)));
+			Album album = unit.albums.get(position - 5);
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
 			break;
 		}
 	}

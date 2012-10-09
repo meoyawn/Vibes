@@ -86,7 +86,6 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	public void onDetach() {
 		super.onDetach();
 		listener = null;
-		PlayerActivity.recycle(imageLastFmUser);
 	}
 
 	@Override

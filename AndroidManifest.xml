@@ -16,7 +16,7 @@
         android:name=".VibesApplication"
         android:icon="@drawable/icon"
         android:label="@string/vibes"
-        android:theme="@style/Theme.Sherlock.Light.DarkActionBar.ForceOverflow" >
+        android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
         <activity
             android:name=".LoginActivity"
             android:launchMode="singleTop" >

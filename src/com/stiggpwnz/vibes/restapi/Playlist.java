@@ -1,5 +1,8 @@
 package com.stiggpwnz.vibes.restapi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Playlist {
 
 	public static enum Type {
@@ -10,7 +13,10 @@ public class Playlist {
 	public Unit unit;
 	public Album album;
 	public String query;
+
 	public String name;
+	public List<Song> songs;
+	public int offset;
 
 	public Playlist(Type type, String name) {
 		this.type = type;
@@ -70,6 +76,27 @@ public class Playlist {
 		} else if (!unit.equals(other.unit))
 			return false;
 		return true;
+	}
+
+	private static ArrayList<Playlist> cache;
+
+	public static Playlist get(Playlist playlist) {
+		synchronized (Playlist.class) {
+			if (cache == null)
+				cache = new ArrayList<Playlist>();
+
+			int index = cache.indexOf(playlist);
+			if (index >= 0)
+				return cache.get(index);
+			else
+				cache.add(playlist);
+			return playlist;
+		}
+	}
+
+	public static void clearCache() {
+		if (cache != null)
+			cache.clear();
 	}
 
 }

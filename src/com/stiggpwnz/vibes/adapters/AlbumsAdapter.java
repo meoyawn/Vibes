@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -20,7 +20,7 @@ public class AlbumsAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private Typeface typeface;
 	private String[] data;
-	private ArrayList<Album> albums;
+	private List<Album> albums;
 	private int selected = -1;
 	private int blue;
 	private int white;
@@ -35,11 +35,11 @@ public class AlbumsAdapter extends BaseAdapter {
 		white = context.getResources().getColor(R.color.white);
 	}
 
-	public void setAlbums(ArrayList<Album> albums) {
-		this.albums = albums;
+	public void setAlbums(List<Album> result) {
+		this.albums = result;
 	}
 
-	public ArrayList<Album> getAlbums() {
+	public List<Album> getAlbums() {
 		return albums;
 	}
 

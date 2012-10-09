@@ -1,11 +1,8 @@
 package com.stiggpwnz.vibes;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.AbstractHttpClient;
@@ -57,16 +54,11 @@ public class VibesApplication extends Application implements Settings.Listener {
 	// general player data
 	private Playlist playlist;
 	private Playlist selectedPlaylist;
-	private ArrayList<Song> songs;
 
 	// cached units
-	private ArrayList<Unit> friends;
-	private ArrayList<Unit> groups;
+	private List<Unit> friends;
+	private List<Unit> groups;
 	private Unit self;
-
-	// other cached stuff
-	private Map<Playlist, ArrayList<Song>> playlistsCache;
-	private Map<Song, String> albumImagesCache;
 
 	@Override
 	public void onLowMemory() {
@@ -80,57 +72,71 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 		playlist = null;
 		selectedPlaylist = null;
-		songs = null;
 
 		friends = null;
 		groups = null;
 		self = null;
 
-		playlistsCache = null;
-		albumImagesCache = null;
+		Playlist.clearCache();
 
 		loadingFooter = null;
 		typeface = null;
 		shake = null;
 	}
 
-	public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
-		int ownerId = playlist.unit != null ? playlist.unit.id : 0;
-		int albumId = playlist.album != null ? playlist.album.id : 0;
-
-		ArrayList<Song> songs = null;
+	public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
+		List<Song> songs = null;
 		switch (playlist.type) {
 		case AUDIOS:
-			songs = getVkontakte().getAudios(ownerId, albumId, 0);
+			int albumId = playlist.album != null ? playlist.album.id : 0;
+			songs = getVkontakte().getAudios(playlist.unit.id, albumId, playlist.offset);
 			break;
 
 		case WALL:
-			songs = getVkontakte().getWallAudios(ownerId, 0, false);
+			songs = getVkontakte().getWallAudios(playlist.unit.id, playlist.offset, false);
 			break;
 
 		case NEWSFEED:
-			songs = getVkontakte().getNewsFeedAudios(0, 0);
+			songs = getVkontakte().getNewsFeedAudios(playlist.offset);
 			break;
 
 		case SEARCH:
-			songs = getVkontakte().search(playlist.query, 0);
+			songs = getVkontakte().search(playlist.query, playlist.offset);
 			break;
 		}
-
-		getPlaylistsCache().put(playlist, songs);
 		return songs;
 	}
 
-	public ArrayList<Album> loadAlbums(int id) throws ClientProtocolException, IOException, VKontakteException {
+	@SuppressWarnings("incomplete-switch")
+	public List<Song> updateSongs(Playlist playlist) throws IOException, VKontakteException {
+		List<Song> songs = null;
+		switch (playlist.type) {
+		case AUDIOS:
+			int albumId = playlist.album != null ? playlist.album.id : 0;
+			songs = getVkontakte().getAudios(playlist.unit.id, albumId, 0);
+			break;
+
+		case WALL:
+			songs = getVkontakte().getWallAudios(playlist.unit.id, 0, false);
+			break;
+
+		case NEWSFEED:
+			songs = getVkontakte().getNewsFeedAudios(0);
+			break;
+		}
+		return songs;
+	}
+
+	public List<Album> loadAlbums(int id) throws IOException, VKontakteException {
 		return getVkontakte().getAlbums(id, 0);
 	}
 
-	public ArrayList<Unit> loadFriends() throws ClientProtocolException, IOException, VKontakteException {
+	public List<Unit> loadFriends() throws IOException, VKontakteException {
 		friends = getVkontakte().getFriends(false);
 		return friends;
 	}
 
-	public ArrayList<Unit> loadGroups() throws ClientProtocolException, IOException, VKontakteException {
+	public List<Unit> loadGroups() throws IOException, VKontakteException {
 		groups = getVkontakte().getGroups();
 		return groups;
 	}
@@ -144,13 +150,11 @@ public class VibesApplication extends Application implements Settings.Listener {
 	public void onVkontakteAccessTokenChanged(int userId, String accessToken) {
 		getVkontakte().setUserId(userId);
 		getVkontakte().setAccessToken(accessToken);
-		
 		self = null;
-		setPlaylist(new Playlist(Type.NEWSFEED, null, getSelf()));
-		setSelectedPlaylist(getPlaylist());
-		getPlaylistsCache().clear();
-		getAlbumImagesCache().clear();
-		songs = null;
+
+		Playlist.clearCache();
+		playlist = null;
+		selectedPlaylist = null;
 	}
 
 	@Override
@@ -165,7 +169,7 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	public Unit getSelf() {
 		if (self == null) {
-			self = new Unit(0, null, null);
+			self = new Unit(getSettings().getUserID(), null, null);
 			new Thread("Loading self") {
 
 				@Override
@@ -204,11 +208,11 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return imageLoader;
 	}
 
-	public ArrayList<Unit> getFriends() {
+	public List<Unit> getFriends() {
 		return friends;
 	}
 
-	public ArrayList<Unit> getGroups() {
+	public List<Unit> getGroups() {
 		return groups;
 	}
 
@@ -228,25 +232,18 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return lastfm;
 	}
 
-	public Map<Playlist, ArrayList<Song>> getPlaylistsCache() {
-		if (playlistsCache == null)
-			playlistsCache = new HashMap<Playlist, ArrayList<Song>>();
-		return playlistsCache;
-	}
-
-	public ArrayList<Song> getSongs() {
-		return songs;
+	public List<Song> getSongs() {
+		return getPlaylist().songs;
 	}
 
 	public Playlist getPlaylist() {
 		if (playlist == null)
-			playlist = new Playlist(Type.NEWSFEED, null, getSelf());
+			playlist = Playlist.get(new Playlist(Type.NEWSFEED, null, getSelf()));
 		return playlist;
 	}
 
 	public void setPlaylist(Playlist playlist) {
 		this.playlist = playlist;
-		songs = getPlaylistsCache().get(playlist);
 	}
 
 	public Playlist getSelectedPlaylist() {
@@ -257,12 +254,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	public void setSelectedPlaylist(Playlist selected) {
 		this.selectedPlaylist = selected;
-	}
-
-	public Map<Song, String> getAlbumImagesCache() {
-		if (albumImagesCache == null)
-			albumImagesCache = new HashMap<Song, String>();
-		return albumImagesCache;
 	}
 
 	private AbstractHttpClient getHttpClient() {
@@ -280,7 +271,7 @@ public class VibesApplication extends Application implements Settings.Listener {
 	public VKontakte getVkontakte() {
 		if (vkontakte == null) {
 			Settings settings = getSettings();
-			vkontakte = new VKontakte(settings.getAccessToken(), getHttpClient(), settings.getUserID(), settings.getMaxNews(), settings.getMaxAudio());
+			vkontakte = new VKontakte(settings.getAccessToken(), getHttpClient(), settings.getUserID(), settings.getMaxNews(), settings.getMaxAudios());
 		}
 		return vkontakte;
 	}

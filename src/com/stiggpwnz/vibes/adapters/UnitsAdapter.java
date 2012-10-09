@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes.adapters;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -17,14 +17,14 @@ import com.stiggpwnz.vibes.restapi.Unit;
 
 public class UnitsAdapter extends BaseAdapter {
 
-	private ArrayList<Unit> units;
+	private List<Unit> units;
 	private LayoutInflater inflater;
 	private ImageLoader imageLoader;
 	private Typeface typeface;
 
-	public UnitsAdapter(Context context, ArrayList<Unit> units, Typeface typeface, ImageLoader imageLoader) {
+	public UnitsAdapter(Context context, List<Unit> units2, Typeface typeface, ImageLoader imageLoader) {
 		this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		this.units = units;
+		this.units = units2;
 		this.typeface = typeface;
 		this.imageLoader = imageLoader;
 	}
@@ -79,7 +79,7 @@ public class UnitsAdapter extends BaseAdapter {
 		return convertView;
 	}
 
-	public ArrayList<Unit> getUnits() {
+	public List<Unit> getUnits() {
 		return units;
 	}
 }

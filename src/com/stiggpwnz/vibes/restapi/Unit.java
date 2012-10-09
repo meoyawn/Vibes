@@ -1,7 +1,7 @@
 package com.stiggpwnz.vibes.restapi;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Unit implements Serializable {
 
@@ -10,7 +10,7 @@ public class Unit implements Serializable {
 	public int id;
 	public String name;
 	public String photo;
-	public ArrayList<Album> albums;
+	public List<Album> albums;
 
 	public Unit(int id, String name, String photo) {
 		this.id = id;

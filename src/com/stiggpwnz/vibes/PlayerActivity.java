@@ -1,8 +1,7 @@
 package com.stiggpwnz.vibes;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 import net.simonvt.widget.MenuDrawer;
 import net.simonvt.widget.MenuDrawer.OnDrawerStateChangeListener;
@@ -36,6 +35,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
 import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
@@ -84,13 +84,14 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	// utils
 	private boolean playlistIsLoading;
-	private Song currentSongWhileRefreshing;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_player);
 		FragmentManager fragmentManager = getSupportFragmentManager();
+		setSupportProgressBarIndeterminateVisibility(false);
 
 		if (findViewById(R.id.framePlaylists) != null) {
 			controlsFragment = (ControlsFragment) fragmentManager.findFragmentById(R.id.fragment_controls);
@@ -209,6 +210,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	private void setCurrentSong() {
+		Log.d(VibesApplication.VIBES, "setting current song");
 		final Player player = service.getPlayer();
 		final Song currentSong = player.getCurrentSong();
 		final State state = player.getState();
@@ -251,7 +253,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	private void setPlayButtonDrawable(int resource) {
 		controlsFragment.setPlayButtonDrawable(resource);
 		if (playButton != null) {
-			recycle(playButton);
 			playButton.setBackgroundResource(resource);
 		}
 	}
@@ -316,8 +317,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	private void refresh() {
 		playlistFragment.refresh();
-		if (isPlaying() && app.getPlaylist().equals(app.getSelectedPlaylist()))
-			currentSongWhileRefreshing = service.getPlayer().getCurrentSong();
 		if (fragmentPager != null) {
 			menuDrawer.closeMenu();
 			fragmentPager.setCurrentItem(1, true);
@@ -441,7 +440,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public ArrayList<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException {
+	public List<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException {
 		if (getApp() != null) {
 			if (friends)
 				return getApp().loadFriends();
@@ -452,7 +451,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public ArrayList<Album> loadAlbums(Unit unit) throws ClientProtocolException, IOException, VKontakteException {
+	public List<Album> loadAlbums(Unit unit) throws ClientProtocolException, IOException, VKontakteException {
 		if (unit != null)
 			return getApp().loadAlbums(unit.id);
 		else
@@ -487,7 +486,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
+	public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
 		return getApp().loadSongs(playlist);
 	}
 
@@ -550,7 +549,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void download(int position) {
-		Song song = app.getPlaylistsCache().get(app.getSelectedPlaylist()).get(position);
+		Song song = app.getSelectedPlaylist().songs.get(position);
 		service.download(song);
 	}
 
@@ -561,7 +560,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void loveUnlove(int position) {
-		Song song = app.getPlaylistsCache().get(app.getSelectedPlaylist()).get(position);
+		Song song = app.getSelectedPlaylist().songs.get(position);
 
 		if (song != null) {
 			if (song.loved)
@@ -584,7 +583,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				adapter.currentTrack--;
 			}
 		}
-		app.getPlaylistsCache().get(app.getSelectedPlaylist()).remove(position);
+		app.getSelectedPlaylist().songs.remove(position);
 		adapter.notifyDataSetChanged();
 		if (equals && getApp().getSettings().getShuffle())
 			player.generateShuffleQueue();
@@ -592,20 +591,13 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public String getAlbumImageUrl() {
-		Song currentSong = service.getPlayer().getCurrentSong();
-		if (currentSong != null) {
-			Map<Song, String> albumImagesCache = app.getAlbumImagesCache();
-			String image = albumImagesCache.get(currentSong);
-			if (image != null) {
-				if (image.equals(LastFM.NO_IMAGE))
-					return null;
-				else
-					return image;
-			} else {
-				String imageUrl = getApp().getLastFM().getAlbumImageUrl(currentSong);
-				albumImagesCache.put(currentSong, imageUrl);
-				return imageUrl;
-			}
+		Song song = service.getPlayer().getCurrentSong();
+		if (song != null) {
+			if (song.albumImageUrl == null)
+				song.albumImageUrl = getApp().getLastFM().getAlbumImageUrl(song);
+			else if (LastFM.WITHOUT_IMAGE.equals(song.albumImageUrl))
+				return null;
+			return song.albumImageUrl;
 		}
 		return null;
 	}
@@ -714,43 +706,29 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public void onPlaylistLoaded() {
-		onNewTrack();
-	}
-
-	@Override
-	public Playlist getPlaylist() {
-		return getApp().getPlaylist();
-	}
-
-	@Override
 	public void setPlaylist(Playlist playlist) {
-		boolean noSongFound = false;
 		getApp().setPlaylist(playlist);
-		if (service != null) {
-			Player player = service.getPlayer();
-			if (currentSongWhileRefreshing != null) {
-				int position = app.getSongs().indexOf(currentSongWhileRefreshing);
-				currentSongWhileRefreshing = null;
-				if (position != -1) {
-					player.currentTrack = position;
-					playlistFragment.getAdapter().currentTrack = position;
-				} else
-					noSongFound = true;
-			}
+		if (service != null && getApp().getSettings().getShuffle())
+			service.getPlayer().generateShuffleQueue();
+	}
 
-			if (getApp().getSettings().getShuffle())
-				player.generateShuffleQueue();
-			if (noSongFound)
-				player.next();
-		}
+	@Override
+	public void onPlaylistLoaded() {
+		if (service != null && getApp().getSettings().getShuffle())
+			service.getPlayer().generateShuffleQueue();
+
+		setTitleAndIcon();
+		onNewTrack();
 
 		if (fragmentPager != null && !getApp().getSettings().getTutorial()) {
 			fragmentPager.setCurrentItem(1);
 			new TutorialFragment().show(getSupportFragmentManager(), Settings.TUTORIAL);
 		}
+	}
 
-		setTitleAndIcon();
+	@Override
+	public Playlist getPlaylist() {
+		return getApp().getPlaylist();
 	}
 
 	private static String capitalize(String line) {
@@ -837,11 +815,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public ArrayList<Song> getSongs(Playlist playlist) {
-		return getApp().getPlaylistsCache().get(playlist);
-	}
-
-	@Override
 	public boolean isPlaying() {
 		return service != null ? service.getPlayer().getState() != State.NOT_PREPARED : false;
 	}
@@ -853,7 +826,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public ArrayList<Unit> getUnits(boolean friends) {
+	public List<Unit> getUnits(boolean friends) {
 		return friends ? getApp().getFriends() : getApp().getGroups();
 	}
 
@@ -891,6 +864,22 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			fragmentPager.setCurrentItem(0);
 			app.getSettings().setTutorial(true);
 		}
+	}
+
+	@Override
+	public List<Song> updateSongs(Playlist playlist) throws IOException, VKontakteException {
+		return getApp().updateSongs(playlist);
+	}
+
+	@Override
+	public void onPlaylistUpdated(int newTracks) {
+		if (service != null && newTracks > 0) {
+			Player player = service.getPlayer();
+			player.currentTrack += newTracks;
+			if (getApp().getSettings().getShuffle())
+				service.getPlayer().generateShuffleQueue();
+		}
+
 	}
 
 }

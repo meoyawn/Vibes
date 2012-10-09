@@ -1,7 +1,7 @@
 package com.stiggpwnz.vibes.fragments;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -32,7 +32,9 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	public static interface Listener extends FragmentListener {
 
-		public ArrayList<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException;
+		public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException;
+
+		public List<Song> updateSongs(Playlist playlist) throws IOException, VKontakteException;
 
 		public void play(int position, boolean hardReset);
 
@@ -54,10 +56,14 @@ public class PlaylistFragment extends SherlockListFragment {
 
 		public void setPlaylistLoading(boolean loading);
 
-		public ArrayList<Song> getSongs(Playlist playlist);
-
 		public boolean isPlaying();
 
+		public void onPlaylistUpdated(int newTracks);
+
+	}
+
+	public static interface OnItemsReadyListener {
+		void onItemsReady(List<Song> items);
 	}
 
 	private static final int CONTEXT_LOVE_UNLOVE = 0;
@@ -76,6 +82,7 @@ public class PlaylistFragment extends SherlockListFragment {
 	private TextView textBuffering;
 
 	private boolean large;
+	private boolean isLoading;
 
 	public PlaylistFragment() {
 		Log.d(VibesApplication.VIBES, "creating new playlist");
@@ -125,7 +132,7 @@ public class PlaylistFragment extends SherlockListFragment {
 
 		Playlist selectedPlaylist = listener.getSelectedPlaylist();
 		if (selectedPlaylist != null) {
-			ArrayList<Song> songs = listener.getSongs(selectedPlaylist);
+			List<Song> songs = selectedPlaylist.songs;
 			if (songs != null) {
 				if (adapter != null) {
 					adapter.setSongs(songs);
@@ -219,7 +226,7 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	public void loadPlaylist(boolean isPlaying) {
 		Playlist playlist = listener.getSelectedPlaylist();
-		ArrayList<Song> songs = listener.getSongs(playlist);
+		List<Song> songs = playlist.songs;
 		if (songs != null) {
 			if (adapter != null) {
 				adapter.setSongs(songs);
@@ -240,18 +247,22 @@ public class PlaylistFragment extends SherlockListFragment {
 		getListView().setSelectionAfterHeaderView();
 	}
 
-	private class LoadSongs extends AsyncTask<Void, Void, ArrayList<Song>> {
+	private class LoadSongs extends AsyncTask<Void, Void, List<Song>> {
+
+		private Playlist playlist;
 
 		@Override
 		protected void onPreExecute() {
 			setListShown(false);
+			isLoading = true;
+			playlist = listener.getSelectedPlaylist();
 			super.onPreExecute();
 		}
 
-		private ArrayList<Song> loadSongs() {
+		private List<Song> loadSongs() {
 			try {
 				if (listener != null)
-					return listener.loadSongs(listener.getSelectedPlaylist());
+					return listener.loadSongs(playlist);
 			} catch (IOException e) {
 				if (listener != null)
 					listener.internetFail();
@@ -283,7 +294,7 @@ public class PlaylistFragment extends SherlockListFragment {
 		}
 
 		@Override
-		protected ArrayList<Song> doInBackground(Void... params) {
+		protected List<Song> doInBackground(Void... params) {
 			Thread.currentThread().setName("Getting songs");
 			if (listener != null)
 				return loadSongs();
@@ -291,8 +302,9 @@ public class PlaylistFragment extends SherlockListFragment {
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<Song> result) {
+		protected void onPostExecute(List<Song> result) {
 			super.onPostExecute(result);
+			playlist.songs = result;
 			if (listener != null) {
 				if (adapter == null) {
 					adapter = new PlaylistAdapter(getSherlockActivity(), result, listener.getTypeface());
@@ -305,10 +317,10 @@ public class PlaylistFragment extends SherlockListFragment {
 					adapter.currentTrack = -1;
 					adapter.notifyDataSetChanged();
 				} else {
-					listener.setPlaylist(listener.getSelectedPlaylist());
 					listener.onPlaylistLoaded();
 				}
 			}
+			isLoading = false;
 		}
 	}
 
@@ -326,8 +338,8 @@ public class PlaylistFragment extends SherlockListFragment {
 	public void setCurrentSong(int position) {
 		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(listener.getPlaylist()) && listener.isPlaying()) {
 			adapter.currentTrack = position;
-			getListView().smoothScrollToPosition(position);
 			adapter.notifyDataSetChanged();
+			getListView().smoothScrollToPosition(position);
 		}
 	}
 
@@ -363,8 +375,108 @@ public class PlaylistFragment extends SherlockListFragment {
 		}
 	}
 
+	private class UpdateSongs extends AsyncTask<Void, Void, List<Song>> {
+
+		private Playlist playlist;
+
+		@Override
+		protected void onPreExecute() {
+			getSherlockActivity().setSupportProgressBarIndeterminateVisibility(true);
+			isLoading = true;
+			if (listener != null)
+				playlist = listener.getSelectedPlaylist();
+			super.onPreExecute();
+		}
+
+		private List<Song> updateSongs() {
+			try {
+				if (listener != null)
+					return listener.updateSongs(playlist);
+			} catch (IOException e) {
+				if (listener != null)
+					listener.internetFail();
+			} catch (VKontakteException e) {
+				if (listener != null) {
+					switch (e.getCode()) {
+					case VKontakteException.UNKNOWN_ERROR_OCCURED:
+						listener.unknownError();
+						break;
+
+					case VKontakteException.USER_AUTHORIZATION_FAILED:
+						listener.authFail();
+						break;
+
+					case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
+						return updateSongs();
+
+					case VKontakteException.ACCESS_DENIED:
+						listener.accessDenied();
+						break;
+
+					case VKontakteException.PERMISSION_TO_PERFORM_THIS_ACTION_IS_DENIED_BY_USER:
+						listener.accessDenied();
+						break;
+					}
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected List<Song> doInBackground(Void... params) {
+			Thread.currentThread().setName("Getting songs");
+			List<Song> result = updateSongs();
+			List<Song> songs = playlist.songs;
+			if (songs != null) {
+				int position = -1;
+				int index = 0;
+				do {
+					position++;
+					index = result.indexOf(songs.get(position));
+				} while (index < 0 && position < result.size() && position < songs.size());
+
+				position = index >= 0 ? index : position;
+				return result.subList(0, position);
+			}
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(List<Song> result) {
+			super.onPostExecute(result);
+			if (result != null) {
+				List<Song> songs = playlist.songs;
+				if (songs != null)
+					songs.addAll(0, result);
+				else
+					songs = result;
+
+				if (listener != null) {
+					if (adapter == null) {
+						adapter = new PlaylistAdapter(getSherlockActivity(), songs, listener.getTypeface());
+						setListAdapter(adapter);
+					}
+
+					if (!listener.getSelectedPlaylist().equals(listener.getPlaylist())) {
+						adapter.currentTrack = -1;
+					} else if (listener.isPlaying()) {
+						int size = result.size();
+						adapter.currentTrack += size;
+						getListView().smoothScrollToPosition(adapter.currentTrack);
+						listener.onPlaylistUpdated(result.size());
+					}
+					adapter.notifyDataSetChanged();
+				}
+			}
+			isLoading = false;
+			if (getSherlockActivity() != null)
+				getSherlockActivity().setSupportProgressBarIndeterminateVisibility(false);
+		}
+	}
+
 	public void refresh() {
-		if (listener.getSelectedPlaylist().type != Type.SEARCH)
-			new LoadSongs().execute();
+		Playlist selectedPlaylist = listener.getSelectedPlaylist();
+		if (selectedPlaylist.type != Type.SEARCH && !isLoading)
+			new UpdateSongs().execute();
 	}
 }

@@ -28,7 +28,7 @@ import com.stiggpwnz.vibes.VibesApplication;
 
 public class LastFM extends RestAPI {
 
-	public static final String NO_IMAGE = "no image";
+	public static final String WITHOUT_IMAGE = "no image";
 
 	private static final String API_KEY = "59ce954b080ef3eb99cca836896dbf5e";
 	private static final String API_SECRET = "d4c1fab919d52f46fd1d2829a37d127c";
@@ -279,7 +279,7 @@ public class LastFM extends RestAPI {
 						element = (Element) list.item(3);
 						return element.getFirstChild().getNodeValue();
 					}
-					return NO_IMAGE;
+					return WITHOUT_IMAGE;
 				}
 			}
 		} catch (Exception e) {
@@ -292,9 +292,6 @@ public class LastFM extends RestAPI {
 		String url = uri.toString().replace("%2526", "%26");
 
 		Log.d(VibesApplication.VIBES, url);
-
-		if (false)
-			url.trim();
 
 		HttpPost request = new HttpPost(url);
 		if (url.contains(TRACK_GET_INFO) && imageRequestQueue != null)

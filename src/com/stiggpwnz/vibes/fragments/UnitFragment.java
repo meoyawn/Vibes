@@ -9,9 +9,10 @@ import android.widget.ListView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
+import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Playlist;
-import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.Playlist.Type;
+import com.stiggpwnz.vibes.restapi.Unit;
 
 public class UnitFragment extends AlbumsFragment {
 
@@ -75,15 +76,16 @@ public class UnitFragment extends AlbumsFragment {
 		setSelectedPosition(position);
 		switch (position) {
 		case AUDIOS:
-			listener.loadPlaylist(new Playlist(Type.AUDIOS, name, unit));
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
 			break;
 
 		case WALL:
-			listener.loadPlaylist(new Playlist(Type.WALL, name, unit));
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.WALL, name, unit)));
 			break;
 
 		default:
-			listener.loadPlaylist(new Playlist(Type.AUDIOS, name, unit, unit.albums.get(position - 2)));
+			Album album = unit.albums.get(position - 2);
+			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
 			break;
 		}
 	}

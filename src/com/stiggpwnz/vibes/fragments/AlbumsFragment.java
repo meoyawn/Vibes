@@ -1,7 +1,7 @@
 package com.stiggpwnz.vibes.fragments;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -20,7 +20,7 @@ public class AlbumsFragment extends SherlockListFragment {
 
 	public static interface Listener extends FragmentListener {
 
-		public ArrayList<Album> loadAlbums(Unit unit) throws ClientProtocolException, IOException, VKontakteException;
+		public List<Album> loadAlbums(Unit unit) throws ClientProtocolException, IOException, VKontakteException;
 
 		public void loadPlaylist(Playlist playlist);
 
@@ -91,7 +91,7 @@ public class AlbumsFragment extends SherlockListFragment {
 		selectedPosition = position;
 	}
 
-	private class LoadAlbums extends AsyncTask<Unit, Void, ArrayList<Album>> {
+	private class LoadAlbums extends AsyncTask<Unit, Void, List<Album>> {
 
 		private Unit unit;
 		private AlbumsAdapter adapter;
@@ -109,7 +109,7 @@ public class AlbumsFragment extends SherlockListFragment {
 			super.onPreExecute();
 		}
 
-		private ArrayList<Album> getAlbums(Unit unit) {
+		private List<Album> getAlbums(Unit unit) {
 			if (listener != null) {
 				try {
 					return listener.loadAlbums(unit);
@@ -140,14 +140,14 @@ public class AlbumsFragment extends SherlockListFragment {
 		}
 
 		@Override
-		protected ArrayList<Album> doInBackground(Unit... params) {
+		protected List<Album> doInBackground(Unit... params) {
 			Thread.currentThread().setName("Getting albums");
 			unit = params[0];
 			return getAlbums(unit);
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<Album> result) {
+		protected void onPostExecute(List<Album> result) {
 			super.onPostExecute(result);
 			adapter.setAlbums(result);
 			adapter.notifyDataSetChanged();

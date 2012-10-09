@@ -1,7 +1,8 @@
 package com.stiggpwnz.vibes.fragments;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.List;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -25,9 +26,9 @@ public class UnitsListFragment extends SherlockListFragment {
 
 		public void showUnit(Unit unit);
 
-		public ArrayList<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException;
+		public List<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException;
 
-		public ArrayList<Unit> getUnits(boolean friends);
+		public List<Unit> getUnits(boolean friends);
 
 	}
 
@@ -42,11 +43,11 @@ public class UnitsListFragment extends SherlockListFragment {
 
 	}
 
-	public static UnitsListFragment newInstance(boolean friends, ArrayList<Unit> units) {
+	public static UnitsListFragment newInstance(boolean friends, List<Unit> list) {
 		UnitsListFragment fragment = new UnitsListFragment();
 		Bundle args = new Bundle();
 		args.putBoolean(FRIENDS, friends);
-		args.putSerializable(UNITS, units);
+		args.putSerializable(UNITS, (Serializable) list);
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -63,7 +64,7 @@ public class UnitsListFragment extends SherlockListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		boolean friends = getArguments().getBoolean(FRIENDS);
-		ArrayList<Unit> units = listener.getUnits(friends);
+		List<Unit> units = listener.getUnits(friends);
 		if (units == null)
 			new GetUnits().execute(friends);
 		else {
@@ -107,11 +108,11 @@ public class UnitsListFragment extends SherlockListFragment {
 		super.onListItemClick(l, v, position, id);
 	}
 
-	private class GetUnits extends AsyncTask<Boolean, Void, ArrayList<Unit>> {
+	private class GetUnits extends AsyncTask<Boolean, Void, List<Unit>> {
 
 		boolean friends;
 
-		private ArrayList<Unit> getUnits(boolean friends) {
+		private List<Unit> getUnits(boolean friends) {
 			try {
 				return listener.loadUnits(friends);
 			} catch (IOException e) {
@@ -134,14 +135,14 @@ public class UnitsListFragment extends SherlockListFragment {
 		}
 
 		@Override
-		protected ArrayList<Unit> doInBackground(Boolean... params) {
+		protected List<Unit> doInBackground(Boolean... params) {
 			Thread.currentThread().setName("Getting units");
 			friends = params[0];
 			return getUnits(friends);
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<Unit> result) {
+		protected void onPostExecute(List<Unit> result) {
 			if (listener != null) {
 				UnitsAdapter unitsAdapter = new UnitsAdapter(getSherlockActivity(), result, listener.getTypeface(), listener.getImageLoader());
 				setListAdapter(unitsAdapter);

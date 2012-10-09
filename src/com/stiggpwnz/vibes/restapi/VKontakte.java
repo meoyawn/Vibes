@@ -64,7 +64,6 @@ public class VKontakte extends RestAPI {
 	private static final String OWNER = "owner";
 	private static final String OWNER_ID = "owner_id";
 	private static final String OFFSET = "offset";
-	private static final String START_TIME = "start_time";
 	private static final String ALBUM_ID = "album_id";
 	private static final String PERFORMER = "performer";
 	private static final String PHOTO = "photo";
@@ -181,7 +180,7 @@ public class VKontakte extends RestAPI {
 		return false;
 	}
 
-	public ArrayList<Song> search(String search, int offset) throws IOException, VKontakteException {
+	public List<Song> search(String search, int offset) throws IOException, VKontakteException {
 		try {
 			URI uri = new URI("https", "api.vk.com", AUDIO_SEARCH, COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accessToken + "&q="
 					+ search.replace("&", "%26"), null);
@@ -189,7 +188,7 @@ public class VKontakte extends RestAPI {
 			JSONObject jsonResponse = execute(uri);
 
 			if (jsonResponse.has(RESPONSE)) {
-				ArrayList<Song> result = songsFromJson(jsonResponse, true, false);
+				List<Song> result = songsFromJson(jsonResponse, true, false);
 				return result;
 			} else if (jsonResponse.has(ERROR)) {
 				jsonResponse = jsonResponse.getJSONObject(ERROR);
@@ -203,7 +202,7 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	public ArrayList<Song> getAudios(int ownerId, int albumId, int offset) throws IOException, VKontakteException {
+	public List<Song> getAudios(int ownerId, int albumId, int offset) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(API_URL + AUDIO_GET + COUNT + "=" + maxAudios + "&" + ACCESS_TOKEN + "=" + accessToken);
@@ -224,8 +223,8 @@ public class VKontakte extends RestAPI {
 			JSONObject jsonResponse = execute(uri);
 
 			if (jsonResponse.has(RESPONSE)) {
-				boolean own = ownerId == userId || ownerId == 0;
-				ArrayList<Song> result = songsFromJson(jsonResponse, false, own);
+				boolean own = ownerId == userId;
+				List<Song> result = songsFromJson(jsonResponse, false, own);
 				return result;
 			} else if (jsonResponse.has(ERROR)) {
 				jsonResponse = jsonResponse.getJSONObject(ERROR);
@@ -240,7 +239,7 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	public ArrayList<Song> getWallAudios(int ownerId, int offset, boolean owner) throws IOException, VKontakteException {
+	public List<Song> getWallAudios(int ownerId, int offset, boolean owner) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer(API_URL + WALL_GET + COUNT + "=" + maxNews + "&" + ACCESS_TOKEN + "=" + accessToken);
 			if (ownerId != 0)
@@ -255,7 +254,7 @@ public class VKontakte extends RestAPI {
 			JSONObject jsonResponse = execute(uri);
 
 			if (jsonResponse.has(RESPONSE)) {
-				ArrayList<Song> songs = new ArrayList<Song>();
+				List<Song> songs = new ArrayList<Song>();
 				JSONArray posts = jsonResponse.getJSONArray(RESPONSE);
 
 				int n = posts.length();
@@ -284,11 +283,10 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	public ArrayList<Song> getNewsFeedAudios(long lastUpdate, int offset) throws IOException, VKontakteException {
+	public List<Song> getNewsFeedAudios(int offset) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer(API_URL + NEWSFEED_GET + FILTERS + "=" + POST + "&" + COUNT + "=" + maxNews + "&" + ACCESS_TOKEN + "=" + accessToken);
-			if (lastUpdate > 0)
-				buffer.append("&" + START_TIME + "=" + lastUpdate);
+
 			if (offset > 0)
 				buffer.append("&" + OFFSET + "=" + offset);
 			URI uri = new URI(buffer.toString());
@@ -298,7 +296,7 @@ public class VKontakte extends RestAPI {
 			if (jsonResponse.has(RESPONSE)) {
 				jsonResponse = jsonResponse.getJSONObject(RESPONSE);
 				if (jsonResponse.has(ITEMS)) {
-					ArrayList<Song> songs = new ArrayList<Song>();
+					List<Song> songs = new ArrayList<Song>();
 					JSONArray posts = jsonResponse.getJSONArray(ITEMS);
 					int n = posts.length();
 					for (int i = 0; i < n; i++) {
@@ -346,7 +344,7 @@ public class VKontakte extends RestAPI {
 		}
 	}
 
-	public ArrayList<Album> getAlbums(int ownerId, int offset) throws IOException, VKontakteException {
+	public List<Album> getAlbums(int ownerId, int offset) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(API_URL + AUDIO_GET_ALBUMS + COUNT + "=100&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accessToken);
@@ -362,7 +360,7 @@ public class VKontakte extends RestAPI {
 
 			if (jsonResponse.has(RESPONSE)) {
 				JSONArray array = jsonResponse.getJSONArray(RESPONSE);
-				ArrayList<Album> albums = new ArrayList<Album>();
+				List<Album> albums = new ArrayList<Album>();
 				int n = array.length();
 				for (int i = 1; i < n; i++) {
 					JSONObject album = array.getJSONObject(i);
@@ -385,7 +383,7 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	public ArrayList<Unit> getFriends(boolean orderByAlphabet) throws IOException, VKontakteException {
+	public List<Unit> getFriends(boolean orderByAlphabet) throws IOException, VKontakteException {
 		try {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(API_URL + FRIENDS_GET + FIELDS + "=" + UNIT_FIELDS + ACCESS_TOKEN + "=" + accessToken);
@@ -399,7 +397,7 @@ public class VKontakte extends RestAPI {
 
 			if (jsonResponse.has(RESPONSE)) {
 				JSONArray friends = jsonResponse.getJSONArray(RESPONSE);
-				ArrayList<Unit> units = new ArrayList<Unit>();
+				List<Unit> units = new ArrayList<Unit>();
 				int n = friends.length();
 				for (int i = 0; i < n; i++)
 					units.add(parseUnit(friends.getJSONObject(i)));
@@ -424,13 +422,13 @@ public class VKontakte extends RestAPI {
 		return new Unit(id, name, photo);
 	}
 
-	public ArrayList<Unit> getGroups() throws IOException, VKontakteException {
+	public List<Unit> getGroups() throws IOException, VKontakteException {
 		try {
 			URI url = new URI(API_URL + GROUPS_GET + "extended=1&" + ACCESS_TOKEN + "=" + accessToken);
 			JSONObject jsonResponse = execute(url);
 			if (jsonResponse.has(RESPONSE)) {
 				JSONArray groups = jsonResponse.getJSONArray(RESPONSE);
-				ArrayList<Unit> units = new ArrayList<Unit>();
+				List<Unit> units = new ArrayList<Unit>();
 				int n = groups.length();
 				for (int i = 1; i < n; i++) {
 					JSONObject group = groups.getJSONObject(i);
@@ -453,22 +451,22 @@ public class VKontakte extends RestAPI {
 		return null;
 	}
 
-	private Song parseAttachement(JSONObject attachment) throws JSONException {
+	private static Song parseAttachement(JSONObject attachment) throws JSONException {
 		if (attachment.has(AUDIO)) {
 			JSONObject audio = attachment.getJSONObject(AUDIO);
-			int id = audio.getInt(AID);
+			int aid = audio.getInt(AID);
 			int owner = audio.getInt(OWNER_ID);
 			String artist = audio.getString(PERFORMER);
 			artist = Jsoup.parse(artist).text();
 			String name = audio.getString(TITLE);
 			name = Jsoup.parse(name).text();
-			return new Song(id, owner, artist, name);
-		} else
-			return null;
+			return new Song(aid, owner, artist, name);
+		}
+		return null;
 	}
 
-	protected ArrayList<Song> songsFromJson(JSONObject jsonResponse, boolean search, boolean own) throws JSONException {
-		ArrayList<Song> songs = new ArrayList<Song>();
+	private static List<Song> songsFromJson(JSONObject jsonResponse, boolean search, boolean own) throws JSONException {
+		List<Song> songs = new ArrayList<Song>();
 		JSONArray array = jsonResponse.getJSONArray(RESPONSE);
 		int n = array.length();
 		for (int i = search ? 1 : 0; i < n; i++) {

@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,7 +20,7 @@ public class TutorialFragment extends SherlockDialogFragment {
 		public void onTutorialSwipe();
 	}
 
-	private GestureDetector gestureDetector;
+	// private GestureDetector gestureDetector;
 	private Listener listener;
 
 	public TutorialFragment() {
@@ -47,12 +45,15 @@ public class TutorialFragment extends SherlockDialogFragment {
 		getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setCancelable(false);
 
-		gestureDetector = new GestureDetector(getSherlockActivity(), new MySwipeListener());
+		// gestureDetector = new GestureDetector(getSherlockActivity(), new
+		// MySwipeListener());
 		view.setOnTouchListener(new OnTouchListener() {
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
+				dismissAllowingStateLoss();
+				listener.onTutorialSwipe();
+				return true;
 			}
 		});
 	}
@@ -63,34 +64,35 @@ public class TutorialFragment extends SherlockDialogFragment {
 		listener = null;
 	}
 
-	private class MySwipeListener extends SimpleOnGestureListener {
-
-		private static final int SWIPE_MIN_DISTANCE = 120;
-		private static final int SWIPE_MAX_OFF_PATH = 250;
-		private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			try {
-				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-					return false;
-
-				// left to right swipe
-				if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-					dismissAllowingStateLoss();
-					listener.onTutorialSwipe();
-				}
-			} catch (Exception e) {
-
-			}
-			return false;
-		}
-
-		@Override
-		public boolean onDown(MotionEvent e) {
-			return true;
-		}
-
-	}
+	// private class MySwipeListener extends SimpleOnGestureListener {
+	//
+	// private static final int SWIPE_MIN_DISTANCE = 120;
+	// private static final int SWIPE_MAX_OFF_PATH = 250;
+	//
+	// @Override
+	// public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+	// float velocityY) {
+	// try {
+	// Log.d(VibesApplication.VIBES, "onFling called");
+	// if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+	// return false;
+	//
+	// // left to right swipe
+	// if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
+	// dismissAllowingStateLoss();
+	// listener.onTutorialSwipe();
+	// }
+	// } catch (Exception e) {
+	//
+	// }
+	// return false;
+	// }
+	//
+	// @Override
+	// public boolean onDown(MotionEvent e) {
+	// return true;
+	// }
+	//
+	// }
 
 }

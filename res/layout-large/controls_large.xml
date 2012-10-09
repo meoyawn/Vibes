@@ -62,7 +62,6 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignBaseline="@+id/btnPlay"
-        android:layout_alignParentBottom="false"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_toLeftOf="@+id/btnPrev"
@@ -93,7 +92,7 @@
 
     <Button
         android:id="@+id/btnLove"
-        android:layout_width="30dp"
+        android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignBaseline="@+id/btnShuffle"
         android:layout_alignBottom="@+id/btnShuffle"

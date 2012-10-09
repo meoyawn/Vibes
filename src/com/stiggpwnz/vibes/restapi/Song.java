@@ -9,6 +9,7 @@ public class Song {
 	public String performer;
 	public String title;
 	public String url;
+	public String albumImageUrl;
 
 	public boolean loved;
 

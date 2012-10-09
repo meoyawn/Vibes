@@ -63,7 +63,8 @@
     <string name="download">Download</string>
     <string name="search">Search for music…</string>
     <string name="refresh">Refresh</string>
-    <string name="lastfm">last.fm</string>
+    <string name="lastfm">Last.fm</string>
     <string name="swipe">Swipe for more</string>
+    <string name="to">To</string>
 
 </resources>

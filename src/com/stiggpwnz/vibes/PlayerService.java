@@ -10,12 +10,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.jakewharton.notificationcompat2.NotificationCompat2;
 import com.stiggpwnz.vibes.restapi.Song;
 
 public class PlayerService extends Service {
@@ -40,6 +42,7 @@ public class PlayerService extends Service {
 	private VibesApplication app;
 	private List<Integer> downloadQueue;
 	private WifiManager.WifiLock wifiLock;
+	private PendingIntent intent;
 
 	public class ServiceBinder extends Binder {
 
@@ -57,6 +60,7 @@ public class PlayerService extends Service {
 		wifiLock = ((WifiManager) getSystemService(WIFI_SERVICE)).createWifiLock(SONG);
 		wifiLock.acquire();
 		app.setServiceRunning(true);
+		intent = PendingIntent.getActivity(this, 0, new Intent(this, PlayerActivity.class), 0);
 	}
 
 	@Override
@@ -110,12 +114,13 @@ public class PlayerService extends Service {
 
 	public void showSongNotification() {
 		if (player.getCurrentSong() != null) {
-			Notification notification = new Notification(R.drawable.notification_icon, player.getCurrentSong().toString(), System.currentTimeMillis());
 			CharSequence contentTitle = player.getCurrentSong().title;
 			CharSequence contentText = player.getCurrentSong().performer;
-			Intent notifyIntent = new Intent(this, PlayerActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			PendingIntent intent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
-			notification.setLatestEventInfo(app, contentTitle, contentText, intent);
+			NotificationCompat2.Builder builder = new NotificationCompat2.Builder(this).setContentTitle(contentTitle).setContentText(contentText)
+					.setSmallIcon(R.drawable.notification_icon).setContentIntent(intent);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+				builder.setProgress(player.getSongDuration(), player.getCurrentPosition(), false);
+			Notification notification = builder.build();
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			getNotificationManager().notify(SONG, NOTIFICATION, notification);
 		}
