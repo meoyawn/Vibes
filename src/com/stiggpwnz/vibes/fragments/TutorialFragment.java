@@ -16,12 +16,12 @@ import com.stiggpwnz.vibes.R;
 
 public class TutorialFragment extends SherlockDialogFragment {
 
-	public static interface Listener {
+	public static interface TutorialListener {
 		public void onTutorialSwipe();
 	}
 
 	// private GestureDetector gestureDetector;
-	private Listener listener;
+	private TutorialListener listener;
 
 	public TutorialFragment() {
 
@@ -30,7 +30,7 @@ public class TutorialFragment extends SherlockDialogFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		listener = (Listener) activity;
+		listener = (TutorialListener) activity;
 	}
 
 	@Override

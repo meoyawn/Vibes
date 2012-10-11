@@ -8,23 +8,19 @@ public class Song {
 
 	public String performer;
 	public String title;
+
 	public String url;
 	public String albumImageUrl;
 
-	public boolean loved;
-
-	public Song(int id, int owner, String artist, String name) {
-		aid = id;
-		performer = artist;
-		ownerid = owner;
-		title = name;
+	public Song(int aid, int ownerid, String performer, String title) {
+		this.aid = aid;
+		this.ownerid = ownerid;
+		this.performer = performer;
+		this.title = title;
 	}
 
 	public Song(int id, int owner, String artist, String name, String url) {
-		aid = id;
-		performer = artist;
-		ownerid = owner;
-		title = name;
+		this(id, owner, artist, name);
 		this.url = url;
 	}
 

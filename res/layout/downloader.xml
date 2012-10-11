@@ -1,35 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/awd"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="horizontal"
-    android:paddingBottom="5dp"
-    android:paddingRight="5dp"
-    android:paddingTop="5dp" >
+    android:layout_height="fill_parent" >
 
-    <ImageView
-        android:layout_width="75dp"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center_vertical"
-        android:contentDescription="@string/downloading"
-        android:src="@drawable/downloading" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp"
+        tools:ignore="UseCompoundDrawables" >
 
-    <RelativeLayout
-        android:layout_width="0dp"
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:contentDescription="@string/vibes"
+            android:src="@drawable/download_icon" />
+
+        <TextView
+            android:id="@+id/textPercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:padding="5dp" >
 
         <TextView
             android:id="@+id/downloadTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <ProgressBar
@@ -37,12 +47,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="false"
-            android:layout_below="@id/downloadTitle"
-            android:layout_marginTop="5dp"
             android:progressDrawable="@drawable/seek_bar_background" />
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

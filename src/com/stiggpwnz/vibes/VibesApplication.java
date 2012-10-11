@@ -40,7 +40,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 	private Settings settings;
 	private AbstractHttpClient httpClient;
 	private ImageLoader imageLoader;
-	private boolean serviceRunning;
 
 	// general gui objects
 	private View loadingFooter;
@@ -214,14 +213,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	public List<Unit> getGroups() {
 		return groups;
-	}
-
-	public boolean isServiceRunning() {
-		return serviceRunning;
-	}
-
-	public void setServiceRunning(boolean serviceRunning) {
-		this.serviceRunning = serviceRunning;
 	}
 
 	public LastFM getLastFM() {

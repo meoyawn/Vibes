@@ -22,7 +22,7 @@ import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class UnitsListFragment extends SherlockListFragment {
 
-	public static interface Listener extends FragmentListener {
+	public static interface UnitsListListener extends FragmentListener {
 
 		public void showUnit(Unit unit);
 
@@ -36,7 +36,7 @@ public class UnitsListFragment extends SherlockListFragment {
 	private static final String UNITS = "units";
 	private static final String SCROLL_POSITION = "scroll position";
 
-	private Listener listener;
+	private UnitsListListener listener;
 	private int scrollPosition;
 
 	public UnitsListFragment() {
@@ -56,7 +56,7 @@ public class UnitsListFragment extends SherlockListFragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		listener = (Listener) activity;
+		listener = (UnitsListListener) activity;
 	}
 
 	// download units, create and set an adapter

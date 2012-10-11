@@ -1,34 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
+    <string name="abs__action_bar_home_description">Navigate home</string>
+    <!-- Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] -->
+    <string name="abs__action_bar_up_description">Navigate up</string>
+    <!-- Content description for the action menu overflow button. [CHAR LIMIT=NONE] -->
+    <string name="abs__action_menu_overflow_description">More options</string>
+
+    <!-- Label for the "Done" button on the far left of action mode toolbars. -->
+    <string name="abs__action_mode_done">Done</string>
+
+    <!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+    <string name="abs__activity_chooser_view_see_all">See all…</string>
+    <!-- Title default for a dialog showing possible activities in ActivityChooserView [CHAR LIMIT=25] -->
+    <string name="abs__activity_chooser_view_dialog_title_default">Select activity</string>
+    <!-- Title for a dialog showing possible activities for sharing in ShareActionProvider [CHAR LIMIT=25] -->
+    <string name="abs__share_action_provider_share_with">Share with…</string>
+    <!-- Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] -->
+    <string name="abs__activitychooserview_choose_application">Choose an application</string>
+    <!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+    <string name="abs__shareactionprovider_share_with">Share with</string>
+    <!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+    <string name="abs__shareactionprovider_share_with_application">Share with </string>
+
+    <!-- SearchView accessibility description for search button [CHAR LIMIT=NONE] -->
+    <string name="abs__searchview_description_search">Search</string>
+    <!-- SearchView accessibility description for search text field [CHAR LIMIT=NONE] -->
+    <string name="abs__searchview_description_query">Search query</string>
+    <!-- SearchView accessibility description for clear button [CHAR LIMIT=NONE] -->
+    <string name="abs__searchview_description_clear">Clear query</string>
+    <!-- SearchView accessibility description for submit button [CHAR LIMIT=NONE] -->
+    <string name="abs__searchview_description_submit">Submit query</string>
+    <!-- SearchView accessibility description for voice button [CHAR LIMIT=NONE] -->
+    <string name="abs__searchview_description_voice">Voice search</string>
     <string name="vibes">Vibes</string>
-    <string name="sign_in">Sign in</string>
-    <string name="logout">Logout</string>
-    <string name="gettingSongsNewsfeed">Getting newsfeed audios…</string>
-    <string name="searchingSongs">Searching…</string>
-    <string name="gettingSongsWall">Getting wall audios…</string>
-    <string name="gettingSongsAudios">Getting audios…</string>
-    <string name="gettingSongsAlbum">Getting album audios…</string>
-    <string name="authProblem">Authorization error</string>
-    <string name="buffering">Buffering…</string>
-    <string name="loading">Loading…</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="account">Last.fm</string>
-    <string name="last_success">Scrobbling is enabled</string>
-    <string name="auth">Authorization…</string>
-    <string name="title_repeat">Repeat playlist</string>
-    <string name="summary_repeat">Repeat playlist when the end is reached</string>
-    <string name="title_max_news">Posts count</string>
-    <string name="summary_max_news">Posts count to get audios from</string>
-    <string name="title_max_audio">Audios count</string>
-    <string name="summary_max_audio">Audios count to fill the playlist</string>
-    <string name="prefs">Settings</string>
-    <string name="tracklist">tracklist</string>
-    <string name="playlist">Playlists</string>
-    <string name="unknownError">Unknown error is occured</string>
-    <string name="empty">No items</string>
-    <string name="access_denied">User has limited the access to his audios</string>
-    <string name="no_internet">Unable to connect the server, check your network and try again</string>
+    <string name="sign_in">Войти</string>
+    <string name="logout">Выйти</string>
+    <string name="authProblem">Ошибка авторизации</string>
+    <string name="buffering">Загрузка…</string>
+    <string name="username">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="last_success">Скробблинг включен</string>
+    <string name="auth">Авторизация…</string>
+    <string name="title_repeat">Повтор плейлиста</string>
+    <string name="summary_repeat">Повторять плейлист, после его завершения</string>
+    <string name="title_max_news">Количество постов</string>
+    <string name="summary_max_news">Количество постов для загрузки за один раз</string>
+    <string name="title_max_audio">Количество аудиозаписей</string>
+    <string name="summary_max_audio">Количество аудиозаписей для загрузки за один раз</string>
+    <string name="prefs">Настройки</string>
+    <string name="unknownError">Возникла неизвестная ошибка</string>
+    <string name="empty">Список пуст</string>
+    <string name="access_denied">Пользователь ограничил доступ к своим аудиозаписям</string>
+    <string name="no_internet">Невозможно соединиться с сервером, проверьте подключение и попробуйте заново</string>
 
     <string-array name="wall_options">
         <item>25</item>
@@ -44,34 +69,36 @@
         <item>500</item>
     </string-array>
     <string-array name="playlist_options">
-        <item>Friends</item>
-        <item>Communities</item>
-        <item>My audios</item>
-        <item>Wall audios</item>
-        <item>Newsfeed audios</item>
+        <item>Друзья</item>
+        <item>Сообщества</item>
+        <item>Мои аудиозаписи</item>
+        <item>Аудио со стены</item>
+        <item>Аудио из новостей</item>
     </string-array>
     <string-array name="unit_options">
-        <item>All audios</item>
-        <item>Wall audios</item>
+        <item>Все аудиозаписи</item>
+        <item>Аудио со стены</item>
     </string-array>
     <string-array name="context_options">
-        <item>Add and love</item>
-        <item>Remove from playlist</item>
-        <item>Download</item>
+        <item>Добавить к себе</item>
+        <item>Убрать из плейлиста</item>
+        <item>Загрузить</item>
     </string-array>
 
-    <string name="remove_unlove">Remove and unlove</string>
-    <string name="downloading">Downloading</string>
-    <string name="insertSdCard">Insert an SD card</string>
-    <string name="downloads_directory">Downloads directory</string>
-    <string name="download_success">Successfully downloaded</string>
-    <string name="download_fail">Couldn\'t finish the download</string>
-    <string name="finish_download_notification_title">Download is finished notification</string>
-    <string name="finish_download_notification_summary">Show notification when download is complete</string>
-    <string name="vkontakte">VKontakte</string>
-    <string name="download">Download</string>
-    <string name="search">Search for music</string>
-    <string name="refresh">Refresh</string>
-    <string name="lastfm">last.fm</string>
+    <string name="remove_unlove">Удалить из аудиозаписей</string>
+    <string name="downloading">Загружается</string>
+    <string name="insertSdCard">Вставьте SD карту</string>
+    <string name="downloads_directory">Папка для загрузок</string>
+    <string name="download_success">Успешно загружен</string>
+    <string name="download_fail">Не удалось завершить загрузку</string>
+    <string name="finish_download_notification_title">Сообщать о завершении загрузки</string>
+    <string name="finish_download_notification_summary">Показывать уведомление по завершению загрузки</string>
+    <string name="vkontakte">Вконтакте</string>
+    <string name="download">Загрузить</string>
+    <string name="search">Поиск аудизаписей</string>
+    <string name="refresh">Обновить</string>
+    <string name="lastfm">Last.fm</string>
+    <string name="swipe">Проведите, чтобы увидеть информацию о композиции</string>
+    <string name="to">В</string>
 
 </resources>

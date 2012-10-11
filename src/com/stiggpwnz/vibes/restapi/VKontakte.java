@@ -486,10 +486,8 @@ public class VKontakte extends RestAPI {
 
 			Song song = new Song(aid, owner, artist, name, url);
 
-			if (own) {
+			if (own)
 				song.myAid = aid;
-				song.loved = true;
-			}
 
 			songs.add(song);
 		}

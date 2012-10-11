@@ -29,7 +29,7 @@ import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class ControlsFragment extends SherlockFragment implements OnClickListener, OnSeekBarChangeListener {
 
-	public static interface Listener extends FragmentListener {
+	public static interface ControlsListener extends FragmentListener {
 
 		public String getAlbumImageUrl();
 
@@ -58,7 +58,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		public boolean getRepeat();
 	}
 
-	private Listener listener;
+	private ControlsListener listener;
 	private LoadAndSetAlbumImage loadAndSetAlbumImage;
 
 	private TextView title;
@@ -86,7 +86,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 
 	@Override
 	public void onAttach(Activity activity) {
-		listener = (Listener) activity;
+		listener = (ControlsListener) activity;
 		super.onAttach(activity);
 	}
 
@@ -174,7 +174,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 
 		case R.id.btnLove:
 			if (song != null) {
-				if (song.loved)
+				if (song.myAid != 0)
 					unlove(song);
 				else
 					love(song);
@@ -256,7 +256,7 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 			String name = song.title;
 			title.setText(name);
 
-			if (song.loved)
+			if (song.myAid != 0)
 				love.setBackgroundResource(R.drawable.love_blue);
 			else
 				love.setBackgroundResource(R.drawable.love_grey);
@@ -360,7 +360,6 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 			super.onPostExecute(result);
 			if (result != null) {
 				song.myAid = result;
-				song.loved = true;
 			} else if (song == ControlsFragment.this.song)
 				love.setBackgroundResource(R.drawable.love_grey);
 		}
@@ -409,7 +408,6 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 			super.onPostExecute(result);
 			if (result) {
 				song.myAid = 0;
-				song.loved = false;
 			} else if (song == ControlsFragment.this.song)
 				love.setBackgroundResource(R.drawable.love_blue);
 		}

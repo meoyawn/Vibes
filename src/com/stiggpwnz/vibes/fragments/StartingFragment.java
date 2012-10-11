@@ -17,7 +17,7 @@ import com.stiggpwnz.vibes.restapi.Unit;
 
 public class StartingFragment extends AlbumsFragment {
 
-	public static interface Listener extends AlbumsFragment.Listener {
+	public static interface StartingListener extends AlbumsFragment.Listener {
 
 		public void showUnits(boolean friends);
 
@@ -65,7 +65,7 @@ public class StartingFragment extends AlbumsFragment {
 
 	@Override
 	public void onAttach(Activity activity) {
-		listener = (Listener) activity;
+		listener = (StartingListener) activity;
 		super.onAttach(activity);
 	}
 
@@ -95,11 +95,11 @@ public class StartingFragment extends AlbumsFragment {
 
 		switch (position) {
 		case FRIENDS:
-			((Listener) listener).showUnits(true);
+			((StartingListener) listener).showUnits(true);
 			break;
 
 		case GROUPS:
-			((Listener) listener).showUnits(false);
+			((StartingListener) listener).showUnits(false);
 			break;
 
 		case MY_AUDIOS:

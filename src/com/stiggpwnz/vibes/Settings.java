@@ -208,9 +208,7 @@ public class Settings {
 	public void setShuffle(boolean shuffle) {
 		if (this.shuffle == null || this.shuffle.booleanValue() != shuffle) {
 			this.shuffle = shuffle;
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putBoolean(SHUFFLE, shuffle);
-			editor.commit();
+			prefs.edit().putBoolean(SHUFFLE, shuffle).commit();
 		}
 	}
 
@@ -233,23 +231,23 @@ public class Settings {
 
 	public Boolean getFinishedNotification() {
 		if (finishedNotification == null)
-			finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, false);
+			finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, true);
 		return finishedNotification;
 	}
 
 	public void updateFinishedNotification() {
-		finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, false);
+		finishedNotification = prefs.getBoolean(FINISHED_NOTIFICATION, true);
 	}
 
-	public Boolean getTutorial() {
+	public Boolean isTutorialComplete() {
 		if (tutorial == null)
 			tutorial = prefs.getBoolean(TUTORIAL, false);
 		return tutorial;
 	}
 
-	public void setTutorial(Boolean tutorial) {
+	public void setTutorialComplete(boolean tutorial) {
 		this.tutorial = tutorial;
-		prefs.edit().putBoolean(TUTORIAL, tutorial);
+		prefs.edit().putBoolean(TUTORIAL, tutorial).commit();
 	}
 
 }

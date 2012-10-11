@@ -10,7 +10,7 @@
     <string name="last_success">Scrobbling is enabled</string>
     <string name="auth">Authorization…</string>
     <string name="title_repeat">Repeat playlist</string>
-    <string name="summary_repeat">Repeat playlist when the end is reached</string>
+    <string name="summary_repeat">Repeat playlist after the end has reached</string>
     <string name="title_max_news">Posts count</string>
     <string name="summary_max_news">Posts count to get audios from</string>
     <string name="title_max_audio">Audios count</string>
@@ -46,25 +46,28 @@
         <item>Wall audios</item>
     </string-array>
     <string-array name="context_options">
-        <item>Add and love</item>
+        <item>Add</item>
         <item>Remove from playlist</item>
         <item>Download</item>
     </string-array>
 
-    <string name="remove_unlove">Remove and unlove</string>
+    <string name="remove_unlove">Remove from my audios</string>
     <string name="downloading">Downloading</string>
     <string name="insertSdCard">Insert an SD card</string>
     <string name="downloads_directory">Downloads directory</string>
     <string name="download_success">Successfully downloaded</string>
     <string name="download_fail">Couldn\'t finish the download</string>
-    <string name="finish_download_notification_title">Download has finished notification</string>
+    <string name="finish_download_notification_title">Notify when download has finished</string>
     <string name="finish_download_notification_summary">Show notification when download is complete</string>
-    <string name="vkontakte">VKontakte</string>
+    <string name="vkontakte">Vkontakte</string>
     <string name="download">Download</string>
-    <string name="search">Search for music…</string>
+    <string name="search">Search for music</string>
     <string name="refresh">Refresh</string>
     <string name="lastfm">Last.fm</string>
     <string name="swipe">Swipe for more</string>
     <string name="to">To</string>
+    <string name="last_forgot_username">Forgotten Your Username?</string>
+    <string name="last_forgot_password">Lost Your Password?</string>
+    <string name="last_register">Join Last.fm</string>
 
 </resources>

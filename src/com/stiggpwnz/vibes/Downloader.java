@@ -18,10 +18,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.jakewharton.notificationcompat2.NotificationCompat2;
 import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.VKontakte;
 
@@ -47,8 +47,8 @@ public class Downloader {
 	}
 
 	public void download(Song song) throws IOException {
-		if (!downloadList.contains(Integer.valueOf(song.aid))) {
-			downloadList.add(Integer.valueOf(song.aid));
+		if (!downloadList.contains(song.aid)) {
+			downloadList.add(song.aid);
 			new DownloaderThread(song).execute();
 		}
 	}
@@ -130,8 +130,8 @@ public class Downloader {
 						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 							notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
 						else {
-							notification = new NotificationCompat2.Builder(context).setSmallIcon(R.drawable.download_icon).setContentTitle(song.toString())
-									.setContentText(secondary).setContentIntent(intent).setProgress(100, progress, false).build();
+							notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.download_icon).setContentTitle(song.toString())
+									.setTicker(song.toString()).setContentText(secondary).setContentIntent(intent).setProgress(100, progress, false).build();
 							notification.flags |= Notification.FLAG_ONGOING_EVENT;
 						}
 
@@ -145,7 +145,6 @@ public class Downloader {
 				input.close();
 			} catch (Exception e) {
 				messsage = String.format("%s: %s", e.getClass().getName(), e.getLocalizedMessage());
-				return null;
 			}
 			return null;
 		}
@@ -155,7 +154,8 @@ public class Downloader {
 			super.onPostExecute(result);
 			cancelNotification();
 			downloadList.remove(Integer.valueOf(song.aid));
-			showNotification(messsage == null);
+			if (showFinishedNotification)
+				showNotification(messsage == null);
 			if (messsage != null && outputFile.exists())
 				outputFile.delete();
 			else if (messsage == null) {
@@ -166,22 +166,20 @@ public class Downloader {
 		}
 
 		private void showNotification(boolean success) {
-			if (showFinishedNotification) {
-				int icon = success ? R.drawable.ok : R.drawable.cancel;
-				CharSequence contentTitle = song.toString();
-				CharSequence contentText = context.getString(success ? R.string.download_success : R.string.download_fail);
-				Notification notification = new NotificationCompat2.Builder(context).setContentTitle(contentTitle).setContentText(contentText).setSmallIcon(icon)
-						.setContentIntent(intent).build();
-				notification.flags |= Notification.FLAG_AUTO_CANCEL;
-				notificationManager.notify(FINISHED, song.aid, notification);
-			}
+			int icon = success ? R.drawable.ok : R.drawable.cancel;
+			String contentTitle = song.toString();
+			String contentText = context.getString(success ? R.string.download_success : R.string.download_fail);
+			Log.d(VibesApplication.VIBES, contentText);
+			Notification notification = new NotificationCompat.Builder(context).setContentTitle(contentTitle).setContentText(contentText).setSmallIcon(icon)
+					.setContentIntent(intent).setTicker(contentTitle).build();
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
+			notificationManager.notify(FINISHED, song.aid, notification);
 		}
 
 		private void showNotification() {
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-				RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.downloader);
-				notification = new NotificationCompat2.Builder(context).setSmallIcon(R.drawable.download_icon).setContentIntent(intent).setContent(remoteViews)
-						.setContentTitle(song.toString()).build();
+				notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.download_icon).setContentIntent(intent).setTicker(song.toString()).build();
+				notification.contentView = new RemoteViews(context.getPackageName(), R.layout.downloader);
 				notification.contentView.setTextViewText(R.id.downloadTitle, song.toString());
 				notification.flags |= Notification.FLAG_ONGOING_EVENT;
 				notificationManager.notify(DOWNLOADING, song.aid, notification);

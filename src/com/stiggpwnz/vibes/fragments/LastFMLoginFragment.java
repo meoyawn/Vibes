@@ -3,6 +3,8 @@ package com.stiggpwnz.vibes.fragments;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +27,7 @@ import com.stiggpwnz.vibes.R;
 
 public class LastFMLoginFragment extends SherlockDialogFragment implements OnClickListener {
 
-	public static interface Listener {
+	public static interface LastFMLoginListener {
 
 		public String[] lastFmAuth(String username, String password);
 
@@ -35,7 +37,7 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 	private EditText editUsername;
 	private EditText editPassword;
 
-	private Listener listener;
+	private LastFMLoginListener listener;
 
 	public LastFMLoginFragment() {
 
@@ -44,7 +46,7 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		listener = (Listener) activity;
+		listener = (LastFMLoginListener) activity;
 	}
 
 	@Override
@@ -58,6 +60,9 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 		editUsername = (EditText) view.findViewById(R.id.editUsername);
 		editPassword = (EditText) view.findViewById(R.id.editPassword);
 		view.findViewById(R.id.btnSingIn).setOnClickListener(this);
+		view.findViewById(R.id.textForgotUsername).setOnClickListener(this);
+		view.findViewById(R.id.textForgotPassword).setOnClickListener(this);
+		view.findViewById(R.id.textRegister).setOnClickListener(this);
 		getDialog().requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getDialog().setCanceledOnTouchOutside(true);
 
@@ -96,8 +101,26 @@ public class LastFMLoginFragment extends SherlockDialogFragment implements OnCli
 
 	@Override
 	public void onClick(View v) {
-		if (editUsername.getText().length() > 0 && editPassword.getText().length() > 0)
-			new LastFmSignIn().execute();
+		switch (v.getId()) {
+		case R.id.btnSingIn:
+			if (editUsername.getText().length() > 0 && editPassword.getText().length() > 0)
+				new LastFmSignIn().execute();
+			break;
+
+		case R.id.textForgotUsername:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.last.fm/settings/lostusername")));
+			break;
+
+		case R.id.textForgotPassword:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.last.fm/settings/lostpassword")));
+			break;
+
+		case R.id.textRegister:
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.last.fm/join")));
+			break;
+
+		}
+
 	}
 
 	private class LastFmSignIn extends AsyncTask<Void, Void, String[]> {

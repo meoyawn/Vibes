@@ -36,19 +36,27 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+import com.stiggpwnz.vibes.Player.PlayerListener;
 import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.PlayerService.ServiceBinder;
 import com.stiggpwnz.vibes.adapters.FragmentPagesAdapter;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
 import com.stiggpwnz.vibes.fragments.AlbumsFragment;
 import com.stiggpwnz.vibes.fragments.ControlsFragment;
+import com.stiggpwnz.vibes.fragments.ControlsFragment.ControlsListener;
 import com.stiggpwnz.vibes.fragments.LastFMLoginFragment;
+import com.stiggpwnz.vibes.fragments.LastFMLoginFragment.LastFMLoginListener;
 import com.stiggpwnz.vibes.fragments.LastFMUserFragment;
+import com.stiggpwnz.vibes.fragments.LastFMUserFragment.LastFMUserListener;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment;
+import com.stiggpwnz.vibes.fragments.PlaylistFragment.PlaylistListener;
 import com.stiggpwnz.vibes.fragments.StartingFragment;
+import com.stiggpwnz.vibes.fragments.StartingFragment.StartingListener;
 import com.stiggpwnz.vibes.fragments.TutorialFragment;
+import com.stiggpwnz.vibes.fragments.TutorialFragment.TutorialListener;
 import com.stiggpwnz.vibes.fragments.UnitFragment;
 import com.stiggpwnz.vibes.fragments.UnitsListFragment;
+import com.stiggpwnz.vibes.fragments.UnitsListFragment.UnitsListListener;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
@@ -58,12 +66,10 @@ import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class PlayerActivity extends SherlockFragmentActivity implements StartingFragment.Listener, UnitsListFragment.Listener, PlaylistFragment.Listener,
-		ControlsFragment.Listener, Player.Listener, OnClickListener, LastFMLoginFragment.Listener, LastFMUserFragment.Listener, OnDrawerStateChangeListener,
-		TutorialFragment.Listener {
+public class PlayerActivity extends SherlockFragmentActivity implements StartingListener, UnitsListListener, PlaylistListener, ControlsListener, PlayerListener, OnClickListener,
+		LastFMLoginListener, LastFMUserListener, OnDrawerStateChangeListener, TutorialListener {
 
 	public static final String LAST_FM_LOGIN = "last fm login";
-
 	private static final String LAST_FM_USER = "last fm user";
 	private static final String STARTING_FRAGMENT = "starting fragment";
 	private static final String UNITS_LIST_FRAGMENT = "units list fragment";
@@ -134,7 +140,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	private void doBindService() {
 		Intent intent = new Intent(this, PlayerService.class);
-		if (!getApp().isServiceRunning()) {
+		if (!PlayerService.isRunning) {
 			Log.d(VibesApplication.VIBES, "starting service");
 			startService(intent);
 		}
@@ -150,6 +156,8 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		public void onServiceConnected(ComponentName className, IBinder binder) {
 			service = ((ServiceBinder) binder).getService();
 			service.getPlayer().setListener(PlayerActivity.this);
+			if (getApp().getSettings().getShuffle())
+				service.getPlayer().generateShuffleQueue();
 			service.cancelSongNotification();
 			service.stopWaiter();
 			onNewTrack();
@@ -563,7 +571,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		Song song = app.getSelectedPlaylist().songs.get(position);
 
 		if (song != null) {
-			if (song.loved)
+			if (song.myAid != 0)
 				controlsFragment.unlove(song);
 			else
 				controlsFragment.love(song);
@@ -710,6 +718,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		getApp().setPlaylist(playlist);
 		if (service != null && getApp().getSettings().getShuffle())
 			service.getPlayer().generateShuffleQueue();
+		setTitleAndIcon();
 	}
 
 	@Override
@@ -720,7 +729,8 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		setTitleAndIcon();
 		onNewTrack();
 
-		if (fragmentPager != null && !getApp().getSettings().getTutorial()) {
+		if (fragmentPager != null && !getApp().getSettings().isTutorialComplete()) {
+			menuDrawer.closeMenu();
 			fragmentPager.setCurrentItem(1);
 			new TutorialFragment().show(getSupportFragmentManager(), Settings.TUTORIAL);
 		}
@@ -862,7 +872,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	public void onTutorialSwipe() {
 		if (fragmentPager != null) {
 			fragmentPager.setCurrentItem(0);
-			app.getSettings().setTutorial(true);
+			app.getSettings().setTutorialComplete(true);
 		}
 	}
 

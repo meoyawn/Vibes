@@ -1055,7 +1055,7 @@ containing a value of this type.
     public static final class id {
         public static final int MyWebView1=0x7f06003f;
         public static final int RelativeLayout1=0x7f06004c;
-        public static final int Vibes=0x7f06005a;
+        public static final int Vibes=0x7f06005f;
         public static final int abs__action_bar=0x7f060026;
         public static final int abs__action_bar_container=0x7f060025;
         public static final int abs__action_bar_subtitle=0x7f060015;
@@ -1097,9 +1097,10 @@ containing a value of this type.
         public static final int abs__titleDivider=0x7f060020;
         public static final int abs__up=0x7f06000b;
         public static final int artist=0x7f060042;
+        public static final int awd=0x7f06004f;
         public static final int btnChoose=0x7f060040;
         public static final int btnFwd=0x7f06003a;
-        public static final int btnLogin=0x7f060059;
+        public static final int btnLogin=0x7f06005e;
         public static final int btnLove=0x7f060049;
         public static final int btnNext=0x7f06004e;
         public static final int btnPlay=0x7f060039;
@@ -1107,30 +1108,30 @@ containing a value of this type.
         public static final int btnRepeat=0x7f06004b;
         public static final int btnRwd=0x7f060038;
         public static final int btnShuffle=0x7f06004a;
-        public static final int btnSingIn=0x7f060054;
-        public static final int btnSingOut=0x7f060057;
+        public static final int btnSingIn=0x7f060059;
+        public static final int btnSingOut=0x7f06005c;
         public static final int disableHome=0x7f060009;
-        public static final int downloadProgress=0x7f060050;
-        public static final int downloadTitle=0x7f06004f;
-        public static final int editPassword=0x7f060053;
-        public static final int editUsername=0x7f060052;
+        public static final int downloadProgress=0x7f060052;
+        public static final int downloadTitle=0x7f060051;
+        public static final int editPassword=0x7f060055;
+        public static final int editUsername=0x7f060054;
         public static final int edit_query=0x7f06002b;
         public static final int fragmentPlaylist=0x7f06003d;
-        public static final int fragmentPlaylists=0x7f06005b;
+        public static final int fragmentPlaylists=0x7f060060;
         public static final int fragment_controls=0x7f06003b;
         public static final int framePlaylists=0x7f06003c;
         public static final int homeAsUp=0x7f060006;
         public static final int imageAlbum=0x7f060044;
-        public static final int imageUser=0x7f060056;
-        public static final int itemDownload=0x7f060066;
-        public static final int itemLastFM=0x7f060068;
-        public static final int itemLogOut=0x7f06006a;
-        public static final int itemPrefs=0x7f060069;
-        public static final int itemRefresh=0x7f060067;
-        public static final int itemSearch=0x7f060065;
-        public static final int lastTitle=0x7f060051;
-        public static final int layout=0x7f06005d;
-        public static final int leftView=0x7f060060;
+        public static final int imageUser=0x7f06005b;
+        public static final int itemDownload=0x7f06006b;
+        public static final int itemLastFM=0x7f06006d;
+        public static final int itemLogOut=0x7f06006f;
+        public static final int itemPrefs=0x7f06006e;
+        public static final int itemRefresh=0x7f06006c;
+        public static final int itemSearch=0x7f06006a;
+        public static final int lastTitle=0x7f060053;
+        public static final int layout=0x7f060062;
+        public static final int leftView=0x7f060065;
         public static final int listMode=0x7f060002;
         /**  Used with View#setTag(int) to specify a position for the active view. 
          */
@@ -1146,26 +1147,30 @@ containing a value of this type.
         public static final int md__menu=0x7f060012;
         public static final int normal=0x7f060001;
         public static final int pager=0x7f060037;
-        public static final int progressBar=0x7f06005c;
+        public static final int progressBar=0x7f060061;
         public static final int progressBrowser=0x7f06003e;
-        public static final int progressBuffering=0x7f06005e;
+        public static final int progressBuffering=0x7f060063;
         public static final int progressCircle=0x7f060047;
         public static final int seekBar=0x7f060045;
         public static final int showCustom=0x7f060008;
         public static final int showHome=0x7f060005;
         public static final int showTitle=0x7f060007;
         public static final int tabMode=0x7f060003;
-        public static final int text1=0x7f06005f;
-        public static final int textArtist=0x7f060062;
+        public static final int text1=0x7f060064;
+        public static final int textArtist=0x7f060067;
         public static final int textBuffering=0x7f060048;
+        public static final int textForgotPassword=0x7f060057;
+        public static final int textForgotUsername=0x7f060056;
         public static final int textLeft=0x7f060046;
         public static final int textPassed=0x7f060043;
-        public static final int textTitle=0x7f060061;
-        public static final int textUser=0x7f060055;
-        public static final int textView1=0x7f060058;
+        public static final int textPercent=0x7f060050;
+        public static final int textRegister=0x7f060058;
+        public static final int textTitle=0x7f060066;
+        public static final int textUser=0x7f06005a;
+        public static final int textView1=0x7f06005d;
         public static final int title=0x7f060041;
-        public static final int unitImage=0x7f060063;
-        public static final int unitName=0x7f060064;
+        public static final int unitImage=0x7f060068;
+        public static final int unitName=0x7f060069;
         public static final int useLogo=0x7f060004;
         public static final int wrap_content=0x7f060000;
     }
@@ -1224,52 +1229,66 @@ containing a value of this type.
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
+ Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_home_description=0x7f0b0000;
         /**  Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] 
+ Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_bar_up_description=0x7f0b0001;
         /**  Content description for the action menu overflow button. [CHAR LIMIT=NONE] 
+ Content description for the action menu overflow button. [CHAR LIMIT=NONE] 
          */
         public static final int abs__action_menu_overflow_description=0x7f0b0002;
         /**  Label for the "Done" button on the far left of action mode toolbars. 
+ Label for the "Done" button on the far left of action mode toolbars. 
          */
         public static final int abs__action_mode_done=0x7f0b0003;
         /**  Title default for a dialog showing possible activities in ActivityChooserView [CHAR LIMIT=25] 
+ Title default for a dialog showing possible activities in ActivityChooserView [CHAR LIMIT=25] 
          */
         public static final int abs__activity_chooser_view_dialog_title_default=0x7f0b0005;
         /**  Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] 
+ Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] 
          */
         public static final int abs__activity_chooser_view_see_all=0x7f0b0004;
         /**  Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] 
+ Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] 
          */
         public static final int abs__activitychooserview_choose_application=0x7f0b0007;
         /**  SearchView accessibility description for clear button [CHAR LIMIT=NONE] 
+ SearchView accessibility description for clear button [CHAR LIMIT=NONE] 
          */
         public static final int abs__searchview_description_clear=0x7f0b000c;
         /**  SearchView accessibility description for search text field [CHAR LIMIT=NONE] 
+ SearchView accessibility description for search text field [CHAR LIMIT=NONE] 
          */
         public static final int abs__searchview_description_query=0x7f0b000b;
         /**  SearchView accessibility description for search button [CHAR LIMIT=NONE] 
+ SearchView accessibility description for search button [CHAR LIMIT=NONE] 
          */
         public static final int abs__searchview_description_search=0x7f0b000a;
         /**  SearchView accessibility description for submit button [CHAR LIMIT=NONE] 
+ SearchView accessibility description for submit button [CHAR LIMIT=NONE] 
          */
         public static final int abs__searchview_description_submit=0x7f0b000d;
         /**  SearchView accessibility description for voice button [CHAR LIMIT=NONE] 
+ SearchView accessibility description for voice button [CHAR LIMIT=NONE] 
          */
         public static final int abs__searchview_description_voice=0x7f0b000e;
         /**  Title for a dialog showing possible activities for sharing in ShareActionProvider [CHAR LIMIT=25] 
+ Title for a dialog showing possible activities for sharing in ShareActionProvider [CHAR LIMIT=25] 
          */
         public static final int abs__share_action_provider_share_with=0x7f0b0006;
         /**  Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
+ Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
          */
         public static final int abs__shareactionprovider_share_with=0x7f0b0008;
         /**  Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
+ Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
          */
         public static final int abs__shareactionprovider_share_with_application=0x7f0b0009;
         public static final int access_denied=0x7f0b0023;
-        public static final int account=0x7f0b003a;
         public static final int app_name=0x7f0b000f;
         public static final int auth=0x7f0b0019;
         public static final int authProblem=0x7f0b0014;
@@ -1283,23 +1302,19 @@ containing a value of this type.
         public static final int empty=0x7f0b0022;
         public static final int finish_download_notification_summary=0x7f0b002c;
         public static final int finish_download_notification_title=0x7f0b002b;
-        public static final int gettingSongsAlbum=0x7f0b0038;
-        public static final int gettingSongsAudios=0x7f0b0037;
-        public static final int gettingSongsNewsfeed=0x7f0b0034;
-        public static final int gettingSongsWall=0x7f0b0036;
         public static final int insertSdCard=0x7f0b0027;
+        public static final int last_forgot_password=0x7f0b0035;
+        public static final int last_forgot_username=0x7f0b0034;
+        public static final int last_register=0x7f0b0036;
         public static final int last_success=0x7f0b0018;
         public static final int lastfm=0x7f0b0031;
-        public static final int loading=0x7f0b0039;
         public static final int logout=0x7f0b0013;
         public static final int no_internet=0x7f0b0024;
         public static final int password=0x7f0b0017;
-        public static final int playlist=0x7f0b003c;
         public static final int prefs=0x7f0b0020;
         public static final int refresh=0x7f0b0030;
         public static final int remove_unlove=0x7f0b0025;
         public static final int search=0x7f0b002f;
-        public static final int searchingSongs=0x7f0b0035;
         public static final int sign_in=0x7f0b0012;
         public static final int summary_max_audio=0x7f0b001f;
         public static final int summary_max_news=0x7f0b001d;
@@ -1309,7 +1324,6 @@ containing a value of this type.
         public static final int title_max_news=0x7f0b001c;
         public static final int title_repeat=0x7f0b001a;
         public static final int to=0x7f0b0033;
-        public static final int tracklist=0x7f0b003b;
         public static final int unknownError=0x7f0b0021;
         public static final int username=0x7f0b0016;
         public static final int vibes=0x7f0b0011;

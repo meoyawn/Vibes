@@ -30,7 +30,7 @@ import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class PlaylistFragment extends SherlockListFragment {
 
-	public static interface Listener extends FragmentListener {
+	public static interface PlaylistListener extends FragmentListener {
 
 		public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException;
 
@@ -70,7 +70,7 @@ public class PlaylistFragment extends SherlockListFragment {
 	private static final int CONTEXT_REMOVE = 1;
 	private static final int CONTEXT_DOWNLOAD = 2;
 
-	private Listener listener;
+	private PlaylistListener listener;
 	private PlaylistAdapter adapter;
 
 	private View progress;
@@ -90,7 +90,7 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	@Override
 	public void onAttach(Activity activity) {
-		listener = (Listener) activity;
+		listener = (PlaylistListener) activity;
 		super.onAttach(activity);
 	}
 
@@ -197,7 +197,7 @@ public class PlaylistFragment extends SherlockListFragment {
 		menu.setHeaderTitle(adapter.getItem(position).toString());
 
 		String[] options = getResources().getStringArray(R.array.context_options);
-		if (adapter.getItem(position).loved)
+		if (adapter.getItem(position).myAid != 0)
 			options[0] = getString(R.string.remove_unlove);
 
 		for (int i = 0; i < options.length; i++)

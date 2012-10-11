@@ -11,6 +11,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.MenuItem;
 
 public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener {
 
@@ -29,6 +30,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 		picker = findPreference(Settings.DIRECTORY_PICKER);
 		picker.setSummary(app.getSettings().getDirectoryPath());
 		picker.setOnPreferenceClickListener(this);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
@@ -64,6 +66,18 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			finish();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override

@@ -10,11 +10,11 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:ellipsize="end"
         android:scrollHorizontally="true"
         android:singleLine="true"
-        android:textSize="25sp" />
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/artist"
@@ -26,7 +26,7 @@
         android:scrollHorizontally="true"
         android:singleLine="true"
         android:textColor="@color/grey"
-        android:textSize="20sp" />
+        android:textSize="23sp" />
 
     <TextView
         android:id="@+id/textPassed"
@@ -43,7 +43,7 @@
         android:layout_height="210dp"
         android:layout_alignLeft="@+id/artist"
         android:layout_below="@+id/artist"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/music"
         android:contentDescription="@string/app_name" />
 
@@ -106,7 +106,6 @@
         android:layout_alignLeft="@id/btnLove"
         android:layout_below="@+id/btnLove"
         android:layout_marginTop="45dp"
-        android:layout_toRightOf="@id/imageAlbum"
         android:background="@drawable/shuffle_grey" />
 
     <Button

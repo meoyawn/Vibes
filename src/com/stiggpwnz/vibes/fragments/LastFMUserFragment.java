@@ -22,7 +22,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	private static final String USERNAME = "username";
 	private static final String USER_IMAGE = "user image";
 
-	public static interface Listener extends FragmentListener {
+	public static interface LastFMUserListener extends FragmentListener {
 		public void resetLastFM();
 	}
 
@@ -35,7 +35,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 		return fragment;
 	}
 
-	private Listener listener;
+	private LastFMUserListener listener;
 	private ImageView imageLastFmUser;
 
 	public LastFMUserFragment() {
@@ -45,7 +45,7 @@ public class LastFMUserFragment extends SherlockDialogFragment implements OnClic
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		listener = (Listener) activity;
+		listener = (LastFMUserListener) activity;
 	}
 
 	@Override

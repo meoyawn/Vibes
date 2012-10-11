@@ -25,7 +25,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	private static final int PROGRESSBAR_UPDATER_DELAY_MILLISECONDS = 250;
 
-	public static interface Listener {
+	public static interface PlayerListener {
 
 		public void onBufferingStrated();
 
@@ -78,7 +78,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	private Settings settings;
 
 	private Handler handler;
-	private Listener listener;
+	private PlayerListener listener;
 
 	public Player(PlayerService playerService, Handler handler) {
 		this.handler = handler;
@@ -480,7 +480,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		return false;
 	}
 
-	public void setListener(Listener onActionListener) {
+	public void setListener(PlayerListener onActionListener) {
 		this.listener = onActionListener;
 	}
 
