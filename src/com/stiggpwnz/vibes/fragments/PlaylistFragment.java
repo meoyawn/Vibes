@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.stiggpwnz.vibes.Player.State;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
@@ -83,6 +84,8 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	private boolean large;
 	private boolean isLoading;
+
+	private int scrollToWhenViewIsCreated = -1;
 
 	public PlaylistFragment() {
 		Log.d(VibesApplication.VIBES, "creating new playlist");
@@ -152,7 +155,14 @@ public class PlaylistFragment extends SherlockListFragment {
 			} else {
 				new LoadSongs().execute();
 			}
-			getListView().setSelectionAfterHeaderView();
+			
+			if (scrollToWhenViewIsCreated == -1)
+				getListView().setSelectionAfterHeaderView();
+			else {
+				setAndScrollTo(scrollToWhenViewIsCreated);
+				scrollToWhenViewIsCreated = -1;
+			}
+
 		}
 	}
 
@@ -328,19 +338,31 @@ public class PlaylistFragment extends SherlockListFragment {
 		return adapter;
 	}
 
-	public void nullEverything() {
+	public void nullEverything(State state) {
 		if (large) {
 			textPassed.setText("0:00");
 			textLeft.setText("0:00");
 		}
+		if (state == State.NOT_PREPARED && adapter != null) {
+			adapter.currentTrack = -1;
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	public void setCurrentSong(int position) {
-		if (adapter != null && listener != null && listener.getSelectedPlaylist().equals(listener.getPlaylist()) && listener.isPlaying()) {
-			adapter.currentTrack = position;
-			adapter.notifyDataSetChanged();
-			getListView().smoothScrollToPosition(position);
+		Log.d(VibesApplication.VIBES, "adapter is null: " + (adapter == null));
+		if (listener != null && listener.getSelectedPlaylist().equals(listener.getPlaylist()) && listener.isPlaying()) {
+			if (adapter != null) {
+				setAndScrollTo(position);
+			} else
+				scrollToWhenViewIsCreated = position;
 		}
+	}
+
+	private void setAndScrollTo(int position) {
+		adapter.currentTrack = position;
+		adapter.notifyDataSetChanged();
+		getListView().smoothScrollToPosition(position);
 	}
 
 	public void onBufferingStarted() {
@@ -427,7 +449,7 @@ public class PlaylistFragment extends SherlockListFragment {
 			Thread.currentThread().setName("Getting songs");
 			List<Song> result = updateSongs();
 			List<Song> songs = playlist.songs;
-			if (songs != null) {
+			if (songs != null && result != null) {
 				int position = -1;
 				int index = 0;
 				do {

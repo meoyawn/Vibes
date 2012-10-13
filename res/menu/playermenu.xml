@@ -20,10 +20,10 @@
         android:title="@string/refresh">
     </item>
     <item
-        android:id="@+id/itemLastFM"
-        android:icon="@drawable/last_fm_menu"
+        android:id="@+id/itemSleepingTimer"
+        android:icon="@drawable/ic_action_sleeping_timer"
         android:showAsAction="ifRoom"
-        android:title="@string/lastfm">
+        android:title="@string/sleep_timer">
     </item>
     <item
         android:id="@+id/itemPrefs"

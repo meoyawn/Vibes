@@ -48,6 +48,7 @@ import com.commonsware.cwac.adapter.AdapterWrapper;
  * appendInBackground().
  */
 abstract public class EndlessAdapter extends AdapterWrapper {
+
 	abstract protected boolean cacheInBackground() throws Exception;
 
 	abstract protected void appendCachedData();

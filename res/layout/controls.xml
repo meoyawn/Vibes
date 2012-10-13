@@ -50,14 +50,10 @@
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="fill_parent"
-        android:layout_height="13dp"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/textPassed"
         android:layout_alignLeft="@id/title"
-        android:layout_alignRight="@id/imageAlbum"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
-        android:progressDrawable="@drawable/seek_bar_background"
-        android:thumb="@drawable/thumb_zabil" />
+        android:layout_alignRight="@id/imageAlbum" />
 
     <TextView
         android:id="@+id/textLeft"

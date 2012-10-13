@@ -44,12 +44,10 @@ import com.stiggpwnz.vibes.adapters.PlaylistAdapter;
 import com.stiggpwnz.vibes.fragments.AlbumsFragment;
 import com.stiggpwnz.vibes.fragments.ControlsFragment;
 import com.stiggpwnz.vibes.fragments.ControlsFragment.ControlsListener;
-import com.stiggpwnz.vibes.fragments.LastFMLoginFragment;
-import com.stiggpwnz.vibes.fragments.LastFMLoginFragment.LastFMLoginListener;
-import com.stiggpwnz.vibes.fragments.LastFMUserFragment;
-import com.stiggpwnz.vibes.fragments.LastFMUserFragment.LastFMUserListener;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment;
 import com.stiggpwnz.vibes.fragments.PlaylistFragment.PlaylistListener;
+import com.stiggpwnz.vibes.fragments.SleepingTimerFragment;
+import com.stiggpwnz.vibes.fragments.SleepingTimerFragment.SleepingTimerListener;
 import com.stiggpwnz.vibes.fragments.StartingFragment;
 import com.stiggpwnz.vibes.fragments.StartingFragment.StartingListener;
 import com.stiggpwnz.vibes.fragments.TutorialFragment;
@@ -67,12 +65,9 @@ import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class PlayerActivity extends SherlockFragmentActivity implements StartingListener, UnitsListListener, PlaylistListener, ControlsListener, PlayerListener, OnClickListener,
-		LastFMLoginListener, LastFMUserListener, OnDrawerStateChangeListener, TutorialListener {
+		OnDrawerStateChangeListener, TutorialListener, SleepingTimerListener {
 
-	public static final String LAST_FM_LOGIN = "last fm login";
-	private static final String LAST_FM_USER = "last fm user";
 	private static final String STARTING_FRAGMENT = "starting fragment";
-	private static final String UNITS_LIST_FRAGMENT = "units list fragment";
 	private static final String UNIT_FRAGMENT = "unit fragment";
 
 	// system stuff
@@ -212,9 +207,9 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		super.onDestroy();
 	}
 
-	public void nullEverything() {
+	public void nullEverything(State state) {
 		controlsFragment.nullEverything();
-		playlistFragment.nullEverything();
+		playlistFragment.nullEverything(state);
 	}
 
 	private void setCurrentSong() {
@@ -242,15 +237,15 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 						onBufferingStrated();
 						setPlayButtonDrawable(R.drawable.play);
 						if (state == State.PREPARING_FOR_IDLE)
-							nullEverything();
+							nullEverything(state);
 					} else if (state == State.PREPARING_FOR_PLAYBACK || state == State.SEEKING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK) {
 						onBufferingStrated();
 						setPlayButtonDrawable(R.drawable.pause);
 						if (state == State.PREPARING_FOR_PLAYBACK || state == State.NEXT_FOR_PLAYBACK)
-							nullEverything();
+							nullEverything(state);
 					} else if (state == State.NOT_PREPARED) {
 						onBufferingEnded(0);
-						nullEverything();
+						nullEverything(state);
 						setPlayButtonDrawable(R.drawable.play);
 					}
 				}
@@ -298,8 +293,8 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			refresh();
 			return true;
 
-		case R.id.itemLastFM:
-			launchLastFM();
+		case R.id.itemSleepingTimer:
+			new SleepingTimerFragment().show(getSupportFragmentManager(), "sleeping timer");
 			return true;
 
 		case R.id.itemPrefs:
@@ -313,14 +308,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void launchLastFM() {
-		Settings settings = app.getSettings();
-		if (settings.getSession() == null)
-			new LastFMLoginFragment().show(getSupportFragmentManager(), LAST_FM_LOGIN);
-		else
-			LastFMUserFragment.newInstance(settings.getUsername(), settings.getUserImage()).show(getSupportFragmentManager(), LAST_FM_USER);
 	}
 
 	private void refresh() {
@@ -433,7 +420,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
 		UnitsListFragment unitsFragment = UnitsListFragment.newInstance(friends, friends ? getApp().getFriends() : getApp().getGroups());
-		transaction.replace(R.id.framePlaylists, unitsFragment, UNITS_LIST_FRAGMENT);
+		transaction.replace(R.id.framePlaylists, unitsFragment, "units list fragment");
 		transaction.addToBackStack(null);
 		transaction.commit();
 	}
@@ -708,7 +695,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 			if (state == State.PLAYING || state == State.PAUSED) {
 				onBufferingStrated();
 				service.getPlayer().seekTo(progress);
-			} else
+			} else if (state != State.SEEKING_FOR_IDLE && state != State.SEEKING_FOR_PLAYBACK)
 				seekBar.setProgress(0);
 		}
 	}
@@ -847,21 +834,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	@Override
-	public String[] lastFmAuth(String username, String password) {
-		return app.getLastFM().auth(username, password);
-	}
-
-	@Override
-	public void saveLastFM(String[] params) {
-		app.getSettings().saveLastFM(params);
-	}
-
-	@Override
-	public void resetLastFM() {
-		app.getSettings().resetLastFM();
-	}
-
-	@Override
 	public boolean getRepeat() {
 		if (service != null)
 			return service.getPlayer().isLooping();
@@ -892,4 +864,25 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	}
 
+	@Override
+	public void setTimer(int totalMinutes) {
+		service.getPlayer().setTimer(totalMinutes * 60 * 1000);
+		int hours = totalMinutes / 60;
+		int minutes = totalMinutes % 60;
+		String message = null;
+		if (hours > 0) {
+			if (minutes > 0)
+				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours) + " " + getString(R.string.and) + " " + minutes + " "
+						+ getString(R.string.minutes);
+			else
+				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours);
+			
+		} else if (minutes > 0)
+			message = getString(R.string.gonna_stop) + " " + minutes + " " + getString(R.string.minutes);
+		else
+			message = getString(R.string.timer_off);
+
+		if (message != null)
+			Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+	}
 }

@@ -26,10 +26,10 @@ public class Settings {
 	public static final String DIRECTORY_PICKER = "directory picker";
 	public static final String FINISHED_NOTIFICATION = "finish download notification";
 	public static final String TUTORIAL = "tutorial";
+	public static final String SESSION = "session";
 
 	private static final String USERNAME = "username";
 	private static final String USER_IMAGE = "user image";
-	private static final String SESSION = "session";
 	private static final String SHUFFLE = "shuffle";
 	private static final String DEFAULT_MAX_AUDIOS = "200";
 	private static final String DEFAULT_MAX_NEWS = "100";

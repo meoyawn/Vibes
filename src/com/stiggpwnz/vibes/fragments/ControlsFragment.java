@@ -116,13 +116,8 @@ public class ControlsFragment extends SherlockFragment implements OnClickListene
 		playButton = (Button) view.findViewById(R.id.btnPlay);
 		if (playButton != null) {
 			playButton.setOnClickListener(this);
-
-			View next = view.findViewById(R.id.btnNext);
-			next.setOnClickListener(this);
-
-			View prev = view.findViewById(R.id.btnPrev);
-			prev.setOnClickListener(this);
-
+			view.findViewById(R.id.btnNext).setOnClickListener(this);
+			view.findViewById(R.id.btnPrev).setOnClickListener(this);
 			large = true;
 		} else {
 			textPassed = (TextView) view.findViewById(R.id.textPassed);

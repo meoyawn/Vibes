@@ -15,10 +15,6 @@
             android:id="@+id/lastTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
             android:contentDescription="@string/auth"
             android:src="@drawable/last_fm" />
 
@@ -27,8 +23,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="5dp"
             android:ems="10"
             android:hint="@string/username"
+            android:minWidth="245dp"
             android:scrollHorizontally="true"
             android:singleLine="true" />
 
@@ -40,7 +38,8 @@
             android:layout_marginBottom="5dp"
             android:ems="10"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:minWidth="245dp" />
 
         <TextView
             android:id="@+id/textForgotUsername"
@@ -50,6 +49,7 @@
             android:layout_margin="5dp"
             android:text="@string/last_forgot_username"
             android:textColor="@color/red"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -60,6 +60,7 @@
             android:layout_margin="5dp"
             android:text="@string/last_forgot_password"
             android:textColor="@color/red"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
@@ -70,6 +71,7 @@
             android:layout_margin="5dp"
             android:text="@string/last_register"
             android:textColor="@color/red"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <Button
@@ -82,7 +84,7 @@
             android:padding="5dp"
             android:text="@string/sign_in"
             android:textColor="@color/white"
-            android:textSize="25dp" />
+            android:textSize="25sp" />
     </LinearLayout>
 
 </ScrollView>

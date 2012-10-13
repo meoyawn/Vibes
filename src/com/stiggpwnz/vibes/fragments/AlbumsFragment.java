@@ -62,8 +62,7 @@ public class AlbumsFragment extends SherlockListFragment {
 			this.unit = unit;
 		}
 		getListView().setSelection(savedInstanceState != null ? savedInstanceState.getInt(SCROLL_POSITION) : scrollPosition);
-		int position = savedInstanceState != null ? savedInstanceState.getInt(SELECTED_POSITION) : selectedPosition;
-		setSelectedPosition(position);
+		setSelectedPosition(selectedPosition);
 		super.onViewCreated(view, savedInstanceState);
 		if (unit != null && !unit.equals(listener.getSelectedPlaylist().unit))
 			setSelectedPosition(-1);

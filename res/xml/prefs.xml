@@ -8,6 +8,11 @@
         android:summary="@string/summary_repeat"
         android:title="@string/title_repeat" />
 
+    <Preference
+        android:icon="@drawable/last_fm_menu"
+        android:key="session"
+        android:title="@string/lastfm" />
+
     <PreferenceCategory android:title="@string/downloading" >
         <Preference
             android:key="directory picker"

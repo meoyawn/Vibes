@@ -91,6 +91,7 @@ public class StartingFragment extends AlbumsFragment {
 			if (listener.isPlaylistLoading())
 				return;
 			setSelectedPosition(position);
+			getArguments().putInt(SELECTED_POSITION, position);
 		}
 
 		switch (position) {

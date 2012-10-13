@@ -12,12 +12,19 @@ import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog;
+import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog.LastFMLoginListener;
+import com.stiggpwnz.vibes.dialogs.LastFMUserDialog;
+import com.stiggpwnz.vibes.dialogs.LastFMUserDialog.LastFMUserListener;
+import com.stiggpwnz.vibes.imageloader.ImageLoader;
 
-public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener {
+public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener, LastFMLoginListener,
+		LastFMUserListener {
 
 	private VibesApplication app;
 	private SharedPreferences prefs;
 	private Preference picker;
+	private Preference lastFm;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -26,10 +33,18 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 		addPreferencesFromResource(R.xml.prefs);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		app = (VibesApplication) getApplication();
+		Settings settings = app.getSettings();
 
 		picker = findPreference(Settings.DIRECTORY_PICKER);
-		picker.setSummary(app.getSettings().getDirectoryPath());
+		picker.setSummary(settings.getDirectoryPath());
 		picker.setOnPreferenceClickListener(this);
+
+		lastFm = findPreference(Settings.SESSION);
+		if (settings.getSession() != null)
+			lastFm.setSummary(settings.getUsername());
+		else
+			lastFm.setSummary(R.string.sign_in);
+		lastFm.setOnPreferenceClickListener(this);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
@@ -64,6 +79,9 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 			Intent intent = new Intent(this, DirectoryPicker.class);
 			startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
 			return true;
+		} else if (preference == lastFm) {
+			launchLastFM();
+			return true;
 		}
 		return false;
 	}
@@ -89,4 +107,36 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 			picker.setSummary(path);
 		}
 	}
+
+	private void launchLastFM() {
+		Settings settings = app.getSettings();
+		if (settings.getSession() == null)
+			new LastFMLoginDialog(this).show();
+		else
+			new LastFMUserDialog(this, settings.getUsername(), settings.getUserImage()).show();
+	}
+
+	@Override
+	public ImageLoader getImageLoader() {
+		return app.getImageLoader();
+	}
+
+	@Override
+	public String[] lastFmAuth(String username, String password) {
+		return app.getLastFM().auth(username, password);
+	}
+
+	@Override
+	public void saveLastFM(String[] params) {
+		app.getSettings().saveLastFM(params);
+		lastFm.setSummary(params[0]);
+	}
+
+	@Override
+	public void resetLastFM() {
+		app.getSettings().resetLastFM();
+		lastFm.setSummary(R.string.sign_in);
+		new LastFMLoginDialog(this).show();
+	}
+
 }

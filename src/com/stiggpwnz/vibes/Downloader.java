@@ -127,9 +127,10 @@ public class Downloader {
 					if (progress > lastprogress) {
 						lastprogress = progress;
 
-						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+						if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 							notification.contentView.setProgressBar(R.id.downloadProgress, 100, progress, false);
-						else {
+							notification.contentView.setTextViewText(R.id.textPercent, progress + " %");
+						} else {
 							notification = new NotificationCompat.Builder(context).setSmallIcon(R.drawable.download_icon).setContentTitle(song.toString())
 									.setTicker(song.toString()).setContentText(secondary).setContentIntent(intent).setProgress(100, progress, false).build();
 							notification.flags |= Notification.FLAG_ONGOING_EVENT;

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stiggpwnz.vibes"
     android:installLocation="preferExternal"
-    android:versionCode="12"
-    android:versionName="2.0 preview" >
+    android:versionCode="13"
+    android:versionName="2.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -17,7 +17,7 @@
         android:name=".VibesApplication"
         android:icon="@drawable/icon"
         android:label="@string/vibes"
-        android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".LoginActivity"
             android:launchMode="singleTop" >

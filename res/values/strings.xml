@@ -57,7 +57,7 @@
     <string name="downloads_directory">Downloads directory</string>
     <string name="download_success">Successfully downloaded</string>
     <string name="download_fail">Couldn\'t finish the download</string>
-    <string name="finish_download_notification_title">Notify when download has finished</string>
+    <string name="finish_download_notification_title">Notify when download is finished</string>
     <string name="finish_download_notification_summary">Show notification when download is complete</string>
     <string name="vkontakte">Vkontakte</string>
     <string name="download">Download</string>
@@ -69,5 +69,15 @@
     <string name="last_forgot_username">Forgotten Your Username?</string>
     <string name="last_forgot_password">Lost Your Password?</string>
     <string name="last_register">Join Last.fm</string>
+    <string name="save">Set</string>
+    <string name="discard">Discard</string>
+    <string name="sleep_timer">Sleep Timer</string>
+    <string name="dont_shutdown">Don\'t shutdown</string>
+    <string name="shutdown_after">Shutdown after</string>
+    <string name="gonna_stop">Going to shutdown after</string>
+    <string name="hours">hours</string>
+    <string name="and">and</string>
+    <string name="minutes">minutes</string>
+    <string name="timer_off">Sleep Timer is off</string>
 
 </resources>

@@ -86,7 +86,7 @@
     </string-array>
 
     <string name="remove_unlove">Удалить из аудиозаписей</string>
-    <string name="downloading">Загружается</string>
+    <string name="downloading">Загрузка</string>
     <string name="insertSdCard">Вставьте SD карту</string>
     <string name="downloads_directory">Папка для загрузок</string>
     <string name="download_success">Успешно загружен</string>
@@ -98,7 +98,20 @@
     <string name="search">Поиск аудизаписей</string>
     <string name="refresh">Обновить</string>
     <string name="lastfm">Last.fm</string>
-    <string name="swipe">Проведите, чтобы увидеть информацию о композиции</string>
+    <string name="swipe">Проведите, чтобы увидеть больше</string>
     <string name="to">В</string>
+    <string name="last_forgot_username">Забыли логин?</string>
+    <string name="last_forgot_password">Забыли пароль?</string>
+    <string name="last_register">Зарегистрироваться</string>
+    <string name="save">Установить</string>
+    <string name="discard">Отмена</string>
+    <string name="sleep_timer">Таймер сна</string>
+    <string name="dont_shutdown">Не выключать</string>
+    <string name="shutdown_after">Выключить через</string>
+    <string name="gonna_stop">Выключение через</string>
+    <string name="hours">часов</string>
+    <string name="and">и</string>
+    <string name="minutes">минут</string>
+    <string name="timer_off">Таймер сна выключен</string>
 
 </resources>

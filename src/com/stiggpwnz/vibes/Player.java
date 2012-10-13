@@ -15,6 +15,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnSeekCompleteListener;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 
@@ -105,6 +106,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	public void release() {
 		player.release();
 		handler.removeCallbacks(progressUpdater);
+		handler.removeCallbacks(stopper);
 	}
 
 	private class Generator extends Thread {
@@ -159,7 +161,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			int progress = player.getCurrentPosition();
 			if (listener != null)
 				listener.onProgressChanged(progress);
-			else
+			else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 				service.showSongNotification();
 
 			if (settings.getSession() != null && !scrobbled && !scrobbling && songDuration > 30000 && (progress >= (songDuration / 2) || (progress / 60000) >= 4))
@@ -433,10 +435,11 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		if (listener != null)
 			listener.onBufferingEnded(0);
 		Log.d(VibesApplication.VIBES, "seeking complete");
-		if (getState() == State.SEEKING_FOR_PLAYBACK) {
+		State state2 = getState();
+		if (state2 == State.SEEKING_FOR_PLAYBACK) {
 			setState(State.PLAYING);
 			seekBarUpdater();
-		} else if (getState() == State.SEEKING_FOR_IDLE)
+		} else if (state2 == State.SEEKING_FOR_IDLE)
 			setState(State.PAUSED);
 	}
 
@@ -462,7 +465,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			resetAndPlay();
 			return true;
 		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -549,16 +552,22 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public void next() {
 		if (app.getSongs() != null && app.getSongs().size() > 0) {
-			Log.d(VibesApplication.VIBES, "Invoking next() and state = " + getState());
-			if (settings.getShuffle()) {
-				if (++shufflePosition >= app.getSongs().size())
-					shufflePosition = 0;
-				currentTrack = shuffleQueue.get(shufflePosition);
-			} else {
-				if (++currentTrack >= app.getSongs().size())
-					currentTrack = 0;
-			}
-			resetAndPlay();
+			new Thread("reseting") {
+
+				@Override
+				public void run() {
+					Log.d(VibesApplication.VIBES, "Invoking next() and state = " + getState());
+					if (settings.getShuffle()) {
+						if (++shufflePosition >= app.getSongs().size())
+							shufflePosition = 0;
+						currentTrack = shuffleQueue.get(shufflePosition);
+					} else {
+						if (++currentTrack >= app.getSongs().size())
+							currentTrack = 0;
+					}
+					resetAndPlay();
+				};
+			}.start();
 		}
 	}
 
@@ -585,20 +594,26 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public void prev() {
 		if (app.getSongs() != null && app.getSongs().size() > 0) {
-			Log.d(VibesApplication.VIBES, "Invoking prev() and state = " + getState());
-			if ((state == State.PLAYING || state == State.SEEKING_FOR_PLAYBACK) && player.getCurrentPosition() >= 5000) {
-				play();
-			} else {
-				if (settings.getShuffle()) {
-					if (--shufflePosition < 0)
-						shufflePosition = app.getSongs().size() - 1;
-					currentTrack = shuffleQueue.get(shufflePosition);
-				} else {
-					if (--currentTrack < 0)
-						currentTrack = app.getSongs().size() - 1;
+			new Thread("reseting") {
+
+				@Override
+				public void run() {
+					Log.d(VibesApplication.VIBES, "Invoking prev() and state = " + getState());
+					if ((state == Player.State.PLAYING || state == Player.State.SEEKING_FOR_PLAYBACK) && player.getCurrentPosition() >= 5000) {
+						play();
+					} else {
+						if (settings.getShuffle()) {
+							if (--shufflePosition < 0)
+								shufflePosition = app.getSongs().size() - 1;
+							currentTrack = shuffleQueue.get(shufflePosition);
+						} else {
+							if (--currentTrack < 0)
+								currentTrack = app.getSongs().size() - 1;
+						}
+						resetAndPlay();
+					}
 				}
-				resetAndPlay();
-			}
+			}.start();
 		}
 	}
 
@@ -624,6 +639,21 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 	public synchronized void setState(State state) {
 		this.state = state;
+	}
+
+	private final Runnable stopper = new Runnable() {
+
+		@Override
+		public void run() {
+			Log.d(VibesApplication.VIBES, "stopper stopping player");
+			stop();
+		}
+	};
+
+	public void setTimer(long millis) {
+		handler.removeCallbacks(stopper);
+		if (millis > 0)
+			handler.postDelayed(stopper, millis);
 	}
 
 }
