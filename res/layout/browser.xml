@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:background="@color/white"
         android:progressDrawable="@drawable/scrubber_progress_horizontal_holo_light"
         android:visibility="gone" />
 

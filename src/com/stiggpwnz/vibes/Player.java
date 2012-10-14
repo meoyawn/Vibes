@@ -453,7 +453,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 			errorStopPlayback();
 			return true;
 		} else if (what == 1 && extra == -1004) {
-			resetAndPlay();
+			errorStopPlayback();
 			return true;
 		} else if (what == 1 && extra == -11) {
 			errorStopPlayback();

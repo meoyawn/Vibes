@@ -325,13 +325,12 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 	}
 
 	private void handleIntent(Intent intent) {
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+		if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			String query = intent.getStringExtra(SearchManager.QUERY);
 			SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, SearchProvider.AUTHORITY, SearchProvider.MODE);
 			suggestions.saveRecentQuery(query, null);
 
-			loadPlaylist(new Playlist(Type.SEARCH, query, query));
-
+			loadPlaylist(Playlist.get(new Playlist(Type.SEARCH, query, query)));
 		}
 	}
 
@@ -876,7 +875,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 						+ getString(R.string.minutes);
 			else
 				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours);
-			
+
 		} else if (minutes > 0)
 			message = getString(R.string.gonna_stop) + " " + minutes + " " + getString(R.string.minutes);
 		else

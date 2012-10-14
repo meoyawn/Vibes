@@ -84,10 +84,12 @@ public class AlbumsFragment extends SherlockListFragment {
 	}
 
 	public void setSelectedPosition(int position) {
-		AlbumsAdapter albumsAdapter = (AlbumsAdapter) getListAdapter();
-		albumsAdapter.setSelected(position);
-		albumsAdapter.notifyDataSetChanged();
-		selectedPosition = position;
+		if (getListAdapter() != null) {
+			AlbumsAdapter albumsAdapter = (AlbumsAdapter) getListAdapter();
+			albumsAdapter.setSelected(position);
+			albumsAdapter.notifyDataSetChanged();
+			selectedPosition = position;
+		}
 	}
 
 	private class LoadAlbums extends AsyncTask<Unit, Void, List<Album>> {

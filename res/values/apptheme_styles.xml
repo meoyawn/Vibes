@@ -11,12 +11,4 @@
         <item name="android:paddingRight">5dp</item>
     </style>
 
-    <style name="ListViewAppTheme" parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/list_selector_holo_light</item>
-    </style>
-
-    <style name="ListViewAppTheme.White" parent="android:Widget.ListView.White">
-        <item name="android:listSelector">@drawable/list_selector_holo_light</item>
-    </style>
-
 </resources>

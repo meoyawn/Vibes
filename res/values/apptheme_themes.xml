@@ -4,8 +4,6 @@
 
     <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
         <item name="android:seekBarStyle">@style/SeekBarAppTheme</item>
-        <item name="android:listViewStyle">@style/ListViewAppTheme</item>
-        <item name="android:listViewWhiteStyle">@style/ListViewAppTheme.White</item>
     </style>
 
 </resources>
