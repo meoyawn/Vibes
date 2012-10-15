@@ -543,8 +543,11 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public void download(int position) {
-		Song song = app.getSelectedPlaylist().songs.get(position);
-		service.download(song);
+		Playlist selectedPlaylist = getApp().getSelectedPlaylist();
+		if (selectedPlaylist != null && selectedPlaylist.songs != null && service != null) {
+			Song song = selectedPlaylist.songs.get(position);
+			service.download(song);
+		}
 	}
 
 	private void download() {
@@ -585,13 +588,15 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	@Override
 	public String getAlbumImageUrl() {
-		Song song = service.getPlayer().getCurrentSong();
-		if (song != null) {
-			if (song.albumImageUrl == null)
-				song.albumImageUrl = getApp().getLastFM().getAlbumImageUrl(song);
-			else if (LastFM.WITHOUT_IMAGE.equals(song.albumImageUrl))
-				return null;
-			return song.albumImageUrl;
+		if (service != null) {
+			Song song = service.getPlayer().getCurrentSong();
+			if (song != null) {
+				if (song.albumImageUrl == null)
+					song.albumImageUrl = getApp().getLastFM().getAlbumImageUrl(song);
+				else if (LastFM.WITHOUT_IMAGE.equals(song.albumImageUrl))
+					return null;
+				return song.albumImageUrl;
+			}
 		}
 		return null;
 	}

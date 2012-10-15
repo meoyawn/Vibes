@@ -80,7 +80,7 @@ public class WebViewFragment extends SherlockDialogFragment {
 				super.onPageFinished(view, url);
 				progressBar.setVisibility(View.GONE);
 				Uri uri = Uri.parse(url);
-				if (uri != null && uri.toString().startsWith(VKontakte.CALLBACK_URL)) {
+				if (listener != null && uri != null && uri.toString().startsWith(VKontakte.CALLBACK_URL)) {
 					if (uri.toString().contains(VKontakte.ACCESS_TOKEN)) {
 						String[] params = new String[3];
 						for (String param : uri.getFragment().split("&")) {

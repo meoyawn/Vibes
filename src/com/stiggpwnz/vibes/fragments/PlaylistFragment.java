@@ -155,7 +155,7 @@ public class PlaylistFragment extends SherlockListFragment {
 			} else {
 				new LoadSongs().execute();
 			}
-			
+
 			if (scrollToWhenViewIsCreated == -1)
 				getListView().setSelectionAfterHeaderView();
 			else {
@@ -216,20 +216,24 @@ public class PlaylistFragment extends SherlockListFragment {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
-		int index = item.getOrder();
-		switch (index) {
-		case CONTEXT_LOVE_UNLOVE:
-			listener.loveUnlove(position);
-			return true;
+		if (listener != null) {
+			int position = ((AdapterView.AdapterContextMenuInfo) item.getMenuInfo()).position;
+			int index = item.getOrder();
+			if (listener != null) {
+				switch (index) {
+				case CONTEXT_LOVE_UNLOVE:
+					listener.loveUnlove(position);
+					return true;
 
-		case CONTEXT_REMOVE:
-			listener.remove(position);
-			return true;
+				case CONTEXT_REMOVE:
+					listener.remove(position);
+					return true;
 
-		case CONTEXT_DOWNLOAD:
-			listener.download(position);
-			return true;
+				case CONTEXT_DOWNLOAD:
+					listener.download(position);
+					return true;
+				}
+			}
 		}
 		return false;
 	}

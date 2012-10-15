@@ -15,11 +15,11 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.jakewharton.notificationcompat2.NotificationCompat2;
 import com.stiggpwnz.vibes.restapi.Song;
 
 public class PlayerService extends Service {
@@ -150,8 +150,8 @@ public class PlayerService extends Service {
 		if (currentSong != null) {
 			CharSequence contentTitle = currentSong.title;
 			CharSequence contentText = currentSong.performer;
-			NotificationCompat.Builder builder = new NotificationCompat.Builder(this).setContentTitle(contentTitle).setContentText(contentText).setTicker(currentSong.toString())
-					.setSmallIcon(R.drawable.notification_icon).setContentIntent(intent);
+			NotificationCompat2.Builder builder = new NotificationCompat2.Builder(this).setContentTitle(contentTitle).setContentText(contentText)
+					.setTicker(currentSong.toString()).setSmallIcon(R.drawable.notification_icon).setContentIntent(intent);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 				builder.setProgress(player.getSongDuration(), player.getCurrentPosition(), false);
 			Notification notification = builder.build();
