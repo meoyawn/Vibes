@@ -135,65 +135,58 @@ public class LastFM extends RestAPI {
 	}
 
 	public boolean updateNowPlaying(Song song) {
-		try {
-			String artist = song.performer;
-			String title = song.title;
+		if (song != null) {
+			try {
+				String artist = song.performer;
+				String title = song.title;
 
-			String singature = md5(API_KEY_STRING + API_KEY + ARTIST + artist + METHOD + TRACK_UPDATE_NOW_PLAYING + SESSION_KEY + session + TRACK + title + API_SECRET);
+				String singature = md5(API_KEY_STRING + API_KEY + ARTIST + artist + METHOD + TRACK_UPDATE_NOW_PLAYING + SESSION_KEY + session + TRACK + title
+						+ API_SECRET);
 
-			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_UPDATE_NOW_PLAYING + "&" + TRACK + "=" + title.replace("&", "%26") + "&" + ARTIST + "="
-					+ artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "=" + session + "&" + API_SIGNATURE + "=" + singature, null);
+				URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_UPDATE_NOW_PLAYING + "&" + TRACK + "=" + title.replace("&", "%26") + "&"
+						+ ARTIST + "=" + artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "=" + session + "&" + API_SIGNATURE
+						+ "=" + singature, null);
 
-			Element element = execute(uri);
-			if (element != null)
-				return element.getAttribute(STATUS).equals(OK);
+				Element element = execute(uri);
+				if (element != null)
+					return element.getAttribute(STATUS).equals(OK);
+			} catch (Exception e) {
 
-		} catch (URISyntaxException e) {
-			return false;
-		} catch (ClientProtocolException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		} catch (SAXException e) {
-			return false;
+			}
 		}
 		return false;
 	}
 
 	public boolean scrobble(Song song, long timeStamp) {
+		if (song != null) {
+			try {
+				String artist = song.performer;
+				String title = song.title;
 
-		try {
-			String artist = song.performer;
-			String title = song.title;
+				String singature = md5(API_KEY_STRING + API_KEY + ARTIST + artist + METHOD + TRACK_SCROBBLE + SESSION_KEY + session + TIMESTAMP + timeStamp + TRACK
+						+ title + API_SECRET);
 
-			String singature = md5(API_KEY_STRING + API_KEY + ARTIST + artist + METHOD + TRACK_SCROBBLE + SESSION_KEY + session + TIMESTAMP + timeStamp + TRACK + title
-					+ API_SECRET);
+				URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_SCROBBLE + "&" + TIMESTAMP + "=" + timeStamp + "&" + TRACK + "="
+						+ title.replace("&", "%26") + "&" + ARTIST + "=" + artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "="
+						+ session + "&" + API_SIGNATURE + "=" + singature, null);
 
-			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + TRACK_SCROBBLE + "&" + TIMESTAMP + "=" + timeStamp + "&" + TRACK + "="
-					+ title.replace("&", "%26") + "&" + ARTIST + "=" + artist.replace("&", "%26") + "&" + API_KEY_STRING + "=" + API_KEY + "&" + SESSION_KEY + "=" + session
-					+ "&" + API_SIGNATURE + "=" + singature, null);
+				Element element = execute(uri);
 
-			Element element = execute(uri);
+				if (element != null)
+					return element.getAttribute(STATUS).equals(OK);
 
-			if (element != null)
-				return element.getAttribute(STATUS).equals(OK);
+			} catch (Exception e) {
 
-		} catch (URISyntaxException e) {
-			return false;
-		} catch (ClientProtocolException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		} catch (SAXException e) {
-			return false;
+			}
 		}
 		return false;
 	}
 
 	public String[] auth(String username, String password) {
 		try {
-			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + AUTH_GET_MOBILE_SESSION + "&" + USERNAME + "=" + username.toLowerCase() + "&" + AUTH_TOKEN
-					+ "=" + authToken(username, password) + "&" + API_KEY_STRING + "=" + API_KEY + "&" + API_SIGNATURE + "=" + authApiSig(username, password), null);
+			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + AUTH_GET_MOBILE_SESSION + "&" + USERNAME + "=" + username.toLowerCase() + "&"
+					+ AUTH_TOKEN + "=" + authToken(username, password) + "&" + API_KEY_STRING + "=" + API_KEY + "&" + API_SIGNATURE + "="
+					+ authApiSig(username, password), null);
 
 			Element element = execute(uri);
 
@@ -231,7 +224,8 @@ public class LastFM extends RestAPI {
 
 	private String getUserImageURL(String username) {
 		try {
-			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + USER_GET_INFO + "&" + USER + "=" + username + "&" + API_KEY_STRING + "=" + API_KEY, null);
+			URI uri = new URI(API_SCHEME, API_AUTHORITY, API_PATH, METHOD + "=" + USER_GET_INFO + "&" + USER + "=" + username + "&" + API_KEY_STRING + "=" + API_KEY,
+					null);
 			Element element = execute(uri);
 			if (element != null) {
 				NodeList list = element.getElementsByTagName(IMAGE);
@@ -313,7 +307,8 @@ public class LastFM extends RestAPI {
 	}
 
 	private String authApiSig(String username, String password) {
-		return md5(API_KEY_STRING + API_KEY + AUTH_TOKEN + authToken(username, password) + METHOD + AUTH_GET_MOBILE_SESSION + USERNAME + username.toLowerCase() + API_SECRET);
+		return md5(API_KEY_STRING + API_KEY + AUTH_TOKEN + authToken(username, password) + METHOD + AUTH_GET_MOBILE_SESSION + USERNAME + username.toLowerCase()
+				+ API_SECRET);
 	}
 
 	public void setSession(String session) {

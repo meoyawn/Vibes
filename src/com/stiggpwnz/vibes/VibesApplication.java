@@ -85,23 +85,28 @@ public class VibesApplication extends Application implements Settings.Listener {
 
 	public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
 		List<Song> songs = null;
-		switch (playlist.type) {
-		case AUDIOS:
-			int albumId = playlist.album != null ? playlist.album.id : 0;
-			songs = getVkontakte().getAudios(playlist.unit.id, albumId, playlist.offset);
-			break;
+		if (playlist != null) {
+			switch (playlist.type) {
+			case AUDIOS:
+				if (playlist.unit != null) {
+					int albumId = playlist.album != null ? playlist.album.id : 0;
+					songs = getVkontakte().getAudios(playlist.unit.id, albumId, playlist.offset);
+				}
+				break;
 
-		case WALL:
-			songs = getVkontakte().getWallAudios(playlist.unit.id, playlist.offset, false);
-			break;
+			case WALL:
+				if (playlist.unit != null)
+					songs = getVkontakte().getWallAudios(playlist.unit.id, playlist.offset, false);
+				break;
 
-		case NEWSFEED:
-			songs = getVkontakte().getNewsFeedAudios(playlist.offset);
-			break;
+			case NEWSFEED:
+				songs = getVkontakte().getNewsFeedAudios(playlist.offset);
+				break;
 
-		case SEARCH:
-			songs = getVkontakte().search(playlist.query, playlist.offset);
-			break;
+			case SEARCH:
+				songs = getVkontakte().search(playlist.query, playlist.offset);
+				break;
+			}
 		}
 		return songs;
 	}

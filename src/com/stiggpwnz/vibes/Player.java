@@ -219,7 +219,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		}
 	}
 
-	public void play(int position, boolean hardReset) {
+	public void play(final int position, boolean hardReset) {
 		scrobbled = false;
 		timeStamped = false;
 		if (currentTrack == position && !hardReset
@@ -232,23 +232,29 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 		} else if (currentTrack == position && (getState() == State.PREPARING_FOR_IDLE || getState() == State.PREPARING_FOR_PLAYBACK)) {
 			setState(State.PREPARING_FOR_PLAYBACK);
 		} else if (currentTrack != position || getState() == State.NOT_PREPARED || hardReset) {
-			currentTrack = position;
-			if (state != State.NOT_PREPARED)
-				player.reset();
-			state = State.PREPARING_FOR_PLAYBACK;
-			synchronized (this) {
-				List<HttpPost> requests = app.getVkontakte().getAudioUrlRequests();
-				if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING) {
-					Log.e(VibesApplication.VIBES, "cancelling audio url loader: " + requests.size() + " items in queue");
-					for (HttpPost request : requests) {
-						request.abort();
+			new Thread() {
+
+				@Override
+				public void run() {
+					currentTrack = position;
+					if (state != Player.State.NOT_PREPARED)
+						player.reset();
+					state = Player.State.PREPARING_FOR_PLAYBACK;
+					synchronized (this) {
+						List<HttpPost> requests = app.getVkontakte().getAudioUrlRequests();
+						if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING) {
+							Log.e(VibesApplication.VIBES, "cancelling audio url loader: " + requests.size() + " items in queue");
+							for (HttpPost request : requests) {
+								request.abort();
+							}
+							preparePlayer.cancel(true);
+						}
+						requests.clear();
 					}
-					preparePlayer.cancel(true);
-				}
-				requests.clear();
-			}
-			preparePlayer = new PreparePlayer();
-			preparePlayer.execute();
+					preparePlayer = new PreparePlayer();
+					preparePlayer.execute();
+				};
+			}.start();
 		}
 		generateShuffleQueue(position);
 	}
@@ -332,7 +338,7 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 				if (isCancelled())
 					return;
 				Log.d(VibesApplication.VIBES, "preparing " + Player.this.currentTrack + "...");
-				player.prepareAsync();
+				player.prepare();
 			} catch (IllegalStateException e) {
 				// reseting and recursively preparing if in wrong state
 				if (Player.this.currentTrack == currentSong) {
@@ -413,8 +419,10 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 
 			@Override
 			public void run() {
-				setState(Player.State.NOT_PREPARED);
+				if (preparePlayer != null && preparePlayer.getStatus() == Status.RUNNING)
+					preparePlayer.cancel(true);
 				player.reset();
+				setState(Player.State.NOT_PREPARED);
 				service.cancelSongNotification();
 				if (listener == null)
 					service.startWaiter();
@@ -572,7 +580,8 @@ public class Player implements OnCompletionListener, OnPreparedListener, OnSeekC
 	}
 
 	private void resetAndPlay() {
-		if (getState() == State.PREPARING_FOR_PLAYBACK || getState() == State.PLAYING || getState() == State.SEEKING_FOR_PLAYBACK || getState() == State.NEXT_FOR_PLAYBACK) {
+		if (getState() == State.PREPARING_FOR_PLAYBACK || getState() == State.PLAYING || getState() == State.SEEKING_FOR_PLAYBACK
+				|| getState() == State.NEXT_FOR_PLAYBACK) {
 			player.reset();
 			setState(State.NEXT_FOR_PLAYBACK);
 			play();

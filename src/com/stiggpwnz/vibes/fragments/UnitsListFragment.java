@@ -113,22 +113,24 @@ public class UnitsListFragment extends SherlockListFragment {
 		boolean friends;
 
 		private List<Unit> getUnits(boolean friends) {
-			try {
-				return listener.loadUnits(friends);
-			} catch (IOException e) {
-				listener.internetFail();
-			} catch (VKontakteException e) {
-				switch (e.getCode()) {
-				case VKontakteException.UNKNOWN_ERROR_OCCURED:
-					listener.unknownError();
-					break;
+			if (listener != null) {
+				try {
+					return listener.loadUnits(friends);
+				} catch (IOException e) {
+					listener.internetFail();
+				} catch (VKontakteException e) {
+					switch (e.getCode()) {
+					case VKontakteException.UNKNOWN_ERROR_OCCURED:
+						listener.unknownError();
+						break;
 
-				case VKontakteException.USER_AUTHORIZATION_FAILED:
-					listener.authFail();
-					break;
+					case VKontakteException.USER_AUTHORIZATION_FAILED:
+						listener.authFail();
+						break;
 
-				case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
-					return getUnits(friends);
+					case VKontakteException.TOO_MANY_REQUESTS_PER_SECOND:
+						return getUnits(friends);
+					}
 				}
 			}
 			return null;
