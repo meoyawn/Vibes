@@ -10,4 +10,17 @@ public class Events {
 		NO_SPACE_LEFT_ON_DEVICE
 	}
 
+	public static class Timer {
+
+		private final int minutes;
+
+		public Timer(int minutes) {
+			this.minutes = minutes;
+		}
+
+		public int getMinutes() {
+			return minutes;
+		}
+	}
+
 }

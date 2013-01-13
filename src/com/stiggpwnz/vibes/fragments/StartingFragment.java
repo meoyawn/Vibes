@@ -1,27 +1,20 @@
 package com.stiggpwnz.vibes.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.ListView;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
+import com.stiggpwnz.vibes.events.BusProvider;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Playlist;
 import com.stiggpwnz.vibes.restapi.Playlist.Type;
 import com.stiggpwnz.vibes.restapi.Unit;
 
 public class StartingFragment extends AlbumsFragment {
-
-	public static interface StartingListener extends AlbumsFragment.Listener {
-
-		public void showUnits(boolean friends);
-
-	}
 
 	private static final int FRIENDS = 0;
 	private static final int GROUPS = 1;
@@ -64,23 +57,19 @@ public class StartingFragment extends AlbumsFragment {
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		listener = (StartingListener) activity;
-		super.onAttach(activity);
-	}
-
-	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		String[] options = getResources().getStringArray(R.array.playlist_options);
-		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), listener.getTypeface(), options);
+		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), app.getTypeface(), options);
 		super.onViewCreated(view, savedInstanceState, adapter);
 	}
 
-	@Override
-	public void onDetach() {
-		Log.d(VibesApplication.VIBES, "onDetach choose");
-		super.onDetach();
-		listener = null;
+	public void showUnits(boolean friends) {
+		FragmentTransaction transaction = getSherlockActivity().getSupportFragmentManager().beginTransaction();
+		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+		UnitsListFragment unitsFragment = UnitsListFragment.newInstance(friends);
+		transaction.replace(R.id.framePlaylists, unitsFragment, "units list fragment");
+		transaction.addToBackStack(null);
+		transaction.commit();
 	}
 
 	@Override
@@ -88,36 +77,34 @@ public class StartingFragment extends AlbumsFragment {
 		super.onListItemClick(listView, view, position, id);
 		String name = (String) listView.getItemAtPosition(position);
 		if (position > 1) {
-			if (listener.isPlaylistLoading())
-				return;
 			setSelectedPosition(position);
 			getArguments().putInt(SELECTED_POSITION, position);
 		}
 
 		switch (position) {
 		case FRIENDS:
-			((StartingListener) listener).showUnits(true);
+			showUnits(true);
 			break;
 
 		case GROUPS:
-			((StartingListener) listener).showUnits(false);
+			showUnits(false);
 			break;
 
 		case MY_AUDIOS:
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
 			break;
 
 		case WALL:
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.WALL, name, unit)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.WALL, name, unit)));
 			break;
 
 		case NEWSFEED:
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.NEWSFEED, name, unit)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.NEWSFEED, name, unit)));
 			break;
 
 		default:
 			Album album = unit.albums.get(position - 5);
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
 			break;
 		}
 	}

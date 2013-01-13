@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -14,23 +13,13 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.events.BusProvider;
+import com.stiggpwnz.vibes.events.Events;
 
 public class SleepingTimerFragment extends SherlockDialogFragment {
 
-	public static interface SleepingTimerListener {
-		public void setTimer(int minutes);
-	}
-
-	private SleepingTimerListener listener;
-
 	public SleepingTimerFragment() {
 
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		listener = (SleepingTimerListener) activity;
 	}
 
 	@Override
@@ -68,28 +57,23 @@ public class SleepingTimerFragment extends SherlockDialogFragment {
 
 		});
 
-		AlertDialog dialog = new AlertDialog.Builder(getSherlockActivity()).setTitle(R.string.sleep_timer).setView(view).setPositiveButton(R.string.save, new OnClickListener() {
+		AlertDialog dialog = new AlertDialog.Builder(getSherlockActivity()).setTitle(R.string.sleep_timer).setView(view)
+				.setPositiveButton(R.string.save, new OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				listener.setTimer(seekBar.getProgress() * 15);
-			}
-		}).setNegativeButton(R.string.discard, new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						BusProvider.getInstance().post(new Events.Timer(seekBar.getProgress() * 15));
+					}
+				}).setNegativeButton(R.string.discard, new OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
 
-			}
-		}).create();
+					}
+				}).create();
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCanceledOnTouchOutside(true);
 		return dialog;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		listener = null;
 	}
 
 }

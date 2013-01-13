@@ -197,6 +197,35 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return null;
 	}
 
+	public List<Unit> loadUnits(boolean friends) {
+		try {
+			if (friends) {
+				friendList = getVkontakte().getFriends(false);
+				return friendList;
+			}
+
+			groupList = getVkontakte().getGroups();
+			return groupList;
+		} catch (IOException e) {
+			BusProvider.getInstance().post(Error.INTERNET);
+		} catch (VKontakteException e) {
+			switch (e.getCode()) {
+			case VKontakteException.USER_AUTHORIZATION_FAILED:
+				BusProvider.getInstance().post(Error.VK_AUTHORIZATION);
+				break;
+
+			case VKontakteException.ACCESS_DENIED:
+				BusProvider.getInstance().post(Error.VK_ACCESS_DENIED);
+				break;
+
+			default:
+				BusProvider.getInstance().post(Error.INTERNET);
+				break;
+			}
+		}
+		return null;
+	}
+
 	public List<Unit> loadFriends() throws IOException, VKontakteException {
 		friendList = getVkontakte().getFriends(false);
 		return friendList;

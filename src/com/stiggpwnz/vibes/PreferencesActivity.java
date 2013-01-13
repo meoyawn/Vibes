@@ -11,13 +11,9 @@ import android.preference.PreferenceManager;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog;
-import com.stiggpwnz.vibes.dialogs.LastFMLoginDialog.LastFMLoginListener;
 import com.stiggpwnz.vibes.dialogs.LastFMUserDialog;
-import com.stiggpwnz.vibes.dialogs.LastFMUserDialog.LastFMUserListener;
-import com.stiggpwnz.vibes.imageloader.ImageLoader;
 
-public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener,
-		LastFMLoginListener, LastFMUserListener {
+public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener {
 
 	private VibesApplication app;
 	private SharedPreferences prefs;
@@ -96,18 +92,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 		}
 	}
 
-	// @Override
-	// protected void onActivityResult(int requestCode, int resultCode, Intent
-	// data) {
-	// if (requestCode == DirectoryPicker.PICK_DIRECTORY && resultCode ==
-	// RESULT_OK) {
-	// Bundle extras = data.getExtras();
-	// String path = (String) extras.get(DirectoryPicker.CHOSEN_DIRECTORY);
-	// app.getSettings().setDirectoryPath(path);
-	// picker.setSummary(path);
-	// }
-	// }
-
 	private void launchLastFM() {
 		Settings settings = app.getSettings();
 		if (settings.getSession() == null)
@@ -116,10 +100,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 			new LastFMUserDialog(this, settings.getUsername(), settings.getUserImage()).show();
 	}
 
-	@Override
-	public ImageLoader getImageLoader() {
-		return app.getImageLoader();
-	}
+	// TODO eventbus integration
 
 	@Override
 	public String[] lastFmAuth(String username, String password) {
