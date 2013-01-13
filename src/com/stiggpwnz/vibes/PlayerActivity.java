@@ -3,10 +3,6 @@ package com.stiggpwnz.vibes;
 import java.io.IOException;
 import java.util.List;
 
-import net.simonvt.widget.MenuDrawer;
-import net.simonvt.widget.MenuDrawer.OnDrawerStateChangeListener;
-import net.simonvt.widget.MenuDrawerManager;
-
 import org.apache.http.client.ClientProtocolException;
 
 import android.app.SearchManager;
@@ -27,6 +23,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -55,7 +53,6 @@ import com.stiggpwnz.vibes.fragments.TutorialFragment.TutorialListener;
 import com.stiggpwnz.vibes.fragments.UnitFragment;
 import com.stiggpwnz.vibes.fragments.UnitsListFragment;
 import com.stiggpwnz.vibes.fragments.UnitsListFragment.UnitsListListener;
-import com.stiggpwnz.vibes.imageloader.ImageLoader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
 import com.stiggpwnz.vibes.restapi.Playlist;
@@ -64,8 +61,8 @@ import com.stiggpwnz.vibes.restapi.Song;
 import com.stiggpwnz.vibes.restapi.Unit;
 import com.stiggpwnz.vibes.restapi.VKontakteException;
 
-public class PlayerActivity extends SherlockFragmentActivity implements StartingListener, UnitsListListener, PlaylistListener, ControlsListener, PlayerListener, OnClickListener,
-		OnDrawerStateChangeListener, TutorialListener, SleepingTimerListener {
+public class PlayerActivity extends SherlockFragmentActivity implements StartingListener, UnitsListListener, PlaylistListener, ControlsListener,
+		PlayerListener, OnClickListener, OnDrawerStateChangeListener, TutorialListener, SleepingTimerListener {
 
 	private static final String STARTING_FRAGMENT = "starting fragment";
 	private static final String UNIT_FRAGMENT = "unit fragment";
@@ -85,6 +82,20 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 
 	// utils
 	private boolean playlistIsLoading;
+	private Animation shake;
+	private Typeface typeface;
+
+	public Animation getShakeAnimation() {
+		if (shake == null)
+			shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+		return shake;
+	}
+
+	public Typeface getTypeface() {
+		if (typeface == null)
+			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
+		return typeface;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -402,16 +413,6 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 				Toast.makeText(PlayerActivity.this, getString(R.string.access_denied), Toast.LENGTH_LONG).show();
 			}
 		});
-	}
-
-	@Override
-	public Typeface getTypeface() {
-		return getApp().getTypeface();
-	}
-
-	@Override
-	public ImageLoader getImageLoader() {
-		return getApp().getImageLoader();
 	}
 
 	@Override
@@ -876,8 +877,8 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		String message = null;
 		if (hours > 0) {
 			if (minutes > 0)
-				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours) + " " + getString(R.string.and) + " " + minutes + " "
-						+ getString(R.string.minutes);
+				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours) + " " + getString(R.string.and) + " " + minutes
+						+ " " + getString(R.string.minutes);
 			else
 				message = getString(R.string.gonna_stop) + " " + hours + " " + getString(R.string.hours);
 

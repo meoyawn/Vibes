@@ -1,7 +1,10 @@
 package com.stiggpwnz.vibes;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -12,14 +15,20 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.graphics.Typeface;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.os.Environment;
+import android.util.Log;
 
-import com.stiggpwnz.vibes.imageloader.ImageLoader;
+import com.nostra13.universalimageloader.cache.disc.impl.FileCountLimitedDiscCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.download.HttpClientImageDownloader;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
 import com.stiggpwnz.vibes.restapi.Playlist;
@@ -39,12 +48,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 	// common system stuff
 	private Settings settings;
 	private AbstractHttpClient httpClient;
-	private ImageLoader imageLoader;
-
-	// general gui objects
-	private View loadingFooter;
-	private Typeface typeface;
-	private Animation shake;
 
 	// web services
 	private VKontakte vkontakte;
@@ -59,12 +62,48 @@ public class VibesApplication extends Application implements Settings.Listener {
 	private List<Unit> groups;
 	private Unit self;
 
+	public final Map<Song, String> urlCache = new ConcurrentHashMap<Song, String>();
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+
+		File cacheDir = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ? new File(
+				Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Vibes/cache") : getCacheDir();
+		if (!cacheDir.exists())
+			cacheDir.mkdirs();
+
+		Log.d(VIBES, "cache dir: " + cacheDir.getAbsolutePath());
+
+		// TODO fix duration
+		DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder().showStubImage(R.drawable.music).showImageForEmptyUri(R.drawable.music)
+				.cacheInMemory().cacheOnDisc().displayer(new FadeInBitmapDisplayer(250)).build();
+
+		// FIXME cache problem
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this).threadPoolSize(3).denyCacheImageMultipleSizesInMemory()
+				.imageDownloader(new HttpClientImageDownloader(getHttpClient())).discCache(new FileCountLimitedDiscCache(cacheDir, 100))
+				.defaultDisplayImageOptions(displayImageOptions).build();
+
+		ImageLoader.getInstance().init(config);
+
+		registerReceiver(new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (!isInitialStickyBroadcast()) {
+					Log.d(VIBES, "network change");
+					urlCache.clear();
+				}
+			}
+		}, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+	}
+
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
 		settings = null;
 		httpClient = null;
-		imageLoader = null;
 
 		vkontakte = null;
 		lastfm = null;
@@ -77,10 +116,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 		self = null;
 
 		Playlist.clearCache();
-
-		loadingFooter = null;
-		typeface = null;
-		shake = null;
 	}
 
 	public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
@@ -206,12 +241,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return new DefaultHttpClient(manager, params);
 	}
 
-	public ImageLoader getImageLoader() {
-		if (imageLoader == null)
-			imageLoader = new ImageLoader(this, R.drawable.music);
-		return imageLoader;
-	}
-
 	public List<Unit> getFriends() {
 		return friends;
 	}
@@ -270,24 +299,6 @@ public class VibesApplication extends Application implements Settings.Listener {
 			vkontakte = new VKontakte(settings.getAccessToken(), getHttpClient(), settings.getUserID(), settings.getMaxNews(), settings.getMaxAudios());
 		}
 		return vkontakte;
-	}
-
-	public Typeface getTypeface() {
-		if (typeface == null)
-			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
-		return typeface;
-	}
-
-	public View getFooter() {
-		if (loadingFooter == null)
-			loadingFooter = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer, null);
-		return loadingFooter;
-	}
-
-	public Animation getShakeAnimation() {
-		if (shake == null)
-			shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-		return shake;
 	}
 
 }

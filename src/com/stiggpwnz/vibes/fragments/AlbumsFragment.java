@@ -7,9 +7,11 @@ import org.apache.http.client.ClientProtocolException;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Playlist;
@@ -41,6 +43,8 @@ public class AlbumsFragment extends SherlockListFragment {
 	protected int scrollPosition;
 	protected int selectedPosition = -1;
 
+	private View loadingFooter;
+
 	public AlbumsFragment() {
 
 	}
@@ -66,6 +70,12 @@ public class AlbumsFragment extends SherlockListFragment {
 		super.onViewCreated(view, savedInstanceState);
 		if (unit != null && !unit.equals(listener.getSelectedPlaylist().unit))
 			setSelectedPosition(-1);
+	}
+
+	public View getFooter() {
+		if (loadingFooter == null)
+			loadingFooter = LayoutInflater.from(getSherlockActivity()).inflate(R.layout.footer, null);
+		return loadingFooter;
 	}
 
 	// save current scroll position

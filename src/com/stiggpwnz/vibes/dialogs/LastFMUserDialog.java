@@ -10,15 +10,17 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.VibesApplication;
 
 public class LastFMUserDialog extends Dialog implements OnClickListener {
 
-	private VibesApplication app;
+	private final String username;
+	private final String userImage;
 
-	private String username;
-	private String userImage;
+	private VibesApplication app;
 
 	public LastFMUserDialog(Context context, String username, String userImage) {
 		super(context);
@@ -31,15 +33,19 @@ public class LastFMUserDialog extends Dialog implements OnClickListener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
 		app = (VibesApplication) getOwnerActivity().getApplication();
+
 		setContentView(R.layout.last_user);
+
 		setCanceledOnTouchOutside(true);
+
 		((Button) findViewById(R.id.btnSingOut)).setOnClickListener(this);
 		((TextView) findViewById(R.id.textUser)).setText(username);
 
-		// TODO integrate new imageloader
-
-		listener.getImageLoader().setStubId(R.drawable.last_fm_logo);
-		listener.getImageLoader().displayImage(userImage, (ImageView) findViewById(R.id.imageUser));
+		ImageLoader.getInstance().displayImage(
+				userImage,
+				(ImageView) findViewById(R.id.imageUser),
+				new DisplayImageOptions.Builder().showStubImage(R.drawable.last_fm_logo).showImageForEmptyUri(R.drawable.last_fm_logo).cacheInMemory()
+						.cacheOnDisc().build());
 	}
 
 	@Override
