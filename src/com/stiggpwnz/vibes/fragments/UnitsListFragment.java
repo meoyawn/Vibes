@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
-import org.apache.http.client.ClientProtocolException;
-
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -22,22 +20,13 @@ import com.stiggpwnz.vibes.restapi.VKontakteException;
 
 public class UnitsListFragment extends SherlockListFragment {
 
-	public static interface UnitsListListener extends FragmentListener {
-
-		public void showUnit(Unit unit);
-
-		public List<Unit> loadUnits(boolean friends) throws ClientProtocolException, IOException, VKontakteException;
-
-		public List<Unit> getUnits(boolean friends);
-
-	}
-
 	private static final String FRIENDS = "friends";
 	private static final String UNITS = "units";
 	private static final String SCROLL_POSITION = "scroll position";
 
-	private UnitsListListener listener;
 	private int scrollPosition;
+
+	private VibesApplication app;
 
 	public UnitsListFragment() {
 
@@ -52,23 +41,17 @@ public class UnitsListFragment extends SherlockListFragment {
 		return fragment;
 	}
 
-	// set listener
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		listener = (UnitsListListener) activity;
-	}
-
 	// download units, create and set an adapter
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		app = (VibesApplication) getSherlockActivity().getApplication();
 		boolean friends = getArguments().getBoolean(FRIENDS);
-		List<Unit> units = listener.getUnits(friends);
+		List<Unit> units = app.getUnits(friends);
 		if (units == null)
 			new GetUnits().execute(friends);
 		else {
-			UnitsAdapter unitsAdapter = new UnitsAdapter(getSherlockActivity(), units, listener.getTypeface(), listener.getImageLoader());
+			UnitsAdapter unitsAdapter = new UnitsAdapter(getSherlockActivity(), units, app.getTypeface());
 			setListAdapter(unitsAdapter);
 		}
 	}
@@ -106,6 +89,14 @@ public class UnitsListFragment extends SherlockListFragment {
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		listener.showUnit((Unit) getListAdapter().getItem(position));
 		super.onListItemClick(l, v, position, id);
+	}
+
+	public void showUnit(Unit unit) {
+		FragmentTransaction transaction = getSherlockActivity().getSupportFragmentManager().beginTransaction();
+		transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+		transaction.replace(R.id.framePlaylists, UnitFragment.newInstance(unit, app.getSelectedPlaylist()), UNIT_FRAGMENT);
+		transaction.addToBackStack(null);
+		transaction.commit();
 	}
 
 	private class GetUnits extends AsyncTask<Boolean, Void, List<Unit>> {

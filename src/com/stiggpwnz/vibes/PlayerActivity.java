@@ -65,7 +65,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		PlayerListener, OnClickListener, OnDrawerStateChangeListener, TutorialListener, SleepingTimerListener {
 
 	private static final String STARTING_FRAGMENT = "starting fragment";
-	private static final String UNIT_FRAGMENT = "unit fragment";
+	public static final String UNIT_FRAGMENT = "unit fragment";
 
 	// system stuff
 	private PlayerService service;
@@ -91,11 +91,7 @@ public class PlayerActivity extends SherlockFragmentActivity implements Starting
 		return shake;
 	}
 
-	public Typeface getTypeface() {
-		if (typeface == null)
-			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
-		return typeface;
-	}
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

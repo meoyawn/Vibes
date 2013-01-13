@@ -19,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.util.Log;
@@ -29,6 +30,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.download.HttpClientImageDownloader;
+import com.stiggpwnz.vibes.events.BusProvider;
+import com.stiggpwnz.vibes.events.Events.Error;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.LastFM;
 import com.stiggpwnz.vibes.restapi.Playlist;
@@ -58,11 +61,13 @@ public class VibesApplication extends Application implements Settings.Listener {
 	private Playlist selectedPlaylist;
 
 	// cached units
-	private List<Unit> friends;
-	private List<Unit> groups;
+	private List<Unit> friendList;
+	private List<Unit> groupList;
 	private Unit self;
 
 	public final Map<Song, String> urlCache = new ConcurrentHashMap<Song, String>();
+
+	private Typeface typeface;
 
 	@Override
 	public void onCreate() {
@@ -111,11 +116,14 @@ public class VibesApplication extends Application implements Settings.Listener {
 		playlist = null;
 		selectedPlaylist = null;
 
-		friends = null;
-		groups = null;
+		friendList = null;
+		groupList = null;
 		self = null;
 
+		urlCache.clear();
 		Playlist.clearCache();
+
+		typeface = null;
 	}
 
 	public List<Song> loadSongs(Playlist playlist) throws IOException, VKontakteException {
@@ -166,18 +174,37 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return songs;
 	}
 
-	public List<Album> loadAlbums(int id) throws IOException, VKontakteException {
-		return getVkontakte().getAlbums(id, 0);
+	public List<Album> loadAlbums(int id) {
+		try {
+			return getVkontakte().getAlbums(id, 0);
+		} catch (IOException e) {
+			BusProvider.getInstance().post(Error.INTERNET);
+		} catch (VKontakteException e) {
+			switch (e.getCode()) {
+			case VKontakteException.USER_AUTHORIZATION_FAILED:
+				BusProvider.getInstance().post(Error.VK_AUTHORIZATION);
+				break;
+
+			case VKontakteException.ACCESS_DENIED:
+				BusProvider.getInstance().post(Error.VK_ACCESS_DENIED);
+				break;
+
+			default:
+				BusProvider.getInstance().post(Error.INTERNET);
+				break;
+			}
+		}
+		return null;
 	}
 
 	public List<Unit> loadFriends() throws IOException, VKontakteException {
-		friends = getVkontakte().getFriends(false);
-		return friends;
+		friendList = getVkontakte().getFriends(false);
+		return friendList;
 	}
 
 	public List<Unit> loadGroups() throws IOException, VKontakteException {
-		groups = getVkontakte().getGroups();
-		return groups;
+		groupList = getVkontakte().getGroups();
+		return groupList;
 	}
 
 	@Override
@@ -194,6 +221,12 @@ public class VibesApplication extends Application implements Settings.Listener {
 		Playlist.clearCache();
 		playlist = null;
 		selectedPlaylist = null;
+	}
+
+	public Typeface getTypeface() {
+		if (typeface == null)
+			typeface = Typeface.createFromAsset(getAssets(), "SegoeWP-Semilight.ttf");
+		return typeface;
 	}
 
 	@Override
@@ -241,12 +274,8 @@ public class VibesApplication extends Application implements Settings.Listener {
 		return new DefaultHttpClient(manager, params);
 	}
 
-	public List<Unit> getFriends() {
-		return friends;
-	}
-
-	public List<Unit> getGroups() {
-		return groups;
+	public List<Unit> getUnits(boolean friends) {
+		return friends ? this.friendList : this.groupList;
 	}
 
 	public LastFM getLastFM() {

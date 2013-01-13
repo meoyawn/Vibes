@@ -97,6 +97,7 @@ public class AlbumsAdapter extends BaseAdapter {
 
 	public void setSelected(int selected) {
 		this.selected = selected;
+		notifyDataSetChanged();
 	}
 
 }

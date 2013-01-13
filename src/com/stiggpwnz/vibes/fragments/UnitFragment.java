@@ -1,14 +1,12 @@
 package com.stiggpwnz.vibes.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.adapters.AlbumsAdapter;
+import com.stiggpwnz.vibes.events.BusProvider;
 import com.stiggpwnz.vibes.restapi.Album;
 import com.stiggpwnz.vibes.restapi.Playlist;
 import com.stiggpwnz.vibes.restapi.Playlist.Type;
@@ -36,6 +34,7 @@ public class UnitFragment extends AlbumsFragment {
 				else
 					selectedPosition = 0;
 				break;
+
 			case WALL:
 				selectedPosition = 1;
 				break;
@@ -47,45 +46,29 @@ public class UnitFragment extends AlbumsFragment {
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		Log.d(VibesApplication.VIBES, "onAttach UNIT");
-		listener = (Listener) activity;
-		super.onAttach(activity);
-	}
-
-	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		String[] options = getResources().getStringArray(R.array.unit_options);
-		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), listener.getTypeface(), options);
+		AlbumsAdapter adapter = new AlbumsAdapter(getSherlockActivity(), app.getTypeface(), options);
 		super.onViewCreated(view, savedInstanceState, adapter);
-	}
-
-	@Override
-	public void onDetach() {
-		Log.d(VibesApplication.VIBES, "onDetach UNIT");
-		listener = null;
-		super.onDetach();
 	}
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
 		String name = (String) l.getItemAtPosition(position);
-		if (listener.isPlaylistLoading())
-			return;
 		setSelectedPosition(position);
 		switch (position) {
 		case AUDIOS:
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.AUDIOS, name, unit)));
 			break;
 
 		case WALL:
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.WALL, name, unit)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.WALL, name, unit)));
 			break;
 
 		default:
 			Album album = unit.albums.get(position - 2);
-			listener.loadPlaylist(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
+			BusProvider.getInstance().post(Playlist.get(new Playlist(Type.AUDIOS, name, unit, album)));
 			break;
 		}
 	}

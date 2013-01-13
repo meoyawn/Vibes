@@ -182,8 +182,8 @@ public class VKontakte extends RestAPI {
 
 	public List<Song> search(String search, int offset) throws IOException, VKontakteException {
 		try {
-			URI uri = new URI("https", "api.vk.com", AUDIO_SEARCH, COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "=" + accessToken + "&q="
-					+ search.replace("&", "%26"), null);
+			URI uri = new URI("https", "api.vk.com", AUDIO_SEARCH, COUNT + "=" + maxAudios + "&" + OFFSET + "=" + offset + "&" + ACCESS_TOKEN + "="
+					+ accessToken + "&q=" + search.replace("&", "%26"), null);
 
 			JSONObject jsonResponse = execute(uri);
 
@@ -285,7 +285,8 @@ public class VKontakte extends RestAPI {
 
 	public List<Song> getNewsFeedAudios(int offset) throws IOException, VKontakteException {
 		try {
-			StringBuffer buffer = new StringBuffer(API_URL + NEWSFEED_GET + FILTERS + "=" + POST + "&" + COUNT + "=" + maxNews + "&" + ACCESS_TOKEN + "=" + accessToken);
+			StringBuffer buffer = new StringBuffer(API_URL + NEWSFEED_GET + FILTERS + "=" + POST + "&" + COUNT + "=" + maxNews + "&" + ACCESS_TOKEN + "="
+					+ accessToken);
 
 			if (offset > 0)
 				buffer.append("&" + OFFSET + "=" + offset);
@@ -374,7 +375,6 @@ public class VKontakte extends RestAPI {
 				jsonResponse = jsonResponse.getJSONObject(ERROR);
 				throw new VKontakteException(jsonResponse.getInt(ERROR_CODE));
 			}
-
 		} catch (URISyntaxException e) {
 
 		} catch (JSONException e) {
