@@ -1,7 +1,5 @@
 package com.stiggpwnz.vibes;
 
-import net.bgreco.DirectoryPicker;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -18,8 +16,8 @@ import com.stiggpwnz.vibes.dialogs.LastFMUserDialog;
 import com.stiggpwnz.vibes.dialogs.LastFMUserDialog.LastFMUserListener;
 import com.stiggpwnz.vibes.imageloader.ImageLoader;
 
-public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener, LastFMLoginListener,
-		LastFMUserListener {
+public class PreferencesActivity extends SherlockPreferenceActivity implements OnSharedPreferenceChangeListener, OnPreferenceClickListener,
+		LastFMLoginListener, LastFMUserListener {
 
 	private VibesApplication app;
 	private SharedPreferences prefs;
@@ -76,9 +74,9 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 	@Override
 	public boolean onPreferenceClick(Preference preference) {
 		if (preference == picker) {
-			Intent intent = new Intent(this, DirectoryPicker.class);
-			startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
-			return true;
+			// Intent intent = new Intent(this, DirectoryPicker.class);
+			// startActivityForResult(intent, DirectoryPicker.PICK_DIRECTORY);
+			// return true;
 		} else if (preference == lastFm) {
 			launchLastFM();
 			return true;
@@ -98,15 +96,17 @@ public class PreferencesActivity extends SherlockPreferenceActivity implements O
 		}
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == DirectoryPicker.PICK_DIRECTORY && resultCode == RESULT_OK) {
-			Bundle extras = data.getExtras();
-			String path = (String) extras.get(DirectoryPicker.CHOSEN_DIRECTORY);
-			app.getSettings().setDirectoryPath(path);
-			picker.setSummary(path);
-		}
-	}
+	// @Override
+	// protected void onActivityResult(int requestCode, int resultCode, Intent
+	// data) {
+	// if (requestCode == DirectoryPicker.PICK_DIRECTORY && resultCode ==
+	// RESULT_OK) {
+	// Bundle extras = data.getExtras();
+	// String path = (String) extras.get(DirectoryPicker.CHOSEN_DIRECTORY);
+	// app.getSettings().setDirectoryPath(path);
+	// picker.setSummary(path);
+	// }
+	// }
 
 	private void launchLastFM() {
 		Settings settings = app.getSettings();
