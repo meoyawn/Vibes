@@ -1,11 +1,12 @@
 package com.stiggpwnz.vibes.fragments;
 
 import android.os.Bundle;
+import android.view.View;
 
-import com.devspark.progressfragment.ProgressSherlockFragment;
-import com.stiggpwnz.vibes.Singletons;
+import com.actionbarsherlock.app.SherlockListFragment;
+import com.stiggpwnz.vibes.util.BusProvider;
 
-public abstract class BaseProgressFragment extends ProgressSherlockFragment implements RetainedFragment {
+public abstract class VibesListFragment extends SherlockListFragment implements VibesFragmentInterface {
 
 	private boolean created;
 
@@ -17,34 +18,36 @@ public abstract class BaseProgressFragment extends ProgressSherlockFragment impl
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		if (created) {
 			return;
 		}
-		onFirstCreated(getView());
+		onFirstCreated(view);
 		created = true;
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		Singletons.OTTO.register(this);
+		BusProvider.register(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		Singletons.OTTO.unregister(this);
+		BusProvider.unregister(this);
 	}
 
-	protected void runOnUiThread(Runnable runnable) {
+	@Override
+	public void runOnUiThread(Runnable runnable) {
 		if (getSherlockActivity() != null) {
 			getSherlockActivity().runOnUiThread(runnable);
 		}
 	}
 
-	protected void runOnBackgroundThread(Runnable runnable) {
+	@Override
+	public void runOnBackgroundThread(Runnable runnable) {
 		new Thread(runnable).start();
 	}
 }

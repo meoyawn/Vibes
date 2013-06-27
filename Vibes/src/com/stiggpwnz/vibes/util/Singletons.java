@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,15 +11,15 @@ import android.util.DisplayMetrics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.otto.Bus;
-import com.squareup.otto.ThreadEnforcer;
+import com.stiggpwnz.vibes.BuildConfig;
+import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.vk.Vkontakte;
 
 public class Singletons {
 
-	public static final ObjectMapper JACKSON = new ObjectMapper();
-	public static final Bus OTTO = new Bus(ThreadEnforcer.ANY);
 	public static final int CACHE_SIZE = 20 * 1024 * 1024;
+
+	public static final ObjectMapper JACKSON = new ObjectMapper();
 	public static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
 	public static Vkontakte vkontakte;

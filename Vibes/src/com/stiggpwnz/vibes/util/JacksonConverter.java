@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.util;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

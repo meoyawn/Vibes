@@ -8,16 +8,16 @@ import android.widget.ListView;
 
 import com.cuubonandroid.sugaredlistanimations.SpeedScrollListener;
 import com.origamilabs.library.views.StaggeredGridView;
-import com.stiggpwnz.vibes.Log;
-import com.stiggpwnz.vibes.Persistance;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Singletons;
 import com.stiggpwnz.vibes.adapters.EndlessNewsFeedAdapter;
 import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
+import com.stiggpwnz.vibes.util.Log;
+import com.stiggpwnz.vibes.util.Persistance;
+import com.stiggpwnz.vibes.util.Singletons;
 import com.stiggpwnz.vibes.vk.AuthException;
 import com.stiggpwnz.vibes.vk.NewsFeed.Result;
 
-public class NewsFeedFragment extends BaseProgressFragment {
+public class NewsFeedFragment extends VibesProgressFragment {
 
 	private SpeedScrollListener scrollListener;
 	private ListView listView;
@@ -90,7 +90,7 @@ public class NewsFeedFragment extends BaseProgressFragment {
 	// background thread
 	private void makeRequest() {
 		try {
-			Persistance.ensureAuth(getSherlockActivity());
+			Persistance.ensureAuth();
 			final Result result = Singletons.vkontakte.getNewsFeed(0, Persistance.getAccessToken());
 			runOnUiThread(new Runnable() {
 

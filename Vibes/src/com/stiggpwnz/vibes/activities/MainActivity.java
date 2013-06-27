@@ -10,10 +10,10 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.android.debug.hv.ViewServer;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
-import com.stiggpwnz.vibes.Persistance;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.fragments.NewsFeedFragment;
+import com.stiggpwnz.vibes.util.Persistance;
 
 public class MainActivity extends SherlockFragmentActivity {
 

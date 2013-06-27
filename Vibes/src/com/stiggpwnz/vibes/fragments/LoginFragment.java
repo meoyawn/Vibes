@@ -17,21 +17,22 @@ import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.Validator.ValidationListener;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Required;
-import com.stiggpwnz.vibes.Persistance;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.activities.MainActivity;
+import com.stiggpwnz.vibes.util.Cookies;
+import com.stiggpwnz.vibes.util.Persistance;
 import com.stiggpwnz.vkauth.VKAuthenticator;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class LoginFragment extends BaseProgressFragment {
+public class LoginFragment extends VibesProgressFragment {
 
 	public static final int CLIENT_ID = 3027476;
 	public static final int SCOPE = 2 + 8 + 8192;
 
-	private VKAuthenticator vkAuth;
 	private final Validator validator = new Validator(this);
+	private VKAuthenticator vkAuth;
 
 	@Required(order = 1)
 	private EditText emailView;
@@ -41,7 +42,7 @@ public class LoginFragment extends BaseProgressFragment {
 
 	@Override
 	public void onFirstCreated(View view) {
-		vkAuth = new VKAuthenticator(CLIENT_ID, SCOPE, Persistance.Cookies.get(getSherlockActivity()));
+		vkAuth = new VKAuthenticator(CLIENT_ID, SCOPE, Cookies.get());
 
 		setContentView(R.layout.login_fragment);
 
@@ -114,38 +115,32 @@ public class LoginFragment extends BaseProgressFragment {
 		}
 
 		setContentShown(false);
-		new Thread() {
+		runOnBackgroundThread(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
 					final Map<String, String> result = vkAuth.auth(emailView.getText().toString(), passwordView.getText().toString());
-					if (getSherlockActivity() != null) {
-						getSherlockActivity().runOnUiThread(new Runnable() {
+					runOnUiThread(new Runnable() {
 
-							@Override
-							public void run() {
-								parseResultOnMainThread(result);
-							}
-						});
-					}
+						@Override
+						public void run() {
+							parseResultOnMainThread(result);
+						}
+					});
 				} catch (final IOException e) {
-					if (getSherlockActivity() != null) {
-						getSherlockActivity().runOnUiThread(new Runnable() {
+					runOnUiThread(new Runnable() {
 
-							@Override
-							public void run() {
-								showErrorOnMainThread(e);
-							}
-						});
-					}
+						@Override
+						public void run() {
+							showErrorOnMainThread(e);
+						}
+					});
 				} finally {
-					if (getSherlockActivity() != null) {
-						getSherlockActivity().runOnUiThread(showContent);
-					}
+					runOnUiThread(showContent);
 				}
-			};
-		}.start();
+			}
+		});
 	}
 
 	private void parseResultOnMainThread(final Map<String, String> result) {
@@ -163,8 +158,7 @@ public class LoginFragment extends BaseProgressFragment {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Persistance.Cookies.save(getSherlockActivity(), vkAuth.getCookieManager().getStore());
-		Persistance.Cookies.release();
+		Cookies.save(vkAuth.getCookieManager().getStore());
 	}
 
 	private void showErrorOnMainThread(final IOException e) {

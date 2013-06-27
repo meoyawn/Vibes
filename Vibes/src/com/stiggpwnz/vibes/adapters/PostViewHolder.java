@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.devspark.robototextview.widget.RobotoTextView;
-import com.stiggpwnz.vibes.Log;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.util.Log;
 import com.stiggpwnz.vibes.vk.Audio;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;

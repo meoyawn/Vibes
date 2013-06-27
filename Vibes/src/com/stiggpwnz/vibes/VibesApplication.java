@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes;
 
-import static com.stiggpwnz.vibes.Singletons.CACHE_SIZE;
+import static com.stiggpwnz.vibes.util.Singletons.CACHE_SIZE;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +13,17 @@ import com.nostra13.universalimageloader.cache.disc.impl.TotalSizeLimitedDiscCac
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.stiggpwnz.vibes.util.Singletons;
 
 public class VibesApplication extends Application {
+
+	private static Context staticContext;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Persistance.init(this);
+		staticContext = this;
+
 		try {
 			Singletons.init(this);
 		} catch (IOException e) {
@@ -40,5 +44,9 @@ public class VibesApplication extends Application {
 			target.mkdirs();
 		}
 		return target;
+	}
+
+	public static Context getContext() {
+		return staticContext;
 	}
 }
