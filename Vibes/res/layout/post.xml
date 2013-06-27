@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/padding_post"
+        android:paddingRight="@dimen/padding_post" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/padding_post"
+            android:paddingTop="@dimen/padding_post" >
+
+            <ImageView
+                android:id="@+id/user_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="@string/user_profile_image" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/padding_post" >
+
+                <com.devspark.robototextview.widget.RobotoTextView
+                    android:id="@+id/user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    app:typeface="roboto_bold" />
+
+                <com.devspark.robototextview.widget.RobotoTextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/light_grey_text"
+                    android:textSize="14sp"
+                    app:typeface="roboto_regular" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.devspark.robototextview.widget.RobotoTextView
+            android:id="@+id/text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding_post"
+            android:textSize="16sp"
+            app:typeface="roboto_regular" />
+    </LinearLayout>
+
+    <com.stiggpwnz.vibes.widget.PhotoView
+        android:id="@+id/image_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/image_in_post"
+        android:scaleType="fitXY"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/holder_audios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+</LinearLayout>

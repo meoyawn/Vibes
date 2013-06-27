@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="padding_post">16dp</dimen>
+    <dimen name="padding_list">32dp</dimen>
+
+</resources>

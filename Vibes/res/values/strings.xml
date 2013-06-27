@@ -1,0 +1,13 @@
+<resources>
+
+    <string name="app_name">Vibes</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="opened">Opened</string>
+    <string name="closed">Closed</string>
+    <string name="user_profile_image">User profile image</string>
+    <string name="image_in_post">Image in post</string>
+    <string name="play">Play</string>
+
+</resources>

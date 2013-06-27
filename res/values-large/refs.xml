@@ -1,7 +1,0 @@
-<resources>
-
-    <item name="activity_player" type="layout">@layout/activity_player_large</item>
-    <item name="controls" type="layout">@layout/controls_large</item>
-    <item name="playlist" type="layout">@layout/playlist_large</item>
-
-</resources>
