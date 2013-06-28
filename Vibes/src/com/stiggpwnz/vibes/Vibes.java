@@ -1,9 +1,6 @@
 package com.stiggpwnz.vibes;
 
-import static com.stiggpwnz.vibes.util.Singletons.CACHE_SIZE;
-
 import java.io.File;
-import java.io.IOException;
 
 import android.app.Application;
 import android.content.Context;
@@ -13,32 +10,27 @@ import com.nostra13.universalimageloader.cache.disc.impl.TotalSizeLimitedDiscCac
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.stiggpwnz.vibes.util.Singletons;
 
-public class VibesApplication extends Application {
+public class Vibes extends Application {
+
+	private static final int CACHE_SIZE = 20 * 1024 * 1024;
 
 	private static Context staticContext;
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
 		staticContext = this;
+		super.onCreate();
 
-		try {
-			Singletons.init(this);
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
-
-		File cacheDir = getCacheDir(this, "image");
 		ImageLoaderConfiguration configuration = new ImageLoaderConfiguration.Builder(this).tasksProcessingOrder(QueueProcessingType.LIFO)
-				.discCache(new TotalSizeLimitedDiscCache(cacheDir, CACHE_SIZE)).threadPriority(Thread.NORM_PRIORITY - 2).denyCacheImageMultipleSizesInMemory()
-				.build();
+				.discCache(new TotalSizeLimitedDiscCache(getCacheDir("image"), CACHE_SIZE)).threadPriority(Thread.NORM_PRIORITY - 2)
+				.denyCacheImageMultipleSizesInMemory().build();
 		ImageLoader.getInstance().init(configuration);
 	}
 
-	public static File getCacheDir(Context context, String name) {
-		File cacheDir = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ? context.getExternalCacheDir() : context.getCacheDir();
+	public static File getCacheDir(String name) {
+		File cacheDir = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ? staticContext.getExternalCacheDir() : staticContext
+				.getCacheDir();
 		File target = new File(cacheDir, name);
 		if (!target.exists()) {
 			target.mkdirs();

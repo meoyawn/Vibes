@@ -14,7 +14,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
-import com.stiggpwnz.vibes.VibesApplication;
+import com.stiggpwnz.vibes.Vibes;
 import com.stiggpwnz.vibes.vk.AuthException;
 import com.stiggpwnz.vibes.vk.AuthException.Reason;
 import com.stiggpwnz.vkauth.VKAuthenticator;
@@ -25,7 +25,7 @@ public class Persistance {
 	private static final String EMAIL = "email";
 
 	private static class Holder {
-		private static final SharedPreferences INSTANCE = PreferenceManager.getDefaultSharedPreferences(VibesApplication.getContext());
+		private static final SharedPreferences INSTANCE = PreferenceManager.getDefaultSharedPreferences(Vibes.getContext());
 	}
 
 	private static SharedPreferences getInstance() {

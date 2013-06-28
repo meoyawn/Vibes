@@ -29,6 +29,10 @@ public class PhotoView extends ImageView {
 		super(context, attrs, defStyle);
 	}
 
+	private void setHeight(int w) {
+		getLayoutParams().height = (int) (photo.getRatio() * w);
+	}
+
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
@@ -37,13 +41,9 @@ public class PhotoView extends ImageView {
 		}
 	}
 
-	private void setHeight(int w) {
-		getLayoutParams().height = (int) (photo.getRatio() * w);
-	}
-
 	public void setPhoto(Photo photo) {
 		this.photo = photo;
-		
+
 		if (photo != null) {
 			setVisibility(View.VISIBLE);
 

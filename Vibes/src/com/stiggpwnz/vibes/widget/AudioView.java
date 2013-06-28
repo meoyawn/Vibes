@@ -25,10 +25,6 @@ public class AudioView extends LinearLayout {
 
 	private Audio audio;
 
-	public AudioView(Context context) {
-		this(context, null);
-	}
-
 	private final OnClickListener onClickListener = new OnClickListener() {
 
 		@Override
@@ -44,6 +40,10 @@ public class AudioView extends LinearLayout {
 			title.setTextColor(getResources().getColor(R.color.text_white));
 		}
 	};
+
+	public AudioView(Context context) {
+		this(context, null);
+	}
 
 	public AudioView(Context context, AttributeSet attrs) {
 		super(context, attrs);

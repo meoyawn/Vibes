@@ -11,9 +11,8 @@ import com.origamilabs.library.views.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.EndlessNewsFeedAdapter;
 import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
-import com.stiggpwnz.vibes.util.Log;
 import com.stiggpwnz.vibes.util.Persistance;
-import com.stiggpwnz.vibes.util.Singletons;
+import com.stiggpwnz.vibes.util.Rest;
 import com.stiggpwnz.vibes.vk.AuthException;
 import com.stiggpwnz.vibes.vk.NewsFeed.Result;
 
@@ -35,8 +34,6 @@ public class NewsFeedFragment extends VibesProgressFragment {
 
 		if (listView != null) {
 			listView.setOnScrollListener(scrollListener);
-		} else {
-			Log.d("gridview");
 		}
 
 		if (result != null) {
@@ -91,7 +88,7 @@ public class NewsFeedFragment extends VibesProgressFragment {
 	private void makeRequest() {
 		try {
 			Persistance.ensureAuth();
-			final Result result = Singletons.vkontakte.getNewsFeed(0, Persistance.getAccessToken());
+			final Result result = Rest.vkontakte().getNewsFeed(0, Persistance.getAccessToken());
 			runOnUiThread(new Runnable() {
 
 				@Override

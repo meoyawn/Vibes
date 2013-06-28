@@ -6,7 +6,7 @@ import android.widget.ListAdapter;
 import com.commonsware.cwac.endless.EndlessAdapter;
 import com.stiggpwnz.vibes.util.Log;
 import com.stiggpwnz.vibes.util.Persistance;
-import com.stiggpwnz.vibes.util.Singletons;
+import com.stiggpwnz.vibes.util.Rest;
 import com.stiggpwnz.vibes.vk.NewsFeed.Result;
 
 public class EndlessNewsFeedAdapter extends EndlessAdapter {
@@ -37,7 +37,7 @@ public class EndlessNewsFeedAdapter extends EndlessAdapter {
 			int offset = getWrappedAdapter().getNewsFeed().new_offset;
 			Log.d("loading for " + offset);
 			Persistance.ensureAuth();
-			result = Singletons.vkontakte.getNewsFeed(offset, Persistance.getAccessToken());
+			result = Rest.vkontakte().getNewsFeed(offset, Persistance.getAccessToken());
 			return true;
 		} catch (Exception e) {
 			Log.e(e);

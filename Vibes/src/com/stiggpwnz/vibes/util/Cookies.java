@@ -5,14 +5,14 @@ import java.util.Map;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.stiggpwnz.vibes.VibesApplication;
+import com.stiggpwnz.vibes.Vibes;
 
 public class Cookies {
 
 	private static final String COOKIES = "cookies";
 
 	private static class Holder {
-		private static final SharedPreferences INSTANCE = VibesApplication.getContext().getSharedPreferences(COOKIES, Context.MODE_PRIVATE);
+		private static final SharedPreferences INSTANCE = Vibes.getContext().getSharedPreferences(COOKIES, Context.MODE_PRIVATE);
 	}
 
 	private static SharedPreferences getInstance() {
@@ -27,7 +27,7 @@ public class Cookies {
 		}
 
 		try {
-			return Singletons.JACKSON.readValue(string, Map.class);
+			return Jackson.getObjectMapper().readValue(string, Map.class);
 		} catch (Exception e) {
 			return null;
 		}
@@ -39,7 +39,7 @@ public class Cookies {
 		}
 
 		try {
-			String json = Singletons.JACKSON.writeValueAsString(cookies);
+			String json = Jackson.getObjectMapper().writeValueAsString(cookies);
 			boolean result = getInstance().edit().putString(COOKIES, json).commit();
 			return result;
 		} catch (Exception e) {
