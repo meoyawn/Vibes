@@ -60,11 +60,11 @@ public class AudioView extends LinearLayout {
 	}
 
 	public void setAudio(Audio audio) {
+		this.audio = audio;
+
 		setVisibility(View.VISIBLE);
 
 		artist.setText(audio.performer);
 		title.setText(audio.title);
-
-		this.audio = audio;
 	}
 }
