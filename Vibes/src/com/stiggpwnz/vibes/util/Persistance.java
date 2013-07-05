@@ -101,6 +101,6 @@ public class Persistance {
 	}
 
 	private static String getString(String key, String defValue) {
-		return getString(key, defValue);
+		return getInstance().getString(key, defValue);
 	}
 }

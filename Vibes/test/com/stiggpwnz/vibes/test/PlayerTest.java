@@ -6,30 +6,33 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import com.stiggpwnz.vibes.Player;
-import com.stiggpwnz.vibes.Player.State;
-import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.activities.MainActivity;
+import com.stiggpwnz.vibes.media.Player;
+import com.stiggpwnz.vibes.media.Player.State;
 
 @RunWith(RobolectricTestRunner.class)
 public class PlayerTest {
 
+	private static final String URL = "http://api.soundcloud.com/tracks/99174750/stream?client_id=b45b1aa10f1ac2941910a7f0d10f8e28";
+
 	private final CountDownLatch lock = new CountDownLatch(1);
+	private final Player player = new Player();
 
 	@Test
-	public void testHelloWorld() {
-		String name = Robolectric.buildActivity(MainActivity.class).get().getResources().getString(R.string.app_name);
-		Assert.assertEquals(name, "Vibes");
+	public void testPrepare() throws InterruptedException {
+		player.prepare(URL);
+		Assert.assertEquals(URL, player.getSource());
+		lock.await(5, TimeUnit.SECONDS);
+		Assert.assertEquals(State.PREPARED, player.getState());
 	}
 
-	public void testReseting() throws InterruptedException {
-		Player player = new Player();
-		player.prepare("http://api.soundcloud.com/tracks/99174750/stream?client_id=b45b1aa10f1ac2941910a7f0d10f8e28");
-		lock.await(10, TimeUnit.MILLISECONDS);
-		Assert.assertEquals(player.getState(), State.PAUSED);
+	@Test
+	public void testSeek() throws InterruptedException {
+		player.prepare(URL);
+		player.seekTo(10);
+		lock.await(5, TimeUnit.SECONDS);
+		Assert.assertEquals(State.PREPARED, player.getState());
+		Assert.assertEquals(10, player.getCurrentPosition());
 	}
-
 }

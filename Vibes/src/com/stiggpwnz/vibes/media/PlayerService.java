@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes;
+package com.stiggpwnz.vibes.media;
 
 import android.app.Service;
 import android.content.Intent;

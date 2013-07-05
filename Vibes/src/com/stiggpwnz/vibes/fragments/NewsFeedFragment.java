@@ -5,32 +5,34 @@ import java.io.IOException;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
+import butterknife.InjectView;
 
 import com.cuubonandroid.sugaredlistanimations.SpeedScrollListener;
 import com.origamilabs.library.views.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.EndlessNewsFeedAdapter;
 import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
+import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
 import com.stiggpwnz.vibes.util.Persistance;
 import com.stiggpwnz.vibes.util.Rest;
 import com.stiggpwnz.vibes.vk.AuthException;
 import com.stiggpwnz.vibes.vk.NewsFeed.Result;
 
-public class NewsFeedFragment extends VibesProgressFragment {
+public class NewsFeedFragment extends RetainedProgressFragment {
+
+	@InjectView(R.id.list) ListView listView;
+	@InjectView(R.id.grid) StaggeredGridView gridView;
 
 	private SpeedScrollListener scrollListener;
-	private ListView listView;
-	private StaggeredGridView gridView;
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	protected void onCreateView(Bundle savedInstanceState) {
 		setContentView(R.layout.newsfeed);
-		View view = getView();
+	}
 
+	@Override
+	protected void onViewCreated(Bundle savedInstanceState) {
 		scrollListener = new SpeedScrollListener();
-
-		listView = (ListView) view.findViewById(R.id.list);
-		gridView = (StaggeredGridView) view.findViewById(R.id.grid);
 
 		if (listView != null) {
 			listView.setOnScrollListener(scrollListener);
@@ -39,15 +41,6 @@ public class NewsFeedFragment extends VibesProgressFragment {
 		if (result != null) {
 			postResult(result);
 		}
-
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		listView = null;
-		gridView = null;
 	}
 
 	@Override
@@ -102,4 +95,5 @@ public class NewsFeedFragment extends VibesProgressFragment {
 			// TODO handle the fucking error
 		}
 	}
+
 }

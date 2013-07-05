@@ -9,19 +9,23 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import butterknife.InjectView;
+import butterknife.Views;
 
 import com.devspark.robototextview.widget.RobotoTextView;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.util.Log;
 import com.stiggpwnz.vibes.vk.Audio;
 
 public class AudioView extends LinearLayout {
 
-	public final ImageButton play;
-	public final SeekBar seekBar;
-	public final RobotoTextView artist;
-	public final RobotoTextView title;
+	private static final Animation CLICK = AnimationUtils.loadAnimation(Vibes.getContext(), R.anim.click);
 
-	private final Animation click;
+	@InjectView(R.id.imageButtonPlay) ImageButton play;
+	@InjectView(R.id.seekBarAudio) SeekBar seekBar;
+	@InjectView(R.id.artist_audio) RobotoTextView artist;
+	@InjectView(R.id.title_audio) RobotoTextView title;
 
 	private Audio audio;
 
@@ -29,7 +33,7 @@ public class AudioView extends LinearLayout {
 
 		@Override
 		public void onClick(View v) {
-			v.startAnimation(click);
+			v.startAnimation(CLICK);
 			play.setImageResource(R.drawable.pause);
 
 			seekBar.setVisibility(View.VISIBLE);
@@ -47,16 +51,10 @@ public class AudioView extends LinearLayout {
 
 	public AudioView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		Log.d("new AudioView");
 		LayoutInflater.from(context).inflate(R.layout.post_audio, this, true);
-
-		play = (ImageButton) findViewById(R.id.imageButtonPlay);
+		Views.inject(this);
 		play.setOnClickListener(onClickListener);
-
-		seekBar = (SeekBar) findViewById(R.id.seekBarAudio);
-		artist = (RobotoTextView) findViewById(R.id.artist_audio);
-		title = (RobotoTextView) findViewById(R.id.title_audio);
-
-		click = AnimationUtils.loadAnimation(context, R.anim.click);
 	}
 
 	public void setAudio(Audio audio) {

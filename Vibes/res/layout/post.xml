@@ -67,11 +67,64 @@
         android:scaleType="fitXY"
         android:visibility="gone" />
 
-    <LinearLayout
-        android:id="@+id/holder_audios"
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
-    </LinearLayout>
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <com.stiggpwnz.vibes.widget.AudioView
+        android:id="@+id/post_audio_9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
 </LinearLayout>

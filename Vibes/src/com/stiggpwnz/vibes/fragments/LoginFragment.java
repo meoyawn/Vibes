@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.Map;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import butterknife.InjectView;
 
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.Validator;
@@ -19,6 +22,7 @@ import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Required;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.activities.MainActivity;
+import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
 import com.stiggpwnz.vibes.util.Cookies;
 import com.stiggpwnz.vibes.util.Persistance;
 import com.stiggpwnz.vkauth.VKAuthenticator;
@@ -26,52 +30,52 @@ import com.stiggpwnz.vkauth.VKAuthenticator;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
-public class LoginFragment extends VibesProgressFragment {
+public class LoginFragment extends RetainedProgressFragment {
 
 	public static final int CLIENT_ID = 3027476;
 	public static final int SCOPE = 2 + 8 + 8192;
 
+	@InjectView(R.id.email) @Required(order = 1) EditText emailView;
+	@InjectView(R.id.password) @Password(order = 2) EditText passwordView;
+	@InjectView(R.id.sign_in_button) Button signIn;
+
 	private final Validator validator = new Validator(this);
-	private VKAuthenticator vkAuth;
+	private final VKAuthenticator vkAuth = new VKAuthenticator(CLIENT_ID, SCOPE, Cookies.get());
 
-	@Required(order = 1)
-	private EditText emailView;
+	@Override
+	protected void onCreateView(Bundle savedInstanceState) {
+		setContentView(R.layout.login);
+	}
 
-	@Password(order = 2)
-	private EditText passwordView;
+	@Override
+	protected void onViewCreated(Bundle savedInstanceState) {
+		passwordView.setOnEditorActionListener(onEnter);
+		signIn.setOnClickListener(onSignInClick);
+	}
+
+	private final OnEditorActionListener onEnter = new OnEditorActionListener() {
+
+		@Override
+		public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+			if (id == R.id.login || id == EditorInfo.IME_NULL) {
+				validator.validate();
+				return true;
+			}
+			return false;
+		}
+	};
+
+	private final OnClickListener onSignInClick = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			validator.validate();
+		}
+	};
 
 	@Override
 	public void onFirstCreated(View view) {
-		vkAuth = new VKAuthenticator(CLIENT_ID, SCOPE, Cookies.get());
-
-		setContentView(R.layout.login_fragment);
-
 		validator.setValidationListener(validationListener);
-
-		emailView = (EditText) view.findViewById(R.id.email);
-
-		passwordView = (EditText) view.findViewById(R.id.password);
-		passwordView.setOnEditorActionListener(new OnEditorActionListener() {
-
-			@Override
-			public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-				if (id == R.id.login || id == EditorInfo.IME_NULL) {
-					validator.validate();
-					return true;
-				}
-				return false;
-			}
-		});
-
-		view.findViewById(R.id.sign_in_button).setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				validator.validate();
-			}
-		});
-
-		setContentShownNoAnimation(true);
 	}
 
 	private final Runnable showContent = new Runnable() {
@@ -109,38 +113,40 @@ public class LoginFragment extends VibesProgressFragment {
 		}
 	};
 
+	private final Runnable auth = new Runnable() {
+
+		@Override
+		public void run() {
+			try {
+				final Map<String, String> result = vkAuth.auth(emailView.getText().toString(), passwordView.getText().toString());
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						parseResultOnMainThread(result);
+					}
+				});
+			} catch (final IOException e) {
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						showErrorOnMainThread(e);
+					}
+				});
+			} finally {
+				runOnUiThread(showContent);
+			}
+		}
+	};
+
 	private void auth() {
 		if (!isContentShown()) {
 			return;
 		}
 
 		setContentShown(false);
-		runOnBackgroundThread(new Runnable() {
-
-			@Override
-			public void run() {
-				try {
-					final Map<String, String> result = vkAuth.auth(emailView.getText().toString(), passwordView.getText().toString());
-					runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-							parseResultOnMainThread(result);
-						}
-					});
-				} catch (final IOException e) {
-					runOnUiThread(new Runnable() {
-
-						@Override
-						public void run() {
-							showErrorOnMainThread(e);
-						}
-					});
-				} finally {
-					runOnUiThread(showContent);
-				}
-			}
-		});
+		runOnBackgroundThread(auth);
 	}
 
 	private void parseResultOnMainThread(final Map<String, String> result) {
@@ -165,4 +171,5 @@ public class LoginFragment extends VibesProgressFragment {
 		// TODO error logic
 		Crouton.makeText(getSherlockActivity(), e.getMessage(), Style.ALERT).show();
 	}
+
 }

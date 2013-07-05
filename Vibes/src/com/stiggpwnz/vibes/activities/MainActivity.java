@@ -8,7 +8,6 @@ import android.support.v4.widget.DrawerLayout;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.android.debug.hv.ViewServer;
 import com.sherlock.navigationdrawer.compat.SherlockActionBarDrawerToggle;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
@@ -45,20 +44,6 @@ public class MainActivity extends SherlockFragmentActivity {
 					.commit();
 		}
 
-		// TODO remove
-		ViewServer.get(this).addWindow(this);
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		ViewServer.get(this).setFocusedWindow(this);
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		ViewServer.get(this).removeWindow(this);
 	}
 
 	@Override

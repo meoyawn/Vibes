@@ -12,3 +12,4 @@ local.properties
 .settings/
 .loadpath
 .DS_Store
+.apt_generated/

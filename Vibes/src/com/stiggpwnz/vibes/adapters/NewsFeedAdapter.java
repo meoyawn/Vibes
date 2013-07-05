@@ -84,7 +84,7 @@ public class NewsFeedAdapter extends GPlusListAdapter {
 
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.post, parent, false);
-			convertView.setTag(new PostViewHolder(convertView, audios.size()));
+			convertView.setTag(new PostViewHolder(convertView));
 		}
 
 		final PostViewHolder holder = (PostViewHolder) convertView.getTag();

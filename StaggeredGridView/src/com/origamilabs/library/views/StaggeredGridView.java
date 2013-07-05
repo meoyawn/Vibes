@@ -60,50 +60,35 @@ import com.origamilabs.library.R;
  * ListView and GridView just not complex enough? Try StaggeredGridView!
  * 
  * <p>
- * StaggeredGridView presents a multi-column grid with consistent column sizes
- * but varying row sizes between the columns. Each successive item from a
- * {@link android.widget.ListAdapter ListAdapter} will be arranged from top to
- * bottom, left to right. The largest vertical gap is always filled first.
+ * StaggeredGridView presents a multi-column grid with consistent column sizes but varying row sizes between the columns. Each successive item from a
+ * {@link android.widget.ListAdapter ListAdapter} will be arranged from top to bottom, left to right. The largest vertical gap is always filled first.
  * </p>
  * 
  * <p>
- * Item views may span multiple columns as specified by their
- * {@link LayoutParams}. The attribute <code>android:layout_span</code> may be
- * used when inflating item views from xml.
+ * Item views may span multiple columns as specified by their {@link LayoutParams}. The attribute <code>android:layout_span</code> may be used when inflating
+ * item views from xml.
  * </p>
  */
 public class StaggeredGridView extends ViewGroup {
 	private static final String TAG = "StaggeredGridView";
 
 	/*
-	 * There are a few things you should know if you're going to make
-	 * modifications to StaggeredGridView.
+	 * There are a few things you should know if you're going to make modifications to StaggeredGridView.
 	 * 
-	 * Like ListView, SGV populates from an adapter and recycles views that fall
-	 * out of the visible boundaries of the grid. A few invariants always hold:
+	 * Like ListView, SGV populates from an adapter and recycles views that fall out of the visible boundaries of the grid. A few invariants always hold:
 	 * 
-	 * - mFirstPosition is the adapter position of the View returned by
-	 * getChildAt(0). - Any child index can be translated to an adapter position
-	 * by adding mFirstPosition. - Any adapter position can be translated to a
-	 * child index by subtracting mFirstPosition. - Views for items in the range
-	 * [mFirstPosition, mFirstPosition + getChildCount()) are currently attached
-	 * to the grid as children. All other adapter positions do not have active
-	 * views.
+	 * - mFirstPosition is the adapter position of the View returned by getChildAt(0). - Any child index can be translated to an adapter position by adding
+	 * mFirstPosition. - Any adapter position can be translated to a child index by subtracting mFirstPosition. - Views for items in the range [mFirstPosition,
+	 * mFirstPosition + getChildCount()) are currently attached to the grid as children. All other adapter positions do not have active views.
 	 * 
-	 * This means a few things thanks to the staggered grid's nature. Some views
-	 * may stay attached long after they have scrolled offscreen if removing and
+	 * This means a few things thanks to the staggered grid's nature. Some views may stay attached long after they have scrolled offscreen if removing and
 	 * recycling them would result in breaking one of the invariants above.
 	 * 
-	 * LayoutRecords are used to track data about a particular item's layout
-	 * after the associated view has been removed. These let positioning and the
-	 * choice of column for an item remain consistent even though the rules for
-	 * filling content up vs. filling down vary.
+	 * LayoutRecords are used to track data about a particular item's layout after the associated view has been removed. These let positioning and the choice of
+	 * column for an item remain consistent even though the rules for filling content up vs. filling down vary.
 	 * 
-	 * Whenever layout parameters for a known LayoutRecord change, other
-	 * LayoutRecords before or after it may need to be invalidated. e.g. if the
-	 * item's height or the number of columns it spans changes, all bets for
-	 * other items in the same direction are off since the cached information no
-	 * longer applies.
+	 * Whenever layout parameters for a known LayoutRecord change, other LayoutRecords before or after it may need to be invalidated. e.g. if the item's height
+	 * or the number of columns it spans changes, all bets for other items in the same direction are off since the cached information no longer applies.
 	 */
 
 	private ListAdapter mAdapter;
@@ -341,10 +326,8 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Set a fixed number of columns for this grid. Space will be divided evenly
-	 * among all columns, respecting the item margin between columns. The
-	 * default is 2. (If it were 1, perhaps you should be using a
-	 * {@link android.widget.ListView ListView}.)
+	 * Set a fixed number of columns for this grid. Space will be divided evenly among all columns, respecting the item margin between columns. The default is
+	 * 2. (If it were 1, perhaps you should be using a {@link android.widget.ListView ListView}.)
 	 * 
 	 * @param colCount
 	 *            Number of columns to display.
@@ -376,8 +359,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Set the margin between items in pixels. This margin is applied both
-	 * vertically and horizontally.
+	 * Set the margin between items in pixels. This margin is applied both vertically and horizontally.
 	 * 
 	 * @param marginPixels
 	 *            Spacing between items in pixels
@@ -391,8 +373,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Return the first adapter position with a view currently attached as a
-	 * child view of this grid.
+	 * Return the first adapter position with a view currently attached as a child view of this grid.
 	 * 
 	 * @return the adapter position represented by the view at getChildAt(0).
 	 */
@@ -633,8 +614,7 @@ public class StaggeredGridView extends ViewGroup {
 	 * 
 	 * @param deltaY
 	 *            Pixels that content should move by
-	 * @return true if the movement completed, false if it was stopped
-	 *         prematurely.
+	 * @return true if the movement completed, false if it was stopped prematurely.
 	 */
 	private boolean trackMotionScroll(int deltaY, boolean allowOverScroll) {
 		final boolean contentFits = contentFits();
@@ -719,9 +699,8 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Important: this method will leave offscreen views attached if they are
-	 * required to maintain the invariant that child view with index i is always
-	 * the view corresponding to position mFirstPosition + i.
+	 * Important: this method will leave offscreen views attached if they are required to maintain the invariant that child view with index i is always the view
+	 * corresponding to position mFirstPosition + i.
 	 */
 	private void recycleOffscreenViews() {
 		final int height = getHeight();
@@ -1166,8 +1145,7 @@ public class StaggeredGridView extends ViewGroup {
 	 *            Position to start filling from
 	 * @param overhang
 	 *            the number of extra pixels to fill beyond the current top edge
-	 * @return the max overhang beyond the beginning of the view of any added
-	 *         items at the top
+	 * @return the max overhang beyond the beginning of the view of any added items at the top
 	 */
 	final int fillUp(int fromPosition, int overhang) {
 
@@ -1352,10 +1330,8 @@ public class StaggeredGridView extends ViewGroup {
 	 * @param fromPosition
 	 *            Position to start filling from
 	 * @param overhang
-	 *            the number of extra pixels to fill beyond the current bottom
-	 *            edge
-	 * @return the max overhang beyond the end of the view of any added items at
-	 *         the bottom
+	 *            the number of extra pixels to fill beyond the current bottom edge
+	 * @return the max overhang beyond the end of the view of any added items at the bottom
 	 */
 	final int fillDown(int fromPosition, int overhang) {
 
@@ -1511,8 +1487,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * @return column that the next view filling upwards should occupy. This is
-	 *         the bottom-most position available for a single-column item.
+	 * @return column that the next view filling upwards should occupy. This is the bottom-most position available for a single-column item.
 	 */
 	final int getNextColumnUp() {
 		int result = -1;
@@ -1574,8 +1549,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * @return column that the next view filling downwards should occupy. This
-	 *         is the top-most position available.
+	 * @return column that the next view filling downwards should occupy. This is the top-most position available.
 	 */
 	final int getNextColumnDown(int position) {
 		int result = -1;
@@ -1632,8 +1606,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Obtain a populated view from the adapter. If optScrap is non-null and is
-	 * not reused it will be placed in the recycle bin.
+	 * Obtain a populated view from the adapter. If optScrap is non-null and is not reused it will be placed in the recycle bin.
 	 * 
 	 * @param position
 	 *            position to get view for
@@ -1708,8 +1681,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Clear all state because the grid will be used for a completely different
-	 * set of data.
+	 * Clear all state because the grid will be used for a completely different set of data.
 	 */
 	private void clearAllState() {
 		// Clear all layout records and views
@@ -1747,8 +1719,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Scroll the list so the first visible position in the grid is the first
-	 * item in the adapter.
+	 * Scroll the list so the first visible position in the grid is the first item in the adapter.
 	 */
 	public void setSelectionToTop() {
 		// Clear out the views (but don't clear out the layout records or
@@ -1925,7 +1896,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	private class RecycleBin {
-		
+
 		private ArrayList<View>[] mScrapViews;
 		private int mViewTypeCount;
 		private int mMaxScrap;
@@ -2148,8 +2119,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * A base class for Runnables that will check that their view is still
-	 * attached to the original window as when the Runnable was created.
+	 * A base class for Runnables that will check that their view is still attached to the original window as when the Runnable was created.
 	 * 
 	 */
 	private class WindowRunnnable {
@@ -2191,18 +2161,15 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * The top-level view of a list item can implement this interface to allow
-	 * itself to modify the bounds of the selection shown for that item.
+	 * The top-level view of a list item can implement this interface to allow itself to modify the bounds of the selection shown for that item.
 	 */
 	public interface SelectionBoundsAdjuster {
 		/**
-		 * Called to allow the list item to adjust the bounds shown for its
-		 * selection.
+		 * Called to allow the list item to adjust the bounds shown for its selection.
 		 * 
 		 * @param bounds
-		 *            On call, this contains the bounds the list has selected
-		 *            for the item (that is the bounds of the entire view). The
-		 *            values can be modified as desired.
+		 *            On call, this contains the bounds the list has selected for the item (that is the bounds of the entire view). The values can be modified
+		 *            as desired.
 		 */
 		public void adjustListItemSelectionBounds(Rect bounds);
 	}
@@ -2387,9 +2354,8 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Creates the ContextMenuInfo returned from {@link #getContextMenuInfo()}.
-	 * This methods knows the view, position and ID of the item that received
-	 * the long press.
+	 * Creates the ContextMenuInfo returned from {@link #getContextMenuInfo()}. This methods knows the view, position and ID of the item that received the long
+	 * press.
 	 * 
 	 * @param view
 	 *            The view that received the long press.
@@ -2397,16 +2363,14 @@ public class StaggeredGridView extends ViewGroup {
 	 *            The position of the item that received the long press.
 	 * @param id
 	 *            The ID of the item that received the long press.
-	 * @return The extra information that should be returned by
-	 *         {@link #getContextMenuInfo()}.
+	 * @return The extra information that should be returned by {@link #getContextMenuInfo()}.
 	 */
 	ContextMenuInfo createContextMenuInfo(View view, int position, long id) {
 		return new AdapterContextMenuInfo(view, position, id);
 	}
 
 	/**
-	 * Extra menu information provided to the
-	 * {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) }
+	 * Extra menu information provided to the {@link android.view.View.OnCreateContextMenuListener#onCreateContextMenu(ContextMenu, View, ContextMenuInfo) }
 	 * callback when a context menu is brought up for this AdapterView.
 	 * 
 	 */
@@ -2419,14 +2383,12 @@ public class StaggeredGridView extends ViewGroup {
 		}
 
 		/**
-		 * The child view for which the context menu is being displayed. This
-		 * will be one of the children of this AdapterView.
+		 * The child view for which the context menu is being displayed. This will be one of the children of this AdapterView.
 		 */
 		public View targetView;
 
 		/**
-		 * The position in the adapter for which the context menu is being
-		 * displayed.
+		 * The position in the adapter for which the context menu is being displayed.
 		 */
 		public int position;
 
@@ -2437,8 +2399,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Returns the selector {@link android.graphics.drawable.Drawable} that is
-	 * used to draw the selection in the list.
+	 * Returns the selector {@link android.graphics.drawable.Drawable} that is used to draw the selection in the list.
 	 * 
 	 * @return the drawable used to display the selector
 	 */
@@ -2447,8 +2408,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Set a Drawable that should be used to highlight the currently selected
-	 * item.
+	 * Set a Drawable that should be used to highlight the currently selected item.
 	 * 
 	 * @param resID
 	 *            A Drawable resource to use as the selection highlight.
@@ -2511,9 +2471,8 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Indicates whether this view is in a state where the selector should be
-	 * drawn. This will happen if we have focus but are not in touch mode, or we
-	 * are in the middle of displaying the pressed state for an item.
+	 * Indicates whether this view is in a state where the selector should be drawn. This will happen if we have focus but are not in touch mode, or we are in
+	 * the middle of displaying the pressed state for an item.
 	 * 
 	 * @return True if the selector should be shown
 	 */
@@ -2522,8 +2481,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * @return True if the current touch mode requires that we draw the selector
-	 *         in the pressed state.
+	 * @return True if the current touch mode requires that we draw the selector in the pressed state.
 	 */
 	boolean touchModeDrawsInPressedState() {
 		// FIXME use isPressed for this
@@ -2537,8 +2495,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Register a callback to be invoked when an item in this AdapterView has
-	 * been clicked.
+	 * Register a callback to be invoked when an item in this AdapterView has been clicked.
 	 * 
 	 * @param listener
 	 *            The callback that will be invoked.
@@ -2548,8 +2505,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * @return The callback to be invoked with an item in this AdapterView has
-	 *         been clicked, or null id no callback has been set.
+	 * @return The callback to be invoked with an item in this AdapterView has been clicked, or null id no callback has been set.
 	 */
 	public final OnItemClickListener getOnItemClickListener() {
 		return mOnItemClickListener;
@@ -2558,17 +2514,14 @@ public class StaggeredGridView extends ViewGroup {
 	public interface OnItemClickListener {
 
 		/**
-		 * Callback method to be invoked when an item in this AdapterView has
-		 * been clicked.
+		 * Callback method to be invoked when an item in this AdapterView has been clicked.
 		 * <p>
-		 * Implementers can call getItemAtPosition(position) if they need to
-		 * access the data associated with the selected item.
+		 * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
 		 * 
 		 * @param parent
 		 *            The AdapterView where the click happened.
 		 * @param view
-		 *            The view within the AdapterView that was clicked (this
-		 *            will be a view provided by the adapter)
+		 *            The view within the AdapterView that was clicked (this will be a view provided by the adapter)
 		 * @param position
 		 *            The position of the view in the adapter.
 		 * @param id
@@ -2578,8 +2531,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * Register a callback to be invoked when an item in this AdapterView has
-	 * been clicked and held
+	 * Register a callback to be invoked when an item in this AdapterView has been clicked and held
 	 * 
 	 * @param listener
 	 *            The callback that will run
@@ -2592,8 +2544,7 @@ public class StaggeredGridView extends ViewGroup {
 	}
 
 	/**
-	 * @return The callback to be invoked with an item in this AdapterView has
-	 *         been clicked and held, or null id no callback as been set.
+	 * @return The callback to be invoked with an item in this AdapterView has been clicked and held, or null id no callback as been set.
 	 */
 	public final OnItemLongClickListener getOnItemLongClickListener() {
 		return mOnItemLongClickListener;
@@ -2601,11 +2552,9 @@ public class StaggeredGridView extends ViewGroup {
 
 	public interface OnItemLongClickListener {
 		/**
-		 * Callback method to be invoked when an item in this view has been
-		 * clicked and held.
+		 * Callback method to be invoked when an item in this view has been clicked and held.
 		 * 
-		 * Implementers can call getItemAtPosition(position) if they need to
-		 * access the data associated with the selected item.
+		 * Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
 		 * 
 		 * @param parent
 		 *            The AbsListView where the click happened
@@ -2628,9 +2577,7 @@ public class StaggeredGridView extends ViewGroup {
 	 *            X in local coordinate
 	 * @param y
 	 *            Y in local coordinate
-	 * @return The position of the item which contains the specified point, or
-	 *         {@link #INVALID_POSITION} if the point does not intersect an
-	 *         item.
+	 * @return The position of the item which contains the specified point, or {@link #INVALID_POSITION} if the point does not intersect an item.
 	 */
 	public int pointToPosition(int x, int y) {
 		Rect frame = mTouchFrame;

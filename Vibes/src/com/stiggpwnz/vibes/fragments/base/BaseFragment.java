@@ -1,30 +1,19 @@
-package com.stiggpwnz.vibes.fragments;
+package com.stiggpwnz.vibes.fragments.base;
 
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.View;
+import butterknife.Views;
 
-import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.stiggpwnz.vibes.util.BusProvider;
 
-public abstract class VibesListFragment extends SherlockListFragment implements VibesFragmentInterface {
-
-	private boolean created;
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setRetainInstance(true);
-		setHasOptionsMenu(true);
-	}
+public class BaseFragment extends SherlockFragment implements FragmentInterface {
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		if (created) {
-			return;
-		}
-		onFirstCreated(view);
-		created = true;
+		Views.inject(this, view);
 	}
 
 	@Override
@@ -40,6 +29,12 @@ public abstract class VibesListFragment extends SherlockListFragment implements 
 	}
 
 	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		Views.reset(this);
+	}
+
+	@Override
 	public void runOnUiThread(Runnable runnable) {
 		if (getSherlockActivity() != null) {
 			getSherlockActivity().runOnUiThread(runnable);
@@ -48,6 +43,14 @@ public abstract class VibesListFragment extends SherlockListFragment implements 
 
 	@Override
 	public void runOnBackgroundThread(Runnable runnable) {
-		new Thread(runnable).start();
+		if (runnable == null) {
+			return;
+		}
+
+		if (Looper.myLooper() == Looper.getMainLooper()) {
+			new Thread(runnable).start();
+		} else {
+			runnable.run();
+		}
 	}
 }
