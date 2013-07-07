@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jsoup.Jsoup;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParser;
@@ -23,8 +23,7 @@ public class Post {
 	public int post_id;
 	public String post_type;
 
-	@JsonDeserialize(using = HtmlParser.class)
-	public String text;
+	@JsonDeserialize(using = HtmlParser.class) public String text;
 	public int signer_id;
 	public List<Attachment> attachments;
 	public Comments comments;
@@ -67,8 +66,7 @@ public class Post {
 
 		@Override
 		public String deserialize(JsonParser arg0, DeserializationContext arg1) throws IOException, JsonProcessingException {
-			return Jsoup.parse(arg0.getValueAsString()).text();
+			return StringEscapeUtils.unescapeHtml4(arg0.getValueAsString());
 		}
-
 	}
 }

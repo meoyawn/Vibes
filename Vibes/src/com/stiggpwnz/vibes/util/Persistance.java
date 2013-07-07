@@ -1,12 +1,5 @@
 package com.stiggpwnz.vibes.util;
 
-import static com.stiggpwnz.vibes.fragments.LoginFragment.CLIENT_ID;
-import static com.stiggpwnz.vibes.fragments.LoginFragment.SCOPE;
-import static com.stiggpwnz.vkauth.VKAuthenticator.ACCESS_TOKEN;
-import static com.stiggpwnz.vkauth.VKAuthenticator.ERROR;
-import static com.stiggpwnz.vkauth.VKAuthenticator.EXPIRES_IN;
-import static com.stiggpwnz.vkauth.VKAuthenticator.USER_ID;
-
 import java.io.IOException;
 import java.util.Map;
 
@@ -16,13 +9,13 @@ import android.preference.PreferenceManager;
 
 import com.stiggpwnz.vibes.Vibes;
 import com.stiggpwnz.vibes.vk.AuthException;
-import com.stiggpwnz.vibes.vk.AuthException.Reason;
-import com.stiggpwnz.vkauth.VKAuthenticator;
+import com.stiggpwnz.vibes.vk.VKAuthenticator;
 
 public class Persistance {
 
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
+	private static final String ACCESS_TOKEN = "access_token";
+	private static final String USER_ID = "user_id";
+	private static final String EXPIRES_IN = "expires_in";
 
 	private static class Holder {
 		private static final SharedPreferences INSTANCE = PreferenceManager.getDefaultSharedPreferences(Vibes.getContext());
@@ -32,33 +25,30 @@ public class Persistance {
 		return Holder.INSTANCE;
 	}
 
-	public static void ensureAuth() throws IOException, AuthException {
+	private static boolean checkAuth() {
+		return getAccessToken() != null && System.currentTimeMillis() < Long.valueOf(getString(EXPIRES_IN, null));
+	}
+
+	public static boolean ensureAuth() throws IOException, AuthException {
 		if (checkAuth()) {
-			return;
+			return true;
 		}
 
-		if (getPassword() == null) {
-			throw new AuthException(Reason.MISSING_CREDENTIALS);
-		}
-
-		VKAuthenticator vkAuth = new VKAuthenticator(CLIENT_ID, SCOPE, Cookies.get());
-		final Map<String, String> result = vkAuth.auth(getEmail(), getPassword());
+		final Map<String, String> result = VKAuthenticator.auth();
 		if (result != null) {
-			if (result.containsKey(ACCESS_TOKEN)) {
-				saveVK(result);
-				Cookies.save(vkAuth.getCookieManager().getStore());
-				return;
-			} else {
-				if (result.get(ERROR).equals(VKAuthenticator.ERROR_INCORRECT_CREDENTIALS)) {
-					saveEmailPassword(null, null);
-					throw new AuthException(Reason.MISSING_CREDENTIALS);
-				} else if (result.get(ERROR).equals(VKAuthenticator.ERROR_CAPTCHA_NEEDED)) {
-					throw new AuthException(Reason.CAPTCHA_NEEDED);
-				}
-			}
+			saveVK(result);
+			return true;
 		}
 
-		throw new AuthException(Reason.UNKNOWN_FATAL);
+		return false;
+	}
+
+	public static boolean resetVk() {
+		return edit().putString(ACCESS_TOKEN, null).putString(EXPIRES_IN, null).putString(USER_ID, null).commit();
+	}
+
+	private static Editor edit() {
+		return getInstance().edit();
 	}
 
 	public static boolean saveVK(Map<String, String> result) {
@@ -76,31 +66,15 @@ public class Persistance {
 		return editor.commit();
 	}
 
+	private static String getString(String key, String defValue) {
+		return getInstance().getString(key, defValue);
+	}
+
 	public static String getAccessToken() {
 		return getString(ACCESS_TOKEN, null);
 	}
 
 	public static int getUserId() {
 		return Integer.valueOf(getString(USER_ID, null));
-	}
-
-	public static boolean checkAuth() {
-		return getAccessToken() != null && System.currentTimeMillis() < Long.valueOf(getString(EXPIRES_IN, null));
-	}
-
-	public static boolean saveEmailPassword(String email, String password) {
-		return getInstance().edit().putString(EMAIL, email).putString(PASSWORD, password).commit();
-	}
-
-	public static String getEmail() {
-		return getString(EMAIL, null);
-	}
-
-	public static String getPassword() {
-		return getString(PASSWORD, null);
-	}
-
-	private static String getString(String key, String defValue) {
-		return getInstance().getString(key, defValue);
 	}
 }

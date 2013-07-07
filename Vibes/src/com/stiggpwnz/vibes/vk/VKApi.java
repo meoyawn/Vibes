@@ -4,7 +4,7 @@ import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
-public interface Vkontakte {
+public interface VKApi {
 
 	public static final String SERVER = "https://api.vk.com/method";
 

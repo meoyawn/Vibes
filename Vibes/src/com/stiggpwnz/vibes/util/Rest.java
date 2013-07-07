@@ -8,9 +8,8 @@ import retrofit.client.OkClient;
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.okhttp.OkHttpClient;
 import com.stiggpwnz.vibes.BuildConfig;
-import com.stiggpwnz.vibes.Vibes;
 import com.stiggpwnz.vibes.util.Jackson.JacksonConverter;
-import com.stiggpwnz.vibes.vk.Vkontakte;
+import com.stiggpwnz.vibes.vk.VKApi;
 
 public class Rest {
 
@@ -19,19 +18,23 @@ public class Rest {
 		public static final int CACHE_SIZE = 5 * 1024 * 1024; // 20 MB
 
 		public static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
-		public static final Vkontakte VKONTAKTE = new RestAdapter.Builder().setClient(new OkClient(HTTP_CLIENT)).setServer(Vkontakte.SERVER)
-				.setConverter(new JacksonConverter(Jackson.getObjectMapper())).setDebug(BuildConfig.DEBUG).build().create(Vkontakte.class);
+		public static final VKApi VKONTAKTE = new RestAdapter.Builder().setClient(new OkClient(HTTP_CLIENT)).setServer(VKApi.SERVER)
+				.setConverter(new JacksonConverter(Jackson.getObjectMapper())).setDebug(BuildConfig.DEBUG).build().create(VKApi.class);
 
 		static {
 			try {
-				HTTP_CLIENT.setResponseCache(new HttpResponseCache(Vibes.getCacheDir("http"), CACHE_SIZE));
+				HTTP_CLIENT.setResponseCache(new HttpResponseCache(Utils.getCacheDir("http"), CACHE_SIZE));
 			} catch (IOException e) {
-				Log.e(e);
+				throw new RuntimeException(e);
 			}
 		}
 	}
 
-	public static Vkontakte vkontakte() {
+	public static VKApi vkontakte() {
 		return Holder.VKONTAKTE;
+	}
+
+	public static OkHttpClient getHttpClient() {
+		return Holder.HTTP_CLIENT;
 	}
 }
