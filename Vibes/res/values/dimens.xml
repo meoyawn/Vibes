@@ -3,5 +3,6 @@
 
     <dimen name="padding_post">8dp</dimen>
     <dimen name="padding_list">16dp</dimen>
+    <dimen name="minimum_item_width">330dp</dimen>
 
 </resources>

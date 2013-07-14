@@ -14,6 +14,14 @@ import com.stiggpwnz.vibes.util.BusProvider;
 
 public class Player implements OnBufferingUpdateListener, OnCompletionListener, OnErrorListener, OnSeekCompleteListener, OnInfoListener {
 
+	public static enum State {
+		NOT_PREPARED, PREPARED, PREPARING, RESETING, SEEKING
+	}
+
+	public static enum Action {
+		PLAY, PAUSE, CLEAR
+	}
+
 	private final MediaPlayer mp = new MediaPlayer();
 
 	private State state = State.NOT_PREPARED;
@@ -47,7 +55,7 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 			try {
 				mp.setDataSource(source);
 				mp.prepare();
-				onPrepared();
+				onPrepareComplete();
 			} catch (IllegalArgumentException e) {
 				throw new RuntimeException(e);
 			} catch (SecurityException e) {
@@ -93,11 +101,10 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 		runInBackground(reset);
 	}
 
-	private void onPrepared() {
+	private void onPrepareComplete() {
 		state = State.PREPARED;
 
 		if (futurePosition >= 0) {
-			System.out.println("prepared");
 			seekTo(futurePosition);
 			futurePosition = -1;
 		} else {
@@ -119,7 +126,6 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 	@Override
 	public void onSeekComplete(MediaPlayer mp) {
 		state = State.PREPARED;
-		System.out.println("seek complete");
 
 		if (futurePosition >= 0) {
 			seekTo(futurePosition);
@@ -142,11 +148,38 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 	}
 
 	public void play() {
+		action = Action.PLAY;
+		switch (state) {
+		case NOT_PREPARED:
+			prepareAsync();
+			break;
 
+		case PREPARED:
+			mp.start();
+			break;
+
+		case PREPARING:
+		case RESETING:
+		case SEEKING:
+			// just wait
+			break;
+		}
 	}
 
 	public void pause() {
+		action = Action.PAUSE;
+		switch (state) {
+		case NOT_PREPARED:
+			prepareAsync();
+			break;
 
+		case PREPARED:
+		case PREPARING:
+		case RESETING:
+		case SEEKING:
+			// do nothing or just wait
+			break;
+		}
 	}
 
 	public void seekTo(int msec) {
@@ -157,7 +190,6 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 			break;
 
 		case PREPARED:
-			System.out.println("seeking to " + msec);
 			state = State.SEEKING;
 			currentPosition = msec;
 			mp.seekTo(msec);
@@ -166,7 +198,6 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 		case PREPARING:
 		case RESETING:
 		case SEEKING:
-			System.out.println("setting future position " + msec);
 			futurePosition = msec;
 			break;
 		}
@@ -248,20 +279,6 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 		}
 	}
 
-	public static enum State {
-		NOT_PREPARED,
-		PREPARED,
-		PREPARING,
-		RESETING,
-		SEEKING
-	}
-
-	public static enum Action {
-		PLAY,
-		PAUSE,
-		CLEAR
-	}
-
 	public State getState() {
 		return state;
 	}
@@ -287,7 +304,6 @@ public class Player implements OnBufferingUpdateListener, OnCompletionListener, 
 		case NOT_PREPARED:
 			return 0;
 		}
-
 		return 0;
 	}
 }

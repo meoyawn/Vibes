@@ -9,5 +9,7 @@
     <string name="user_profile_image">User profile image</string>
     <string name="image_in_post">Image in post</string>
     <string name="play">Play</string>
+    <string name="retry">Retry</string>
+    <string name="no_connection">No connection</string>
 
 </resources>

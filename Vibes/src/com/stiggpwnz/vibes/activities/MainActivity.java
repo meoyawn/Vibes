@@ -23,7 +23,7 @@ public class MainActivity extends HomeAsUpActivity {
 
 	@Override
 	public void onCreateView(Bundle savedInstanceState) {
-		setContentView(R.layout.main_fragment);
+		setContentView(R.layout.main_root);
 	}
 
 	@Override

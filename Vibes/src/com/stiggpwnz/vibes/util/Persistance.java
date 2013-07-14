@@ -8,8 +8,7 @@ import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 import com.stiggpwnz.vibes.Vibes;
-import com.stiggpwnz.vibes.vk.AuthException;
-import com.stiggpwnz.vibes.vk.VKAuthenticator;
+import com.stiggpwnz.vibes.vk.VKontakte;
 
 public class Persistance {
 
@@ -29,21 +28,20 @@ public class Persistance {
 		return getAccessToken() != null && System.currentTimeMillis() < Long.valueOf(getString(EXPIRES_IN, null));
 	}
 
-	public static boolean ensureAuth() throws IOException, AuthException {
+	public static boolean ensureAuth() throws IOException {
 		if (checkAuth()) {
 			return true;
 		}
 
-		final Map<String, String> result = VKAuthenticator.auth();
+		final Map<String, String> result = VKontakte.auth();
 		if (result != null) {
-			saveVK(result);
-			return true;
+			return saveVK(result);
 		}
 
 		return false;
 	}
 
-	public static boolean resetVk() {
+	public static boolean resetAuth() {
 		return edit().putString(ACCESS_TOKEN, null).putString(EXPIRES_IN, null).putString(USER_ID, null).commit();
 	}
 

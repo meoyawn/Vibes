@@ -2,8 +2,9 @@ package com.stiggpwnz.vibes.media;
 
 public class PlayerEngine {
 
-	private Player[] players;
+	private final Player[] players;
 	private Playlist playlist;
+	private int currentPlayer;
 
 	public PlayerEngine(int playerCount) {
 		players = new Player[playerCount];
@@ -21,18 +22,20 @@ public class PlayerEngine {
 	}
 
 	public void play() {
-
+		for (Player player : players) {
+			if ()
+		}
 	}
 
 	public void pause() {
 
 	}
-	
+
 	public void next() {
-		
+
 	}
-	
+
 	public void prev() {
-		
+
 	}
 }

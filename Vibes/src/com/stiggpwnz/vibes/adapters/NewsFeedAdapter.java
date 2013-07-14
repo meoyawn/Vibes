@@ -20,11 +20,11 @@ import com.googlecode.cqengine.index.unique.UniqueIndex;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.vk.Audio;
-import com.stiggpwnz.vibes.vk.NewsFeed;
-import com.stiggpwnz.vibes.vk.Photo;
-import com.stiggpwnz.vibes.vk.Post;
-import com.stiggpwnz.vibes.vk.Unit;
+import com.stiggpwnz.vibes.vk.models.Audio;
+import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.Photo;
+import com.stiggpwnz.vibes.vk.models.Post;
+import com.stiggpwnz.vibes.vk.models.Unit;
 
 public class NewsFeedAdapter extends GPlusListAdapter {
 
@@ -54,6 +54,17 @@ public class NewsFeedAdapter extends GPlusListAdapter {
 
 		units.addAll(newsFeed.profiles);
 		units.addAll(newsFeed.groups);
+	}
+
+	public void append(NewsFeed newsFeed) {
+		filter(newsFeed);
+
+		this.newsFeed.new_from = newsFeed.new_from;
+		this.newsFeed.new_offset = newsFeed.new_offset;
+
+		this.newsFeed.items.addAll(newsFeed.items);
+		this.newsFeed.profiles.addAll(newsFeed.profiles);
+		this.newsFeed.groups.addAll(newsFeed.groups);
 	}
 
 	@Override
@@ -91,15 +102,15 @@ public class NewsFeedAdapter extends GPlusListAdapter {
 
 		Unit unit = units.retrieve(equal(Unit.ID, post.source_id)).uniqueResult();
 
-		ImageLoader.getInstance().displayImage(unit.getProfilePic(), holder.profilePic, userOptions, null);
+		ImageLoader.getInstance().displayImage(unit.getProfilePic(), holder.profilePic, userOptions);
 
 		holder.user.setText(unit.getName());
 		holder.time.setText(DateUtils.getRelativeTimeSpanString(post.date * 1000));
 
 		String text = post.shortText;
 		if (!TextUtils.isEmpty(text)) {
-			holder.text.setVisibility(View.VISIBLE);
 			holder.text.setText(text);
+			holder.text.setVisibility(View.VISIBLE);
 		} else {
 			holder.text.setVisibility(View.GONE);
 		}
@@ -120,14 +131,4 @@ public class NewsFeedAdapter extends GPlusListAdapter {
 		return newsFeed;
 	}
 
-	public void append(NewsFeed newsFeed) {
-		filter(newsFeed);
-
-		this.newsFeed.new_from = newsFeed.new_from;
-		this.newsFeed.new_offset = newsFeed.new_offset;
-
-		this.newsFeed.items.addAll(newsFeed.items);
-		this.newsFeed.profiles.addAll(newsFeed.profiles);
-		this.newsFeed.groups.addAll(newsFeed.groups);
-	}
 }

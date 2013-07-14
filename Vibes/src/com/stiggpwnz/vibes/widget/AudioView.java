@@ -15,8 +15,7 @@ import butterknife.Views;
 import com.devspark.robototextview.widget.RobotoTextView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Vibes;
-import com.stiggpwnz.vibes.util.Log;
-import com.stiggpwnz.vibes.vk.Audio;
+import com.stiggpwnz.vibes.vk.models.Audio;
 
 public class AudioView extends LinearLayout {
 
@@ -51,8 +50,7 @@ public class AudioView extends LinearLayout {
 
 	public AudioView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		Log.d("new AudioView");
-		LayoutInflater.from(context).inflate(R.layout.post_audio, this, true);
+		LayoutInflater.from(context).inflate(R.layout.audio, this, true);
 		Views.inject(this);
 		play.setOnClickListener(onClickListener);
 	}

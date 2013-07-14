@@ -10,7 +10,7 @@ import butterknife.Views;
 import com.devspark.robototextview.widget.RobotoTextView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.util.Log;
-import com.stiggpwnz.vibes.vk.Audio;
+import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
 

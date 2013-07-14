@@ -1,22 +1,23 @@
 package com.stiggpwnz.vibes.fragments;
 
-import java.io.IOException;
-
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import butterknife.InjectView;
 
+import com.android.ex.widget.StaggeredGridView;
 import com.cuubonandroid.sugaredlistanimations.SpeedScrollListener;
-import com.origamilabs.library.views.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.EndlessNewsFeedAdapter;
 import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
 import com.stiggpwnz.vibes.util.Persistance;
-import com.stiggpwnz.vibes.util.Rest;
-import com.stiggpwnz.vibes.vk.AuthException;
-import com.stiggpwnz.vibes.vk.NewsFeed.Result;
+import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.NewsFeed.Result;
 
 public class NewsFeedFragment extends RetainedProgressFragment {
 
@@ -24,6 +25,7 @@ public class NewsFeedFragment extends RetainedProgressFragment {
 	@InjectView(R.id.grid) StaggeredGridView gridView;
 
 	private SpeedScrollListener scrollListener;
+	private NewsFeed.Result result;
 
 	@Override
 	protected void onCreateView(Bundle savedInstanceState) {
@@ -38,6 +40,11 @@ public class NewsFeedFragment extends RetainedProgressFragment {
 			listView.setOnScrollListener(scrollListener);
 		}
 
+		if (gridView != null) {
+			gridView.setItemMargin((int) getResources().getDimension(R.dimen.padding_list));
+			gridView.setColumnCount(getResources().getInteger(R.integer.num_columns));
+		}
+
 		if (result != null) {
 			postResult(result);
 		}
@@ -45,26 +52,37 @@ public class NewsFeedFragment extends RetainedProgressFragment {
 
 	@Override
 	public void onFirstCreated(View view) {
-		runOnBackgroundThread(new Runnable() {
+		makeRequest();
+	}
+
+	private void makeRequest() {
+		VKontakte.get().getNewsFeed(new Callback<Result>() {
 
 			@Override
-			public void run() {
-				makeRequest();
+			public void success(Result result, Response arg1) {
+				if (result.isResponse()) {
+					postResult(result);
+				} else {
+					if (result.error.isAuthError()) {
+						Persistance.resetAuth();
+						makeRequest();
+					} else {
+						onError();
+					}
+				}
+			}
+
+			@Override
+			public void failure(RetrofitError arg0) {
+				onError();
 			}
 		});
 	}
 
-	private Result result;
-
-	// UI thread
-	private void postResult(final Result result) {
+	protected void postResult(NewsFeed.Result result) {
 		this.result = result;
-		if (result.response != null) {
-			setListAdapter(new EndlessNewsFeedAdapter(getSherlockActivity(), new NewsFeedAdapter(getSherlockActivity(), result.response, scrollListener),
-					R.layout.loading_footer));
-		} else {
-			// TODO handle the fucking error
-		}
+		setListAdapter(new EndlessNewsFeedAdapter(getSherlockActivity(), new NewsFeedAdapter(getSherlockActivity(), result.response, scrollListener),
+				R.layout.loading_footer));
 	}
 
 	private void setListAdapter(EndlessNewsFeedAdapter endlessNewsFeedAdapter) {
@@ -72,28 +90,15 @@ public class NewsFeedFragment extends RetainedProgressFragment {
 			listView.setAdapter(endlessNewsFeedAdapter);
 		} else {
 			gridView.setAdapter(endlessNewsFeedAdapter);
-			endlessNewsFeedAdapter.notifyDataSetChanged();
 		}
 		setContentShown(true);
 	}
 
-	// background thread
-	private void makeRequest() {
-		try {
-			Persistance.ensureAuth();
-			final Result result = Rest.vkontakte().getNewsFeed(0, Persistance.getAccessToken());
-			runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-					postResult(result);
-				}
-			});
-		} catch (IOException e) {
-			// TODO handle the fucking error
-		} catch (AuthException e) {
-			// TODO handle the fucking error
-		}
+	@Override
+	protected void onRetryClick() {
+		setContentEmpty(false);
+		setContentShown(false);
+		makeRequest();
 	}
 
 }

@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.vk.Photo;
+import com.stiggpwnz.vibes.vk.models.Photo;
 
 public class PhotoView extends ImageView {
 
