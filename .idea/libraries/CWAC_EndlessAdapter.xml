@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="CWAC-EndlessAdapter">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/Vibes/libs/CWAC-EndlessAdapter.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
