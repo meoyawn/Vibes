@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/RefreshActionItem/RefreshActionItem.iml" filepath="$PROJECT_DIR$/RefreshActionItem/RefreshActionItem.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RobotoTextView/RobotoTextView.iml" filepath="$PROJECT_DIR$/RobotoTextView/RobotoTextView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SherlockNavigationDrawer/SherlockNavigationDrawer.iml" filepath="$PROJECT_DIR$/SherlockNavigationDrawer/SherlockNavigationDrawer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Vibes.iml" filepath="$PROJECT_DIR$/Vibes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Vibes/Vibes-Vibes.iml" filepath="$PROJECT_DIR$/Vibes/Vibes-Vibes.iml" />
+    </modules>
+  </component>
+</project>
+

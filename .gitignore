@@ -13,3 +13,10 @@ local.properties
 .loadpath
 .DS_Store
 .apt_generated/
+build/
+gradle/
+*.iml
+gradlew
+gradlew.bat
+.gradle/
+.idea/

@@ -1,0 +1,37 @@
+apply plugin: 'android'
+apply plugin: 'android-test'
+
+dependencies {
+    compile project(':SherlockNavigationDrawer')
+    compile project(':RefreshActionItem')
+    compile project(':RobotoTextView')
+
+    compile fileTree(dir: 'libs', include: '*.jar')
+
+    compile 'com.actionbarsherlock:actionbarsherlock:+@aar'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:+'
+    compile 'com.nineoldandroids:library:+'
+    compile 'com.jakewharton:butterknife:+'
+    compile 'com.googlecode.cqengine:cqengine:+'
+//  compile 'de.keyboardsurfer.android.widget:crouton:+'
+//  compile 'com.github.cwac:cwac-endless:+'
+//  compile 'com.github.frankiesardo:icepick:+'
+    compile 'com.fasterxml.jackson.core:jackson-databind:+'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:+'
+    compile 'com.squareup:otto:+'
+    compile 'com.squareup.okhttp:okhttp:+'
+    compile 'com.squareup.retrofit:retrofit:+'
+
+    testCompile 'junit:junit:+'
+    testCompile 'org.robolectric:robolectric:+'
+    testCompile 'com.squareup:fest-android:+'
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.0.1"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.7'
+}
