@@ -1,7 +1,6 @@
 package com.stiggpwnz.vibes;
 
 import android.app.Application;
-import android.app.Service;
 import android.content.Context;
 
 import com.stiggpwnz.vibes.util.CrashReportingTree;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Profile implements Unit {
 
-    public int uid;
+    public int    uid;
     public String first_name;
     public String last_name;
     public String photo_medium_rec;

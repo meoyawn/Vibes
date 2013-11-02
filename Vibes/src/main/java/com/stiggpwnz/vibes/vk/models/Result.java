@@ -1,6 +1,6 @@
 package com.stiggpwnz.vibes.vk.models;
 
-public class Result {
+public abstract class Result<T> {
 
     public Error error;
 
@@ -8,7 +8,9 @@ public class Result {
         return error == null;
     }
 
-    public boolean isAuthError() {
-        return error != null && error.isAuthError();
+    public boolean isError() {
+        return error != null;
     }
+
+    public abstract T getResponse();
 }

@@ -6,30 +6,34 @@ import com.android.ex.widget.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
-import com.stiggpwnz.vibes.vk.VKApi;
-import com.stiggpwnz.vibes.vk.models.NewsFeed.Result;
+import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.vk.models.NewsFeed;
 
 import javax.inject.Inject;
 
 import butterknife.InjectView;
 import dagger.Lazy;
-import icepick.annotation.Icicle;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
-import rx.subscriptions.Subscriptions;
+import timber.log.Timber;
 
 public class NewsFeedFragment extends RetainedProgressFragment {
 
-    @Inject Lazy<VKApi> vkApiLazy;
+    @Inject Lazy<VKontakte> vKontakteLazy;
 
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
-    Result result;
+    NewsFeed result;
 
-    @Icicle int firstVisiblePosition;
+    public static NewsFeedFragment newInstance(int ownerId) {
+        NewsFeedFragment fragment = new NewsFeedFragment();
+        Bundle args = new Bundle();
+        args.putInt("owner id", ownerId);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     protected void onCreateView(Bundle savedInstanceState) {
@@ -44,48 +48,42 @@ public class NewsFeedFragment extends RetainedProgressFragment {
         if (result == null) {
             makeRequest();
         } else {
-            postResult(result);
-            gridView.setFirstPosition(firstVisiblePosition);
-            setContentShownNoAnimation(true);
+            if (gridView.getAdapter() == null) {
+                postResult(result);
+                setContentShownNoAnimation(true);
+            }
         }
     }
 
     private void makeRequest() {
         setContentShown(false);
-        Observable.create(new Observable.OnSubscribeFunc<Result>() {
+        int ownerId = getArguments().getInt("owner id");
+        Observable<NewsFeed> observable = ownerId == 0 ?
+                vKontakteLazy.get().getNewsFeed(0) :
+                vKontakteLazy.get().getWall(ownerId, null, 0);
+        observable.subscribeOn(Schedulers.threadPoolForIO())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<NewsFeed>() {
 
-            @Override
-            public Subscription onSubscribe(Observer<? super Result> t1) {
-                try {
-                    t1.onNext(vkApiLazy.get().getNewsFeed(0));
-                } catch (Throwable throwable) {
-                    t1.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).subscribeOn(Schedulers.threadPoolForIO()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Result>() {
+                    @Override
+                    public void onCompleted() {
 
-            @Override
-            public void onCompleted() {
+                    }
 
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.e(e, "Error getting newsfeed");
+                        setContentEmpty(true);
+                        setContentShown(true);
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onNext(Result args) {
-                setContentEmpty(false);
-                setContentShown(true);
-                postResult(args);
-            }
-        });
-    }
-
-    int getFirstVisiblePosition() {
-        return gridView.getFirstPosition();
+                    @Override
+                    public void onNext(NewsFeed args) {
+                        setContentEmpty(false);
+                        setContentShown(true);
+                        postResult(args);
+                    }
+                });
     }
 
     @Override
@@ -93,14 +91,8 @@ public class NewsFeedFragment extends RetainedProgressFragment {
         makeRequest();
     }
 
-    @Override
-    public void onDestroyView() {
-        firstVisiblePosition = getFirstVisiblePosition();
-        super.onDestroyView();
-    }
-
-    protected void postResult(Result result) {
+    protected void postResult(NewsFeed result) {
         this.result = result;
-        gridView.setAdapter(new NewsFeedAdapter(getActivity(), result.response));
+        gridView.setAdapter(new NewsFeedAdapter(getActivity(), result));
     }
 }

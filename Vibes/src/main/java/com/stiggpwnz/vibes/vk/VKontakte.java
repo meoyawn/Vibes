@@ -1,7 +1,13 @@
 package com.stiggpwnz.vibes.vk;
 
+import android.content.Context;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+
 import com.squareup.okhttp.OkHttpClient;
 import com.stiggpwnz.vibes.util.Persistence;
+import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.Result;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -13,6 +19,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Lazy;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 @Singleton
 public class VKontakte {
@@ -25,11 +35,15 @@ public class VKontakte {
 
     Lazy<Persistence>  persistenceLazy;
     Lazy<OkHttpClient> okHttpClientLazy;
+    Lazy<VKApi>        vkApiLazy;
+    Context            context;
 
     @Inject
-    public VKontakte(Lazy<OkHttpClient> okHttpClientLazy, Lazy<Persistence> persistenceLazy) {
+    public VKontakte(Lazy<OkHttpClient> okHttpClientLazy, Lazy<Persistence> persistenceLazy, Lazy<VKApi> vkApiLazy, Context context) {
         this.persistenceLazy = persistenceLazy;
         this.okHttpClientLazy = okHttpClientLazy;
+        this.vkApiLazy = vkApiLazy;
+        this.context = context;
     }
 
     public Map<String, String> auth() throws IOException {
@@ -43,18 +57,64 @@ public class VKontakte {
     private Map<String, String> authRecursive(String url) throws IOException {
         HttpURLConnection connection = okHttpClientLazy.get().open(new URL(url));
         connection.setInstanceFollowRedirects(false);
-        connection.setRequestProperty("Cookie", persistenceLazy.get().getCookie());
+        connection.setRequestProperty("Cookie", CookieManager.getInstance().getCookie(url));
         connection.connect();
 
         if (connection.getResponseCode() == 302) {
-            persistenceLazy.get().saveCookie(connection.getHeaderField("Set-Cookie"));
+            String cookie = connection.getHeaderField("Set-Cookie");
+            CookieManager.getInstance().setCookie(url, cookie);
             String redirectUrl = connection.getHeaderField("Location");
             if (redirectUrl.startsWith(REDIRECT_URL)) {
+                CookieSyncManager.createInstance(context);
+                CookieSyncManager.getInstance().sync();
                 return parseRedirectUrl(redirectUrl);
             }
             return authRecursive(redirectUrl);
         }
         return null;
+    }
+
+    public Observable<NewsFeed> getNewsFeed(final int offset) {
+        return Observable.create(new Observable.OnSubscribeFunc<NewsFeed>() {
+
+            @Override
+            public Subscription onSubscribe(Observer<? super NewsFeed> observer) {
+                try {
+                    NewsFeed.Result newsFeed = vkApiLazy.get().getNewsFeed(offset);
+                    process(observer, newsFeed);
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+                return Subscriptions.empty();
+            }
+        }).retry(1);
+    }
+
+    public Observable<NewsFeed> getWall(final int ownerId, final String filter, final int offset) {
+        return Observable.create(new Observable.OnSubscribeFunc<NewsFeed>() {
+
+            @Override
+            public Subscription onSubscribe(Observer<? super NewsFeed> observer) {
+                try {
+                    NewsFeed.Result newsFeed = vkApiLazy.get().getWall(ownerId, filter, offset);
+                    process(observer, newsFeed);
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+                return Subscriptions.empty();
+            }
+        }).retry(1);
+    }
+
+    private <T> void process(Observer<? super T> observer, Result<T> result) {
+        if (result.isError()) {
+            if (result.error.isAuthError()) {
+                persistenceLazy.get().resetAuth();
+            }
+            observer.onError(result.error);
+        } else {
+            observer.onNext(result.getResponse());
+        }
     }
 
     public static Map<String, String> parseRedirectUrl(String redirect) {

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.squareup.otto.Bus;
+import com.stiggpwnz.vibes.Vibes;
 
 import javax.inject.Inject;
 
@@ -18,6 +19,7 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Vibes.from(this).inject(this);
         Bundles.restoreInstanceState(this, savedInstanceState);
     }
 

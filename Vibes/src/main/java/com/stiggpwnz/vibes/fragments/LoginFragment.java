@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -28,15 +28,18 @@ public class LoginFragment extends BaseFragment {
 
     @Inject Lazy<Persistence> persistenceLazy;
 
+    WebView webView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return new WebView(getActivity());
+        webView = new WebView(getActivity());
+        webView.setId(987546);
+        return webView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        WebView webView = (WebView) view;
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
@@ -46,9 +49,9 @@ public class LoginFragment extends BaseFragment {
 
                         @Override
                         public Boolean call(String url) {
+                            CookieSyncManager.getInstance().sync();
                             Map<String, String> map = VKontakte.parseRedirectUrl(url);
-                            String cookie = CookieManager.getInstance().getCookie(url);
-                            return persistenceLazy.get().saveCookie(cookie) && persistenceLazy.get().saveAccessToken(map);
+                            return persistenceLazy.get().saveAccessToken(map);
                         }
                     }).subscribeOn(Schedulers.threadPoolForIO()).subscribe(new Action1<Boolean>() {
 

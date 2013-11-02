@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Group implements Unit {
 
-    public int gid;
+    public int    gid;
     public String name;
     public String photo_medium;
 

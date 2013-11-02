@@ -21,6 +21,7 @@ import com.stiggpwnz.vibes.util.DiskUtils;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
 import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.widget.PhotoView;
 
 import java.io.IOException;
 import java.util.Map;
@@ -48,17 +49,25 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
         // activities
         LoginActivity.class, MainActivity.class,
 
-        // adapters
-        NewsFeedAdapter.class,
-
         // fragments
-        LoginFragment.class, NavigationFragment.class, NewsFeedFragment.class})
+        LoginFragment.class, NavigationFragment.class, NewsFeedFragment.class,
+
+        // adapters
+        NewsFeedAdapter.PostViewHolder.class,
+
+        // views
+        PhotoView.class})
 public class DependenciesModule {
 
     Context context;
 
     DependenciesModule(Context context) {
         this.context = context;
+    }
+
+    @Provides
+    Context provideContext() {
+        return context;
     }
 
     @Provides
@@ -73,7 +82,6 @@ public class DependenciesModule {
         return new Picasso.Builder(context)
                 .downloader(new OkHttpDownloader(okHttpClient))
                 .memoryCache(lruCache)
-                .debugging(BuildConfig.DEBUG)
                 .build();
     }
 
@@ -132,7 +140,6 @@ public class DependenciesModule {
     Client provideClient(OkHttpClient okHttpClient) {
         return new OkClient(okHttpClient);
     }
-
 
     @Provides
     @Singleton

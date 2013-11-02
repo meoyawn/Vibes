@@ -44,7 +44,7 @@ public class Persistence {
 
     public String getAccessToken() {
         String token = getString(ACCESS_TOKEN, null);
-        if (token == null || currentTimeMillis() < getExpiresIn()) {
+        if (token == null || currentTimeMillis() >= getExpiresIn()) {
             return null;
         }
         return token;
@@ -54,11 +54,19 @@ public class Persistence {
         return prefsLazy.get().getLong(EXPIRES_IN, 0);
     }
 
+    public boolean resetAuth() {
+        return prefsLazy.get().edit()
+                .remove(ACCESS_TOKEN)
+                .remove(USER_ID)
+                .remove(EXPIRES_IN)
+                .commit();
+    }
+
     public boolean saveAccessToken(Map<String, String> map) {
         return prefsLazy.get().edit()
                 .putString(USER_ID, map.get(USER_ID))
                 .putString(ACCESS_TOKEN, map.get(ACCESS_TOKEN))
-                .putLong(EXPIRES_IN, Long.valueOf(map.get(EXPIRES_IN)) + currentTimeMillis())
+                .putLong(EXPIRES_IN, Long.valueOf(map.get(EXPIRES_IN)) * 1000 + currentTimeMillis())
                 .commit();
     }
 
@@ -109,13 +117,5 @@ public class Persistence {
 
     private <T> Observable<T> get(final String key, final TypeReference<T> type) {
         return get(key, null, type);
-    }
-
-    public String getCookie() {
-        return getString(COOKIE, null);
-    }
-
-    public boolean saveCookie(String cookie) {
-        return prefsLazy.get().edit().putString(COOKIE, cookie).commit();
     }
 }

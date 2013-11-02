@@ -4,24 +4,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Photo {
 
-    public int pid;
-    public int aid;
-    public int owner_id;
-    public int user_id;
+    public int    pid;
+    public int    aid;
+    public int    owner_id;
+    public int    user_id;
     public String src;
     public String src_big;
     public String src_small;
     public String src_xbig;
     public String src_xxbig;
     public String src_xxxbig;
-    public int width;
-    public int height;
+    public int    width;
+    public int    height;
     public String text;
-    public long created;
-    public float lat;
+    public long   created;
+    public float  lat;
     @JsonProperty("long")
-    public float longtitude;
-    public int post_id;
+    public float  longtitude;
+    public int    post_id;
     public String access_key;
 
     public float getRatio() {

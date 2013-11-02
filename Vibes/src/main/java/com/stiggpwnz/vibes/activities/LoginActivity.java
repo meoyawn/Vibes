@@ -30,5 +30,4 @@ public class LoginActivity extends BaseActivity {
         }
         super.onBackPressed();
     }
-
 }

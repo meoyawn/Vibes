@@ -1,5 +1,8 @@
 package com.stiggpwnz.vibes.vk.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Link {
 
     public String url;
