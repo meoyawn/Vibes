@@ -5,15 +5,17 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
+import javax.inject.Inject;
+
+import dagger.Lazy;
+
 public class PhotoView extends ImageView {
 
-    private static final DisplayImageOptions OPTIONS = new DisplayImageOptions.Builder().showStubImage(R.drawable.placeholder)
-            .showImageForEmptyUri(R.drawable.placeholder).showImageOnFail(R.drawable.placeholder).cacheInMemory().cacheOnDisc().build();
+    @Inject Lazy<Picasso> picassoLazy;
 
     public Photo photo;
 
@@ -52,7 +54,9 @@ public class PhotoView extends ImageView {
                 setHeight(w);
             }
 
-            ImageLoader.getInstance().displayImage(photo.getUrl(w), this, OPTIONS);
+            picassoLazy.get().load(photo.getUrl(w))
+                    .placeholder(R.drawable.placeholder)
+                    .into(this);
         } else {
             setVisibility(View.GONE);
         }

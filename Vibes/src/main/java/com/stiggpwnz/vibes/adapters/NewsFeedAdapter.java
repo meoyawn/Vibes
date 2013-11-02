@@ -3,17 +3,13 @@ package com.stiggpwnz.vibes.adapters;
 import android.content.Context;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.cuubonandroid.sugaredlistanimations.GPlusListAdapter;
-import com.cuubonandroid.sugaredlistanimations.SpeedScrollListener;
 import com.googlecode.cqengine.CQEngine;
 import com.googlecode.cqengine.IndexedCollection;
 import com.googlecode.cqengine.index.unique.UniqueIndex;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.vk.models.NewsFeed;
@@ -24,18 +20,22 @@ import com.stiggpwnz.vibes.vk.models.Unit;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.Lazy;
+
 import static com.googlecode.cqengine.query.QueryFactory.equal;
 
-public class NewsFeedAdapter extends GPlusListAdapter {
+public class NewsFeedAdapter extends InflaterAdapter {
 
-    private NewsFeed newsFeed;
-    private final LayoutInflater inflater;
-    private final IndexedCollection<Unit> units = CQEngine.newInstance();
+    @Inject Lazy<Picasso> picassoLazy;
 
-    public NewsFeedAdapter(Context context, NewsFeed newsFeed, SpeedScrollListener scrollListener) {
-        super(context, scrollListener);
+    NewsFeed newsFeed;
+    final IndexedCollection<Unit> units = CQEngine.newInstance();
 
-        inflater = LayoutInflater.from(context);
+    public NewsFeedAdapter(Context context, NewsFeed newsFeed) {
+        super(context);
+
         this.newsFeed = newsFeed;
 
         units.addIndex(UniqueIndex.onAttribute(Unit.ID));
@@ -85,11 +85,8 @@ public class NewsFeedAdapter extends GPlusListAdapter {
         return position;
     }
 
-    private final DisplayImageOptions userOptions = new DisplayImageOptions.Builder().showStubImage(R.drawable.ic_user_placeholder)
-            .showImageForEmptyUri(R.drawable.ic_user_placeholder).cacheInMemory().cacheOnDisc().build();
-
     @Override
-    protected View getRowView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, ViewGroup parent) {
         Post post = getItem(position);
         List<Audio> audios = post.audios;
 
@@ -102,7 +99,9 @@ public class NewsFeedAdapter extends GPlusListAdapter {
 
         Unit unit = units.retrieve(equal(Unit.ID, post.source_id)).uniqueResult();
 
-        ImageLoader.getInstance().displayImage(unit.getProfilePic(), holder.profilePic, userOptions);
+        picassoLazy.get().load(unit.getProfilePic())
+                .placeholder(R.drawable.ic_user_placeholder)
+                .into(holder.profilePic);
 
         holder.user.setText(unit.getName());
         holder.time.setText(DateUtils.getRelativeTimeSpanString(post.date * 1000));
@@ -130,5 +129,4 @@ public class NewsFeedAdapter extends GPlusListAdapter {
     public NewsFeed getNewsFeed() {
         return newsFeed;
     }
-
 }

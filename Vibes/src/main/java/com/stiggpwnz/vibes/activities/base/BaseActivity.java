@@ -48,6 +48,7 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Crouton.cancelAllCroutons();
+        // TODO FUCK
+//        Crouton.cancelAllCroutons();
     }
 }

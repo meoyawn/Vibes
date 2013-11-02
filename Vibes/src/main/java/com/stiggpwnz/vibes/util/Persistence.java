@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -15,10 +17,17 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
+
+import static java.lang.System.currentTimeMillis;
 
 @Singleton
 public class Persistence {
+
+    public static final String ACCESS_TOKEN = "access_token";
+
+    static final String USER_ID    = "user_id";
+    static final String EXPIRES_IN = "expires_in";
+    static final String COOKIE     = "cookie";
 
     Lazy<SharedPreferences> prefsLazy;
     Lazy<JacksonSerializer> jackson;
@@ -33,15 +42,28 @@ public class Persistence {
         return prefsLazy.get().getString(key, defValue);
     }
 
+    public String getAccessToken() {
+        String token = getString(ACCESS_TOKEN, null);
+        if (token == null || currentTimeMillis() < getExpiresIn()) {
+            return null;
+        }
+        return token;
+    }
 
-    public Observable<Boolean> clear() {
-        return Observable.just(prefsLazy).map(new Func1<Lazy<SharedPreferences>, Boolean>() {
+    long getExpiresIn() {
+        return prefsLazy.get().getLong(EXPIRES_IN, 0);
+    }
 
-            @Override
-            public Boolean call(Lazy<SharedPreferences> prefsLazy) {
-                return prefsLazy.get().edit().clear().commit();
-            }
-        });
+    public boolean saveAccessToken(Map<String, String> map) {
+        return prefsLazy.get().edit()
+                .putString(USER_ID, map.get(USER_ID))
+                .putString(ACCESS_TOKEN, map.get(ACCESS_TOKEN))
+                .putLong(EXPIRES_IN, Long.valueOf(map.get(EXPIRES_IN)) + currentTimeMillis())
+                .commit();
+    }
+
+    public boolean clear() {
+        return prefsLazy.get().edit().clear().commit();
     }
 
     private <T> void save(T object, final String key) {
@@ -87,5 +109,13 @@ public class Persistence {
 
     private <T> Observable<T> get(final String key, final TypeReference<T> type) {
         return get(key, null, type);
+    }
+
+    public String getCookie() {
+        return getString(COOKIE, null);
+    }
+
+    public boolean saveCookie(String cookie) {
+        return prefsLazy.get().edit().putString(COOKIE, cookie).commit();
     }
 }

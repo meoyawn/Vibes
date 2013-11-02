@@ -1,27 +1,29 @@
 package com.stiggpwnz.vibes;
 
-import android.app.Activity;
 import android.app.Application;
 import android.app.Service;
+import android.content.Context;
+
+import com.stiggpwnz.vibes.util.CrashReportingTree;
 
 import dagger.ObjectGraph;
+import timber.log.Timber;
 
 public class Vibes extends Application {
 
+    public static Vibes from(Context context) {
+        return (Vibes) context.getApplicationContext();
+    }
+
     ObjectGraph objectGraph;
-
-    public static Vibes from(Activity activity) {
-        return (Vibes) activity.getApplication();
-    }
-
-    static Vibes from(Service service) {
-        return (Vibes) service.getApplication();
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // Dependency tree
         objectGraph = ObjectGraph.create(new DependenciesModule(this));
+        Timber.plant(BuildConfig.DEBUG ? new Timber.DebugTree() : new CrashReportingTree());
     }
 
     public <T> T inject(T object) {

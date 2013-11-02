@@ -4,8 +4,8 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.roadtrippers.RoadTrippersApp;
 import com.squareup.otto.Bus;
+import com.stiggpwnz.vibes.Vibes;
 
 import javax.inject.Inject;
 
@@ -20,7 +20,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RoadTrippersApp.from(getActivity()).inject(this);
+        Vibes.from(getActivity()).inject(this);
         Bundles.restoreInstanceState(this, savedInstanceState);
     }
 

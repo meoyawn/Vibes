@@ -6,7 +6,6 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.Window;
 
-import com.roadtrippers.RoadTrippersApp;
 import com.squareup.otto.Bus;
 import com.stiggpwnz.vibes.Vibes;
 
