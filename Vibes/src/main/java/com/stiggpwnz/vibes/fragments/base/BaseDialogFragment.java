@@ -1,33 +1,41 @@
 package com.stiggpwnz.vibes.fragments.base;
 
+import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.DialogFragment;
 import android.view.View;
+import android.view.Window;
 
 import com.roadtrippers.RoadTrippersApp;
 import com.squareup.otto.Bus;
+import com.stiggpwnz.vibes.Vibes;
 
 import javax.inject.Inject;
 
 import butterknife.Views;
 import dagger.Lazy;
-import icepick.bundle.Bundles;
 
-public class BaseFragment extends Fragment {
+public class BaseDialogFragment extends DialogFragment {
 
     @Inject Lazy<Bus> bus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RoadTrippersApp.from(getActivity()).inject(this);
-        Bundles.restoreInstanceState(this, savedInstanceState);
+        Vibes.from(getActivity()).inject(this);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Views.inject(this, view);
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Override
@@ -40,12 +48,6 @@ public class BaseFragment extends Fragment {
     public void onPause() {
         super.onPause();
         bus.get().unregister(this);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Bundles.saveInstanceState(this, outState);
     }
 
     @Override

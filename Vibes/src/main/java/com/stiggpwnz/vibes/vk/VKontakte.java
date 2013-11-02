@@ -1,16 +1,6 @@
 package com.stiggpwnz.vibes.vk;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.RestAdapter.LogLevel;
-import retrofit.client.OkClient;
+import android.os.Looper;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -23,92 +13,103 @@ import com.stiggpwnz.vibes.util.Utils;
 import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.vk.models.Result;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RestAdapter.LogLevel;
+import retrofit.client.OkClient;
+
 public class VKontakte {
 
-	private static class Holder {
+    public static final String REDIRECT_URL = "https://oauth.vk.com/blank.html";
+    private static final String AUTH_URL = "https://oauth.vk.com/authorize";
+    private static final int CLIENT_ID = 3027476;
+    private static final int SCOPE = 2 + 8 + 8192;
+    private static final Map<Audio, String> URL_CACHE = new HashMap<Audio, String>();
 
-		private static final VKApi VKONTAKTE = new RestAdapter.Builder().setClient(new OkClient(Rest.getHttpClient())).setServer(VKApi.SERVER)
-				.setConverter(new JacksonConverter(Jackson.getObjectMapper())).setRequestInterceptor(new RequestInterceptor() {
+    public static Map<String, String> auth() throws IOException {
+        return authRecursive(authUrl());
+    }
 
-					@Override
-					public void intercept(RequestFacade arg0) {
-						try {
-							Persistance.ensureAuth();
-						} catch (IOException e) {
-							Log.e(e);
-						}
-						arg0.addQueryParam("access_token", Persistance.getAccessToken());
-						arg0.addHeader("Cache-Control", Utils.isNetworkAvailable() ? "no-cache" : "max-stale");
-					}
-				}).setLog(new RestAdapter.Log() {
+    public static String authUrl() {
+        return String.format("%s?client_id=%s&scope=%s&redirect_uri=%s&display=touch&response_type=token", AUTH_URL, CLIENT_ID, SCOPE, REDIRECT_URL);
+    }
 
-					@Override
-					public void log(String arg0) {
-						Log.d(arg0);
-					}
-				}).setLogLevel(LogLevel.HEADERS).build().create(VKApi.class);
-	}
+    private static Map<String, String> authRecursive(String url) throws IOException {
+        CookieManager cookieManager = CookieManager.getInstance();
 
-	public static final String REDIRECT_URL = "https://oauth.vk.com/blank.html";
-	private static final String AUTH_URL = "https://oauth.vk.com/authorize";
+        HttpURLConnection.setFollowRedirects(false);
+        HttpURLConnection connection = Rest.getHttpClient().open(new URL(url));
+        connection.setRequestProperty("Cookie", cookieManager.getCookie(url));
+        connection.connect();
 
-	private static final int CLIENT_ID = 3027476;
-	private static final int SCOPE = 2 + 8 + 8192;
+        if (connection.getResponseCode() == 302) {
+            cookieManager.setCookie(url, connection.getHeaderField("Set-Cookie"));
 
-	public static Map<String, String> auth() throws IOException {
-		return authRecursive(authUrl());
-	}
+            String redirect = connection.getHeaderField("Location");
 
-	public static String authUrl() {
-		return String.format("%s?client_id=%s&scope=%s&redirect_uri=%s&display=touch&response_type=token", AUTH_URL, CLIENT_ID, SCOPE, REDIRECT_URL);
-	}
+            if (redirect.startsWith(REDIRECT_URL)) {
+                CookieSyncManager.getInstance().sync();
+                return parseRedirectUrl(redirect);
+            }
 
-	private static Map<String, String> authRecursive(String url) throws IOException {
-		CookieManager cookieManager = CookieManager.getInstance();
+            return authRecursive(redirect);
+        }
+        return null;
+    }
 
-		HttpURLConnection.setFollowRedirects(false);
-		HttpURLConnection connection = Rest.getHttpClient().open(new URL(url));
-		connection.setRequestProperty("Cookie", cookieManager.getCookie(url));
-		connection.connect();
+    public static Map<String, String> parseRedirectUrl(String redirect) {
+        String[] params = redirect.split("#")[1].split("&");
+        Map<String, String> result = new HashMap<String, String>();
+        for (String param : params) {
+            String[] pairs = param.split("=");
+            result.put(pairs[0], pairs[1]);
+        }
+        return result;
+    }
 
-		if (connection.getResponseCode() == 302) {
-			cookieManager.setCookie(url, connection.getHeaderField("Set-Cookie"));
+    public static VKApi get() {
+        return Holder.VKONTAKTE;
+    }
 
-			String redirect = connection.getHeaderField("Location");
+    public <T extends Result> T makeSyncRequest(Callable<T> callable) throws Exception {
+        T result;
+        result = callable.call();
+        if (result.isAuthError()) {
+            Persistance.resetAuth();
+            return makeSyncRequest(callable);
+        }
+        return result;
+    }
 
-			if (redirect.startsWith(REDIRECT_URL)) {
-				CookieSyncManager.getInstance().sync();
-				return parseRedirectUrl(redirect);
-			}
+    private static class Holder {
 
-			return authRecursive(redirect);
-		}
-		return null;
-	}
+        private static final VKApi VKONTAKTE = new RestAdapter.Builder().setClient(new OkClient(Rest.getHttpClient())).setServer(VKApi.SERVER)
+                .setConverter(new JacksonConverter(Jackson.getObjectMapper())).setRequestInterceptor(new RequestInterceptor() {
 
-	public static Map<String, String> parseRedirectUrl(String redirect) {
-		String[] params = redirect.split("#")[1].split("&");
-		Map<String, String> result = new HashMap<String, String>();
-		for (String param : params) {
-			String[] pairs = param.split("=");
-			result.put(pairs[0], pairs[1]);
-		}
-		return result;
-	}
+                    @Override
+                    public void intercept(RequestFacade requestFacade) {
+                        Log.d(Looper.myLooper() == null ? "bg thread" : "main thread");
+                        try {
+                            Persistance.ensureAuth();
+                        } catch (IOException e) {
+                            Log.e(e);
+                        }
+                        requestFacade.addQueryParam("access_token", Persistance.getAccessToken());
+                        requestFacade.addHeader("Cache-Control", Utils.isNetworkAvailable() ? "no-cache" : "max-stale");
+                    }
+                }).setLog(new RestAdapter.Log() {
 
-	public static VKApi get() {
-		return Holder.VKONTAKTE;
-	}
-
-	public <T extends Result> T makeSyncRequest(Callable<T> callable) throws Exception {
-		T result;
-		result = callable.call();
-		if (result.isAuthError()) {
-			Persistance.resetAuth();
-			return makeSyncRequest(callable);
-		}
-		return result;
-	}
-
-	private static final Map<Audio, String> URL_CACHE = new HashMap<Audio, String>();
+                    @Override
+                    public void log(String arg0) {
+                        Log.d(arg0);
+                    }
+                }).setLogLevel(LogLevel.HEADERS).build().create(VKApi.class);
+    }
 }

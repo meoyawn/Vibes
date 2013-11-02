@@ -5,17 +5,17 @@ import com.googlecode.cqengine.attribute.SimpleAttribute;
 
 public interface Unit {
 
-	public static final Attribute<Unit, Integer> ID = new SimpleAttribute<Unit, Integer>("id") {
+    public static final Attribute<Unit, Integer> ID = new SimpleAttribute<Unit, Integer>("id") {
 
-		@Override
-		public Integer getValue(Unit arg0) {
-			return arg0.getId();
-		}
-	};
+        @Override
+        public Integer getValue(Unit arg0) {
+            return arg0.getId();
+        }
+    };
 
-	public int getId();
+    public int getId();
 
-	public String getName();
+    public String getName();
 
-	public String getProfilePic();
+    public String getProfilePic();
 }

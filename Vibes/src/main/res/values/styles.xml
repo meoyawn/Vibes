@@ -2,11 +2,11 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="Theme.Sherlock.Light.DarkActionBar">
-        <item name="refreshActionItemStyle">@style/RefreshActionItem</item>
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+
     </style>
 
-    <style name="LoginTheme" parent="Theme.Sherlock.Light.NoActionBar">
+    <style name="LoginTheme" parent="android:Theme.Holo.Light.NoActionBar">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
@@ -25,9 +25,4 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:maxHeight">48dp</item>
     </style>
-
-    <style name="RefreshActionItem" parent="Widget.RefreshActionItem.Dark">
-        <item name="progressIndicatorType">indeterminate</item>
-    </style>
-
 </resources>

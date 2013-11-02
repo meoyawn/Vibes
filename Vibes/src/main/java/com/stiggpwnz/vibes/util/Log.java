@@ -1,58 +1,46 @@
 package com.stiggpwnz.vibes.util;
 
+import com.roadtrippers.BuildConfig;
+
 import java.util.Locale;
-
-import com.stiggpwnz.vibes.BuildConfig;
-
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
 
 public class Log {
 
-	private static final String TAG = "vibes";
-	private static final Handler HANDLER = new Handler(Looper.getMainLooper());
+    private static final String TAG = "roadtrippers";
 
-	public static void d(String msg) {
-		if (BuildConfig.DEBUG && msg != null) {
-			android.util.Log.d(TAG, msg);
-		}
-	}
+    public static void d(String msg) {
+        if (BuildConfig.DEBUG && msg != null) {
+            android.util.Log.d(TAG, msg);
+        }
+    }
 
-	public static void d(String msg, long time) {
-		if (BuildConfig.DEBUG && msg != null) {
-			d(String.format(Locale.ENGLISH, "%s in %d ms", msg, System.currentTimeMillis() - time));
-		}
-	}
+    public static void d(Throwable e) {
+        if (BuildConfig.DEBUG && e != null) {
+            android.util.Log.d(TAG, e.getMessage(), e);
+        }
+    }
 
-	public static void d(Throwable e) {
-		if (BuildConfig.DEBUG && e != null) {
-			android.util.Log.d(TAG, e.getMessage(), e);
-		}
-	}
+    public static void d(String format, Object... args) {
+        if (BuildConfig.DEBUG && format != null && args != null) {
+            android.util.Log.d(TAG, String.format(Locale.ENGLISH, format, args));
+        }
+    }
 
-	public static void e(String msg) {
-		if (BuildConfig.DEBUG && msg != null) {
-			android.util.Log.e(TAG, msg);
-		}
-	}
+    public static void e(String msg) {
+        if (BuildConfig.DEBUG && msg != null) {
+            android.util.Log.e(TAG, msg);
+        }
+    }
 
-	public static void e(Throwable e) {
-		if (BuildConfig.DEBUG && e != null) {
-			android.util.Log.e(TAG, e.getMessage(), e);
-		}
-	}
+    public static void e(Throwable e) {
+        if (BuildConfig.DEBUG && e != null) {
+            android.util.Log.e(TAG, e.getMessage(), e);
+        }
+    }
 
-	public static void toast(final Context context, final String msg) {
-		if (BuildConfig.DEBUG && msg != null) {
-			HANDLER.post(new Runnable() {
-
-				@Override
-				public void run() {
-					Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-				}
-			});
-		}
-	}
+    public static void e(String format, Object... args) {
+        if (BuildConfig.DEBUG && format != null && args != null) {
+            android.util.Log.e(TAG, String.format(Locale.ENGLISH, format, args));
+        }
+    }
 }

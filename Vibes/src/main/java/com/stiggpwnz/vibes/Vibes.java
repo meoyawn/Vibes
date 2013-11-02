@@ -1,35 +1,30 @@
 package com.stiggpwnz.vibes;
 
+import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
-import android.webkit.CookieSyncManager;
+import android.app.Service;
 
-import com.nostra13.universalimageloader.cache.disc.impl.TotalSizeLimitedDiscCache;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.stiggpwnz.vibes.util.Utils;
+import dagger.ObjectGraph;
 
 public class Vibes extends Application {
 
-	private static final int CACHE_SIZE = 20 * 1024 * 1024;
+    ObjectGraph objectGraph;
 
-	private static Context staticContext;
+    public static Vibes from(Activity activity) {
+        return (Vibes) activity.getApplication();
+    }
 
-	@Override
-	public void onCreate() {
-		staticContext = this;
-		super.onCreate();
+    static Vibes from(Service service) {
+        return (Vibes) service.getApplication();
+    }
 
-		ImageLoaderConfiguration configuration = new ImageLoaderConfiguration.Builder(this).tasksProcessingOrder(QueueProcessingType.LIFO)
-				.discCache(new TotalSizeLimitedDiscCache(Utils.getCacheDir("image"), CACHE_SIZE)).threadPriority(Thread.NORM_PRIORITY - 2)
-				.denyCacheImageMultipleSizesInMemory().build();
-		ImageLoader.getInstance().init(configuration);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        objectGraph = ObjectGraph.create(new DependenciesModule(this));
+    }
 
-		CookieSyncManager.createInstance(this);
-	}
-
-	public static Context getContext() {
-		return staticContext;
-	}
+    public <T> T inject(T object) {
+        return objectGraph.inject(object);
+    }
 }

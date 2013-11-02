@@ -1,140 +1,198 @@
 package com.stiggpwnz.vibes.fragments.base;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.LightingColorFilter;
+import android.graphics.Paint;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import android.os.Looper;
+import android.util.Base64;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.devspark.progressfragment.ProgressFragment;
+import com.roadtrippers.R;
+import com.roadtrippers.RoadTrippersApp;
+import com.squareup.otto.Bus;
+
+import java.io.File;
+import java.io.FileInputStream;
+
+import javax.inject.Inject;
+
+import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.Views;
+import dagger.Lazy;
+import icepick.annotation.Icicle;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
-import com.devspark.progressfragment.SherlockProgressFragment;
-import com.devspark.robototextview.widget.RobotoButton;
-import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.util.BusProvider;
-import com.stiggpwnz.vibes.util.Log;
-import com.stiggpwnz.vibes.util.Persistance;
-import com.stiggpwnz.vibes.vk.models.Result;
+import static icepick.bundle.Bundles.restoreInstanceState;
+import static icepick.bundle.Bundles.saveInstanceState;
 
-public abstract class BaseProgressFragment extends SherlockProgressFragment implements FragmentInterface {
+public abstract class BaseProgressFragment extends ProgressFragment {
 
-	private final OnClickListener onRetryClick = new OnClickListener() {
+    @Inject Lazy<Bus> busLazy;
 
-		@Override
-		public void onClick(View v) {
-			onRetryClick();
-		}
-	};
+    @InjectView(R.id.textErrorMessage) TextView errorMessage;
 
-	protected abstract void onRetryClick();
+    @Icicle boolean contentIsShown;
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		RobotoButton retryButton = Views.findById(view, R.id.retry_button);
-		retryButton.setOnClickListener(onRetryClick);
-	}
+    AnimationDrawable progressDrawable;
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		onCreateView(savedInstanceState);
-		Views.inject(this, getView());
-		onViewCreated(savedInstanceState);
-	}
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        RoadTrippersApp.from(getActivity()).inject(this);
+        restoreInstanceState(this, savedInstanceState);
+    }
 
-	protected abstract void onCreateView(Bundle savedInstanceState);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        ImageView byId = Views.findById(view, R.id.imageProgress);
+        progressDrawable = (AnimationDrawable) byId.getDrawable();
+    }
 
-	protected abstract void onViewCreated(Bundle savedInstanceState);
+    @Override
+    public void setContentShown(boolean shown) {
+        contentIsShown = shown;
+        super.setContentShown(shown);
+        setAnimationShown(shown);
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		BusProvider.register(this);
-	}
+    @Override
+    public void setContentShownNoAnimation(boolean shown) {
+        contentIsShown = shown;
+        super.setContentShownNoAnimation(shown);
+        setAnimationShown(shown);
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		BusProvider.unregister(this);
-	}
+    private void setAnimationShown(boolean shown) {
+        if (shown) {
+            progressDrawable.stop();
+        } else if (!progressDrawable.isRunning()) {
+            progressDrawable.start();
+        }
+    }
 
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		Views.reset(this);
-	}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        onCreateView(savedInstanceState);
+        Views.inject(this, getView());
+        if (savedInstanceState != null) {
+            setContentEmpty(savedInstanceState.getBoolean("empty", false));
+            setContentShownNoAnimation(savedInstanceState.getBoolean("shown", true));
+        }
+        onViewCreated(savedInstanceState);
+    }
 
-	@Override
-	public void runOnUiThread(Runnable runnable) {
-		if (runnable == null || getSherlockActivity() == null) {
-			return;
-		}
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        saveInstanceState(this, outState);
+    }
 
-		getSherlockActivity().runOnUiThread(runnable);
-	}
+    protected boolean isInPortrait() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
 
-	@Override
-	public void runOnBackgroundThread(Runnable runnable) {
-		if (runnable == null) {
-			return;
-		}
+    protected void setErrorMessage(CharSequence errorMessage) {
+        this.errorMessage.setText(errorMessage);
+    }
 
-		if (Looper.myLooper() == Looper.getMainLooper()) {
-			new Thread(runnable).start();
-		} else {
-			runnable.run();
-		}
-	}
+    protected void setErrorMessage(int resource) {
+        this.errorMessage.setText(resource);
+    }
 
-	public abstract class VKCallback<T extends Result> implements Callback<T> {
+    protected abstract void onCreateView(Bundle savedInstanceState);
 
-		private final Runnable runnable;
-		private boolean isCancelled;
+    protected abstract void onViewCreated(Bundle savedInstanceState);
 
-		public VKCallback(Runnable runnable) {
-			this.runnable = runnable;
-		}
+    protected abstract void onRetryButtonClick();
 
-		protected abstract void onSuccess(T object, Response response);
+    @OnClick(R.id.buttonRetry)
+    public void onRetryClick() {
+        onRetryButtonClick();
+    }
 
-		protected void onFailure(RetrofitError error) {
+    @Override
+    public void onResume() {
+        super.onResume();
+        busLazy.get().register(this);
+    }
 
-		}
+    @Override
+    public void onPause() {
+        super.onPause();
+        busLazy.get().unregister(this);
+    }
 
-		@Override
-		public void failure(RetrofitError arg0) {
-			Log.e(arg0);
-			if (getSherlockActivity() == null || isCancelled) {
-				return;
-			}
+    @Override
+    public void onDestroyView() {
+        Views.reset(this);
+        super.onDestroyView();
+    }
 
-			setContentEmpty(true);
-			onFailure(arg0);
-			setContentShown(true);
-		}
+    @Override
+    public ViewGroup getContentView() {
+        return (ViewGroup) super.getContentView();
+    }
 
-		@Override
-		public void success(T arg0, Response arg1) {
-			if (getSherlockActivity() == null || isCancelled) {
-				return;
-			}
+    public static void setColorFilter(View view, int color) {
+        StateListDrawable drawableWithColorFilter = drawableWithColorFilter(view.getContext(), (BitmapDrawable) view.getBackground(), color);
+        view.setBackgroundDrawable(drawableWithColorFilter);
+    }
 
-			if (arg0.isResponse()) {
-				setContentEmpty(false);
-				onSuccess(arg0, arg1);
-				setContentShown(true);
-			} else if (arg0.isAuthError()) {
-				Persistance.resetAuth();
-				runnable.run();
-			} else {
-				failure(null);
-			}
-		}
+    public static void setColorFilter(ImageView imageView, int color) {
+        StateListDrawable drawableWithColorFilter = drawableWithColorFilter(imageView.getContext(), (BitmapDrawable) imageView.getDrawable(), color);
+        imageView.setImageDrawable(drawableWithColorFilter);
+    }
 
-		public void cancel() {
-			isCancelled = true;
-		}
-	}
+    private static StateListDrawable drawableWithColorFilter(Context context, BitmapDrawable drawable, int color) {
+        Bitmap original = drawable.getBitmap();
+        Bitmap copy = Bitmap.createBitmap(original.getWidth(), original.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new LightingColorFilter(color, 1));
+        new Canvas(copy).drawBitmap(original, 0, 0, paint);
+
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_pressed}, new BitmapDrawable(context.getResources(), copy));
+        states.addState(new int[]{}, drawable);
+        return states;
+    }
+
+    public static Observable<String> base64Observable(final File avatar) {
+        return Observable.create(new Observable.OnSubscribeFunc<String>() {
+
+            @Override
+            public Subscription onSubscribe(Observer<? super String> observer) {
+                try {
+                    byte[] result = new byte[(int) avatar.length()];
+
+                    FileInputStream fileInputStream = new FileInputStream(avatar);
+                    fileInputStream.read(result);
+                    fileInputStream.close();
+
+                    Base64.encodeToString(result, Base64.CRLF);
+
+                    observer.onNext(Base64.encodeToString(result, Base64.CRLF));
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
+                return Subscriptions.empty();
+            }
+        });
+    }
 }

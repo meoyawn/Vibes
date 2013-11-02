@@ -1,62 +1,53 @@
 package com.stiggpwnz.vibes.activities.base;
 
 import android.os.Bundle;
-import android.os.Looper;
+import android.support.v4.app.FragmentActivity;
+
+import com.squareup.otto.Bus;
+
+import javax.inject.Inject;
+
 import butterknife.Views;
+import dagger.Lazy;
+import icepick.bundle.Bundles;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.github.frankiesardo.icepick.bundle.Bundles;
-import com.stiggpwnz.vibes.util.BusProvider;
+public abstract class BaseActivity extends FragmentActivity {
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
+    @Inject Lazy<Bus> busLazy;
 
-public abstract class BaseActivity extends SherlockFragmentActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundles.restoreInstanceState(this, savedInstanceState);
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		Bundles.restoreInstanceState(this, savedInstanceState);
-	}
+    @Override
+    public void setContentView(int layoutResId) {
+        super.setContentView(layoutResId);
+        Views.inject(this);
+    }
 
-	@Override
-	public void setContentView(int layoutResId) {
-		super.setContentView(layoutResId);
-		Views.inject(this);
-	}
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Bundles.saveInstanceState(this, outState);
+    }
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		Bundles.saveInstanceState(this, outState);
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+        busLazy.get().register(this);
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		BusProvider.register(this);
-	}
+    @Override
+    public void onPause() {
+        super.onPause();
+        busLazy.get().unregister(this);
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		BusProvider.unregister(this);
-	}
-
-	public void runOnBackgroundThread(Runnable runnable) {
-		if (runnable == null) {
-			return;
-		}
-
-		if (Looper.myLooper() != null) {
-			new Thread(runnable).start();
-		} else {
-			runnable.run();
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		Crouton.cancelAllCroutons();
-	}
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Crouton.cancelAllCroutons();
+    }
 }

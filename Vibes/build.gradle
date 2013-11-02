@@ -1,28 +1,44 @@
 apply plugin: 'android'
 
 dependencies {
-    compile project(':SherlockNavigationDrawer')
-    compile project(':RefreshActionItem')
     compile project(':RobotoTextView')
 
-    compile fileTree(dir: 'libs', include: '*.jar')
-
-    compile 'com.actionbarsherlock:actionbarsherlock:+@aar'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:+'
-    compile 'com.nineoldandroids:library:+'
     compile 'com.jakewharton:butterknife:+'
+    compile 'com.jakewharton.timber:timber:+'
+
     compile 'com.googlecode.cqengine:cqengine:+'
-//  compile 'de.keyboardsurfer.android.widget:crouton:+'
-//  compile 'com.github.cwac:cwac-endless:+'
-//  compile 'com.github.frankiesardo:icepick:+'
+
+    compile 'com.fasterxml.jackson.core:jackson-core:+'
     compile 'com.fasterxml.jackson.core:jackson-databind:+'
     compile 'com.fasterxml.jackson.core:jackson-annotations:+'
+
+    compile 'com.netflix.rxjava:rxjava-android:+'
+
+    compile 'com.squareup.picasso:picasso:+'
     compile 'com.squareup:otto:+'
     compile 'com.squareup.okhttp:okhttp:+'
-    compile 'com.squareup.retrofit:retrofit:+'
+    compile('com.squareup.retrofit:retrofit:+') {
+        exclude group: 'com.google.code.gson', module: 'gson'
+    }
+    compile('com.squareup.retrofit:converter-jackson:+') {
+        exclude group: 'com.google.code.gson', module: 'gson'
+        exclude group: 'com.fasterxml.jackson.core'
+    }
+
+    compile('com.github.frankiesardo:icepick:+') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
+    compile('de.keyboardsurfer.android.widget:crouton:+') {
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
+
+    compile 'com.squareup.dagger:dagger:+'
+    compile 'com.squareup.dagger:dagger-compiler:+'
+
+    compile 'com.github.johnkil.android-progressfragment:progressfragment:+'
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
 }

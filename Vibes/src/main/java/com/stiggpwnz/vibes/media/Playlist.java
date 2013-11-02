@@ -2,11 +2,11 @@ package com.stiggpwnz.vibes.media;
 
 public class Playlist {
 
-	public void increment(int i) {
+    public void increment(int i) {
 
-	}
+    }
 
-	public String getCurrent() {
-		return null;
-	}
+    public String getCurrent() {
+        return null;
+    }
 }

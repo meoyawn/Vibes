@@ -6,9 +6,9 @@ import android.widget.BaseAdapter;
 
 public abstract class InflaterAdapter extends BaseAdapter {
 
-	protected final LayoutInflater inflater;
+    protected final LayoutInflater inflater;
 
-	public InflaterAdapter(Context context) {
-		inflater = LayoutInflater.from(context);
-	}
+    public InflaterAdapter(Context context) {
+        inflater = LayoutInflater.from(context);
+    }
 }
