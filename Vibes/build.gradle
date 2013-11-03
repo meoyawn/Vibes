@@ -3,39 +3,36 @@ apply plugin: 'android'
 dependencies {
     compile project(':RobotoTextView')
 
-    compile 'com.jakewharton:butterknife:+'
-    compile 'com.jakewharton.timber:timber:+'
-
-    compile 'com.googlecode.cqengine:cqengine:+'
-
     compile 'com.fasterxml.jackson.core:jackson-core:+'
     compile 'com.fasterxml.jackson.core:jackson-databind:+'
     compile 'com.fasterxml.jackson.core:jackson-annotations:+'
 
     compile 'com.netflix.rxjava:rxjava-android:+'
 
+    compile 'com.jakewharton:butterknife:+'
+    compile 'com.jakewharton.timber:timber:+'
+
     compile 'com.squareup.picasso:picasso:+'
     compile 'com.squareup:otto:+'
     compile 'com.squareup.okhttp:okhttp:+'
-    compile('com.squareup.retrofit:retrofit:+') {
-        exclude group: 'com.google.code.gson', module: 'gson'
-    }
     compile('com.squareup.retrofit:converter-jackson:+') {
-        exclude group: 'com.google.code.gson', module: 'gson'
-        exclude group: 'com.fasterxml.jackson.core'
+        exclude group: 'com.google.code.gson'
     }
 
     compile('com.github.frankiesardo:icepick:+') {
-        exclude group: 'com.google.android', module: 'support-v4'
+        exclude group: 'com.google.android'
     }
     compile('de.keyboardsurfer.android.widget:crouton:+') {
-        exclude group: 'com.google.android', module: 'support-v4'
+        exclude group: 'com.google.android'
     }
 
     compile 'com.squareup.dagger:dagger:+'
     compile 'com.squareup.dagger:dagger-compiler:+'
 
-    compile 'com.github.johnkil.android-progressfragment:progressfragment:+'
+    compile 'com.android.support:support-v4:+'
+    compile('com.github.johnkil.android-progressfragment:progressfragment:+') {
+        exclude group: 'com.android.support'
+    }
 }
 
 android {

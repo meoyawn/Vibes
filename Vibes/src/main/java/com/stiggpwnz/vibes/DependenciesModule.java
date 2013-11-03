@@ -13,10 +13,10 @@ import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.activities.LoginActivity;
 import com.stiggpwnz.vibes.activities.MainActivity;
-import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
+import com.stiggpwnz.vibes.adapters.FeedAdapter;
+import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
-import com.stiggpwnz.vibes.fragments.NewsFeedFragment;
 import com.stiggpwnz.vibes.util.DiskUtils;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
@@ -50,10 +50,10 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
         LoginActivity.class, MainActivity.class,
 
         // fragments
-        LoginFragment.class, NavigationFragment.class, NewsFeedFragment.class,
+        LoginFragment.class, NavigationFragment.class, FeedFragment.class,
 
         // adapters
-        NewsFeedAdapter.PostViewHolder.class,
+        FeedAdapter.PostViewHolder.class,
 
         // views
         PhotoView.class})

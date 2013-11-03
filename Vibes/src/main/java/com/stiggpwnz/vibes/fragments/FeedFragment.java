@@ -4,10 +4,10 @@ import android.os.Bundle;
 
 import com.android.ex.widget.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.adapters.NewsFeedAdapter;
+import com.stiggpwnz.vibes.adapters.FeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
 import com.stiggpwnz.vibes.vk.VKontakte;
-import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.Feed;
 
 import javax.inject.Inject;
 
@@ -19,18 +19,18 @@ import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
 import timber.log.Timber;
 
-public class NewsFeedFragment extends RetainedProgressFragment {
+public class FeedFragment extends RetainedProgressFragment {
 
     @Inject Lazy<VKontakte> vKontakteLazy;
 
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
-    NewsFeed result;
+    Feed result;
 
-    public static NewsFeedFragment newInstance(int ownerId) {
-        NewsFeedFragment fragment = new NewsFeedFragment();
+    public static FeedFragment newInstance(int ownerId) {
+        FeedFragment fragment = new FeedFragment();
         Bundle args = new Bundle();
-        args.putInt("owner id", ownerId);
+        args.putInt("owner_id", ownerId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,15 +55,15 @@ public class NewsFeedFragment extends RetainedProgressFragment {
         }
     }
 
-    private void makeRequest() {
+    void makeRequest() {
         setContentShown(false);
-        int ownerId = getArguments().getInt("owner id");
-        Observable<NewsFeed> observable = ownerId == 0 ?
+        int ownerId = getArguments().getInt("owner_id");
+        Observable<Feed> feedObservable = ownerId == 0 ?
                 vKontakteLazy.get().getNewsFeed(0) :
                 vKontakteLazy.get().getWall(ownerId, null, 0);
-        observable.subscribeOn(Schedulers.threadPoolForIO())
+        feedObservable.subscribeOn(Schedulers.threadPoolForIO())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<NewsFeed>() {
+                .subscribe(new Observer<Feed>() {
 
                     @Override
                     public void onCompleted() {
@@ -78,7 +78,7 @@ public class NewsFeedFragment extends RetainedProgressFragment {
                     }
 
                     @Override
-                    public void onNext(NewsFeed args) {
+                    public void onNext(Feed args) {
                         setContentEmpty(false);
                         setContentShown(true);
                         postResult(args);
@@ -91,8 +91,15 @@ public class NewsFeedFragment extends RetainedProgressFragment {
         makeRequest();
     }
 
-    protected void postResult(NewsFeed result) {
-        this.result = result;
-        gridView.setAdapter(new NewsFeedAdapter(getActivity(), result));
+    protected void postResult(Feed result) {
+        if (this.result == null) {
+            this.result = result;
+            Feed.filter(result);
+            gridView.setAdapter(new FeedAdapter(getActivity(), result));
+        } else {
+            this.result.append(result);
+            FeedAdapter adapter = (FeedAdapter) gridView.getAdapter();
+            adapter.notifyDataSetChanged();
+        }
     }
 }

@@ -6,7 +6,7 @@ import android.webkit.CookieSyncManager;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.stiggpwnz.vibes.util.Persistence;
-import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Result;
 
 import java.io.IOException;
@@ -23,6 +23,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
+import rx.util.functions.Func1;
 
 @Singleton
 public class VKontakte {
@@ -74,13 +75,13 @@ public class VKontakte {
         return null;
     }
 
-    public Observable<NewsFeed> getNewsFeed(final int offset) {
-        return Observable.create(new Observable.OnSubscribeFunc<NewsFeed>() {
+    public Observable<Feed> getNewsFeed(final int offset) {
+        return Observable.create(new Observable.OnSubscribeFunc<Feed>() {
 
             @Override
-            public Subscription onSubscribe(Observer<? super NewsFeed> observer) {
+            public Subscription onSubscribe(Observer<? super Feed> observer) {
                 try {
-                    NewsFeed.Result newsFeed = vkApiLazy.get().getNewsFeed(offset);
+                    Feed.Response newsFeed = vkApiLazy.get().getNewsFeed(offset);
                     process(observer, newsFeed);
                 } catch (Throwable throwable) {
                     observer.onError(throwable);
@@ -90,18 +91,25 @@ public class VKontakte {
         }).retry(1);
     }
 
-    public Observable<NewsFeed> getWall(final int ownerId, final String filter, final int offset) {
-        return Observable.create(new Observable.OnSubscribeFunc<NewsFeed>() {
+    public Observable<Feed> getWall(final int ownerId, final String filter, final int offset) {
+        return Observable.create(new Observable.OnSubscribeFunc<Feed>() {
 
             @Override
-            public Subscription onSubscribe(Observer<? super NewsFeed> observer) {
+            public Subscription onSubscribe(Observer<? super Feed> observer) {
                 try {
-                    NewsFeed.Result newsFeed = vkApiLazy.get().getWall(ownerId, filter, offset);
+                    Feed.Response newsFeed = vkApiLazy.get().getWall(ownerId, filter, offset);
                     process(observer, newsFeed);
                 } catch (Throwable throwable) {
                     observer.onError(throwable);
                 }
                 return Subscriptions.empty();
+            }
+        }).map(new Func1<Feed, Feed>() {
+
+            @Override
+            public Feed call(Feed posts) {
+                posts.items.remove(0);
+                return posts;
             }
         }).retry(1);
     }

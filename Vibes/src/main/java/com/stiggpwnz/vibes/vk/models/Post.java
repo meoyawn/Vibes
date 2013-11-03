@@ -13,10 +13,11 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Post {
+
+    public int count;
 
     public int  source_id;
     public long date;
@@ -26,40 +27,24 @@ public class Post {
 
     public Attachment[] attachments;
 
+    // computed stuff
     public List<Photo> photos;
     public List<Audio> audios;
+    public Unit        unit;
 
-    public Unit unit;
-
+    @SuppressWarnings("unused")
     public Post() {
 
     }
 
+    @SuppressWarnings("unused")
     public Post(int count) {
-
+        this.count = count;
     }
 
     @JsonProperty("from_id")
     public void setFromId(int fromId) {
         source_id = fromId;
-    }
-
-    public void setUnit(Set<Profile> profiles, Set<Group> groups) {
-        if (source_id >= 0) {
-            for (Profile profile : profiles) {
-                if (profile.uid == source_id) {
-                    unit = profile;
-                    return;
-                }
-            }
-        } else {
-            for (Group group : groups) {
-                if (-group.gid == source_id) {
-                    unit = group;
-                    return;
-                }
-            }
-        }
     }
 
     public boolean hasAudios() {

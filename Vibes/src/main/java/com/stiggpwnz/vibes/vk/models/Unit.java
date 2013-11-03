@@ -1,17 +1,6 @@
 package com.stiggpwnz.vibes.vk.models;
 
-import com.googlecode.cqengine.attribute.Attribute;
-import com.googlecode.cqengine.attribute.SimpleAttribute;
-
 public interface Unit {
-
-    public static final Attribute<Unit, Integer> ID = new SimpleAttribute<Unit, Integer>("id") {
-
-        @Override
-        public Integer getValue(Unit arg0) {
-            return arg0.getId();
-        }
-    };
 
     public int getId();
 

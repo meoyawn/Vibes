@@ -14,7 +14,7 @@ import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.Vibes;
 import com.stiggpwnz.vibes.events.UnitClickedEvent;
-import com.stiggpwnz.vibes.vk.models.NewsFeed;
+import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
@@ -30,49 +30,26 @@ import butterknife.OnClick;
 import butterknife.Views;
 import dagger.Lazy;
 
-public class NewsFeedAdapter extends InflaterAdapter {
+public class FeedAdapter extends InflaterAdapter {
 
-    NewsFeed newsFeed;
+    Feed feed;
 
-    public NewsFeedAdapter(Context context, NewsFeed newsFeed) {
+    public FeedAdapter(Context context, Feed feed) {
         super(context);
-        this.newsFeed = newsFeed;
-        filter(newsFeed);
-    }
-
-    private void filter(NewsFeed newsFeed) {
-        List<Post> posts = new ArrayList<Post>();
-        for (Post post : newsFeed.items) {
-            if (post.hasAudios()) {
-                post.setUnit(newsFeed.profiles, newsFeed.groups);
-                posts.add(post);
-            }
-        }
-        newsFeed.items = posts;
-    }
-
-    public void append(NewsFeed newsFeed) {
-        filter(newsFeed);
-
-        this.newsFeed.new_from = newsFeed.new_from;
-        this.newsFeed.new_offset = newsFeed.new_offset;
-
-        this.newsFeed.items.addAll(newsFeed.items);
-        this.newsFeed.profiles.addAll(newsFeed.profiles);
-        this.newsFeed.groups.addAll(newsFeed.groups);
+        this.feed = feed;
     }
 
     @Override
     public int getCount() {
-        if (newsFeed != null && newsFeed.items != null) {
-            return newsFeed.items.size();
+        if (feed != null && feed.items != null) {
+            return feed.items.size();
         }
         return 0;
     }
 
     @Override
     public Post getItem(int arg0) {
-        return newsFeed.items.get(arg0);
+        return feed.items.get(arg0);
     }
 
     @Override
@@ -93,7 +70,6 @@ public class NewsFeedAdapter extends InflaterAdapter {
 
         return convertView;
     }
-
 
     public static class PostViewHolder {
 

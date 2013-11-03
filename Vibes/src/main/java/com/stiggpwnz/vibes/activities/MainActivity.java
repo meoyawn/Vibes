@@ -9,8 +9,8 @@ import com.squareup.otto.Subscribe;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.activities.base.HomeAsUpActivity;
 import com.stiggpwnz.vibes.events.UnitClickedEvent;
+import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
-import com.stiggpwnz.vibes.fragments.NewsFeedFragment;
 
 public class MainActivity extends HomeAsUpActivity {
 
@@ -29,7 +29,7 @@ public class MainActivity extends HomeAsUpActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.left_drawer, new NavigationFragment())
-                    .add(R.id.content_frame, NewsFeedFragment.newInstance(0))
+                    .add(R.id.content_frame, FeedFragment.newInstance(0))
                     .commit();
         }
     }
@@ -37,7 +37,7 @@ public class MainActivity extends HomeAsUpActivity {
     @Subscribe
     public void onUnitClicked(UnitClickedEvent event) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, NewsFeedFragment.newInstance(event.ownerId))
+                .replace(R.id.content_frame, FeedFragment.newInstance(event.ownerId))
                 .addToBackStack(null)
                 .commit();
     }
