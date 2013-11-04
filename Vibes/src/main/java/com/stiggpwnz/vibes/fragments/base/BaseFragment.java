@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import butterknife.Views;
 import dagger.Lazy;
 import icepick.bundle.Bundles;
+import rx.Observer;
 
 public class BaseFragment extends Fragment {
 

@@ -2,15 +2,14 @@ package com.stiggpwnz.vibes.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebViewFragment;
 
+import com.stiggpwnz.vibes.Vibes;
 import com.stiggpwnz.vibes.activities.MainActivity;
-import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKontakte;
 
@@ -20,58 +19,94 @@ import javax.inject.Inject;
 
 import dagger.Lazy;
 import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 import rx.concurrency.Schedulers;
-import rx.util.functions.Action1;
+import rx.subjects.PublishSubject;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
+import timber.log.Timber;
 
-public class LoginFragment extends BaseFragment {
-
-    public static final int ID = 987546;
+public class LoginFragment extends WebViewFragment {
 
     @Inject Lazy<Persistence> persistenceLazy;
 
-    WebView webView;
+    PublishSubject<String> urlPublishSubject = PublishSubject.create();
+    Subscription subscription;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        webView = new WebView(getActivity());
-        webView.setId(ID);
-        return webView;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Vibes.from(getActivity()).inject(this);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        webView.setWebViewClient(new WebViewClient() {
+        WebView webView = getWebView();
+        if (webView != null) {
+            webView.setWebViewClient(new WebViewClient() {
+
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    urlPublishSubject.onNext(url);
+                }
+            });
+            if (webView.getUrl() == null) {
+                webView.loadUrl(VKontakte.authUrl());
+            }
+        }
+
+        subscription = urlPublishSubject.filter(new Func1<String, Boolean>() {
 
             @Override
-            public void onPageFinished(WebView view, String url) {
-                if (url.startsWith(VKontakte.REDIRECT_URL)) {
-                    Observable.just(url).map(new Func1<String, Boolean>() {
+            public Boolean call(String url) {
+                return url.startsWith(VKontakte.REDIRECT_URL);
+            }
+        }).flatMap(new Func1<String, Observable<Boolean>>() {
 
-                        @Override
-                        public Boolean call(String url) {
-                            CookieSyncManager.getInstance().sync();
-                            Map<String, String> map = VKontakte.parseRedirectUrl(url);
-                            return persistenceLazy.get().saveAccessToken(map);
-                        }
-                    }).subscribeOn(Schedulers.threadPoolForIO()).subscribe(new Action1<Boolean>() {
+            @Override
+            public Observable<Boolean> call(final String url) {
+                return Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
 
-                        @Override
-                        public void call(Boolean aBoolean) {
-                            startActivity(new Intent(getActivity(), MainActivity.class));
-                            getActivity().finish();
+                    @SuppressWarnings("all")
+                    @Override
+                    public Subscription onSubscribe(Observer<? super Boolean> observer) {
+                        CookieSyncManager.getInstance().sync();
+                        Map<String, String> map = VKontakte.parseRedirectUrl(url);
+                        if (map.containsKey("error")) {
+                            observer.onError(null);
+                        } else {
+                            observer.onNext(persistenceLazy.get().saveAccessToken(map));
                         }
-                    });
-                }
+                        return Subscriptions.empty();
+                    }
+                });
+            }
+        }).subscribeOn(Schedulers.threadPoolForIO()).subscribe(new Observer<Boolean>() {
+
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Timber.e(e, "fail");
+                getActivity().finish();
+            }
+
+            @Override
+            public void onNext(Boolean args) {
+                startActivity(new Intent(getActivity(), MainActivity.class));
+                getActivity().finish();
             }
         });
-        if (webView.getUrl() == null) {
-            webView.loadUrl(VKontakte.authUrl());
-        }
     }
 
-    public WebView getWebView() {
-        return (WebView) getView();
+    @Override
+    public void onDestroy() {
+        subscription.unsubscribe();
+        super.onDestroy();
     }
 }

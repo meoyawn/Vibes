@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import butterknife.InjectView;
 import dagger.Lazy;
 import rx.Observable;
-import rx.Observer;
+import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
 import timber.log.Timber;
@@ -25,7 +25,8 @@ public class FeedFragment extends RetainedProgressFragment {
 
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
-    Feed result;
+    Feed         result;
+    Subscription subscription;
 
     public static FeedFragment newInstance(int ownerId) {
         FeedFragment fragment = new FeedFragment();
@@ -48,10 +49,8 @@ public class FeedFragment extends RetainedProgressFragment {
         if (result == null) {
             makeRequest();
         } else {
-            if (gridView.getAdapter() == null) {
-                postResult(result);
-                setContentShownNoAnimation(true);
-            }
+            postResult(result);
+            setContentShownNoAnimation(true);
         }
     }
 
@@ -61,27 +60,22 @@ public class FeedFragment extends RetainedProgressFragment {
         Observable<Feed> feedObservable = ownerId == 0 ?
                 vKontakteLazy.get().getNewsFeed(0) :
                 vKontakteLazy.get().getWall(ownerId, null, 0);
-        feedObservable.subscribeOn(Schedulers.threadPoolForIO())
+        subscription = feedObservable.subscribeOn(Schedulers.threadPoolForIO())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Feed>() {
+                .subscribe(new SafeObserver<Feed>() {
 
                     @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Timber.e(e, "Error getting newsfeed");
-                        setContentEmpty(true);
-                        setContentShown(true);
-                    }
-
-                    @Override
-                    public void onNext(Feed args) {
+                    public void safeOnNext(Feed feed) {
                         setContentEmpty(false);
                         setContentShown(true);
-                        postResult(args);
+                        postResult(feed);
+                    }
+
+                    @Override
+                    public void safeOnError(Throwable throwable) {
+                        Timber.e(throwable, "Error getting newsfeed");
+                        setContentEmpty(true);
+                        setContentShown(true);
                     }
                 });
     }
@@ -92,14 +86,22 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     protected void postResult(Feed result) {
-        if (this.result == null) {
+        FeedAdapter adapter = (FeedAdapter) gridView.getAdapter();
+        if (adapter == null) {
             this.result = result;
             Feed.filter(result);
             gridView.setAdapter(new FeedAdapter(getActivity(), result));
         } else {
             this.result.append(result);
-            FeedAdapter adapter = (FeedAdapter) gridView.getAdapter();
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
+        super.onDestroy();
     }
 }

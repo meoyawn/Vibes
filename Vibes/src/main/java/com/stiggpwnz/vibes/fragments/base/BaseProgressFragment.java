@@ -1,7 +1,6 @@
 package com.stiggpwnz.vibes.fragments.base;
 
 import android.os.Bundle;
-import android.view.ViewGroup;
 
 import com.devspark.progressfragment.ProgressFragment;
 import com.squareup.otto.Bus;
@@ -13,6 +12,7 @@ import javax.inject.Inject;
 import butterknife.OnClick;
 import butterknife.Views;
 import dagger.Lazy;
+import rx.Observer;
 
 import static icepick.bundle.Bundles.restoreInstanceState;
 import static icepick.bundle.Bundles.saveInstanceState;
@@ -73,8 +73,33 @@ public abstract class BaseProgressFragment extends ProgressFragment {
         super.onDestroyView();
     }
 
-    @Override
-    public ViewGroup getContentView() {
-        return (ViewGroup) super.getContentView();
+    protected abstract class SafeObserver<T> implements Observer<T> {
+
+        public abstract void safeOnNext(T t);
+
+        public abstract void safeOnError(Throwable throwable);
+
+        @Override
+        public void onNext(T args) {
+            if (getView() != null) {
+                setContentEmpty(false);
+                setContentShown(true);
+                safeOnNext(args);
+            }
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            if (getView() != null) {
+                setContentEmpty(true);
+                setContentShown(true);
+                safeOnError(e);
+            }
+        }
+
+        @Override
+        public void onCompleted() {
+
+        }
     }
 }
