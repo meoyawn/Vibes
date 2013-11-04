@@ -9,7 +9,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.stiggpwnz.vibes.activities.MainActivity;
+import com.stiggpwnz.vibes.test.MainActivity;
 import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKontakte;
@@ -26,6 +26,8 @@ import rx.util.functions.Func1;
 
 public class LoginFragment extends BaseFragment {
 
+    public static final int ID = 987546;
+
     @Inject Lazy<Persistence> persistenceLazy;
 
     WebView webView;
@@ -33,7 +35,7 @@ public class LoginFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         webView = new WebView(getActivity());
-        webView.setId(987546);
+        webView.setId(ID);
         return webView;
     }
 

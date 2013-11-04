@@ -1,10 +1,10 @@
-package com.stiggpwnz.vibes.activities;
+package com.stiggpwnz.vibes.test;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.webkit.WebView;
 
-import com.stiggpwnz.vibes.activities.base.BaseActivity;
+import com.stiggpwnz.vibes.test.base.BaseActivity;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 
 public class LoginActivity extends BaseActivity {
@@ -17,16 +17,21 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
+    public WebView getWebView() {
         Fragment fragmentById = getSupportFragmentManager().findFragmentById(android.R.id.content);
         if (fragmentById != null && fragmentById instanceof LoginFragment) {
             LoginFragment loginFragment = (LoginFragment) fragmentById;
-            WebView webView = loginFragment.getWebView();
-            if (webView != null && webView.canGoBack()) {
-                webView.goBack();
-                return;
-            }
+            return loginFragment.getWebView();
+        }
+        return null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        WebView webView = getWebView();
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+            return;
         }
         super.onBackPressed();
     }

@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes.activities.base;
+package com.stiggpwnz.vibes.test.base;
 
 import android.os.Bundle;
 

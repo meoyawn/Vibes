@@ -26,16 +26,28 @@ dependencies {
         exclude group: 'com.google.android'
     }
 
-    compile 'com.squareup.dagger:dagger:+'
     compile 'com.squareup.dagger:dagger-compiler:+'
+    compile 'com.squareup.dagger:dagger:+'
 
     compile 'com.android.support:support-v4:+'
     compile('com.github.johnkil.android-progressfragment:progressfragment:+') {
         exclude group: 'com.android.support'
     }
+
+    instrumentTestCompile files('libs/espresso-1.0-SNAPSHOT.jar', 'libs/testrunner-1.0-SNAPSHOT.jar', 'libs/testrunner-runtime-1.0-SNAPSHOT.jar')
+    instrumentTestCompile files('libs/hamcrest-core-1.1.jar', 'libs/hamcrest-library-1.1.jar', 'libs/hamcrest-integration-1.1.jar')
+    instrumentTestCompile 'com.google.guava:guava:+'
+
+    instrumentTestCompile 'com.jayway.android.robotium:robotium-solo:+'
 }
 
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.0"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+        testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+    }
 }
