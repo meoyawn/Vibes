@@ -1,4 +1,4 @@
-package com.stiggpwnz.vibes.test;
+package com.stiggpwnz.vibes.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.test.base.HomeAsUpActivity;
+import com.stiggpwnz.vibes.activities.base.HomeAsUpActivity;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 

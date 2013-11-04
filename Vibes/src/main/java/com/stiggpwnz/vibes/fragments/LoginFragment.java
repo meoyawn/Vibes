@@ -9,7 +9,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.stiggpwnz.vibes.test.MainActivity;
+import com.stiggpwnz.vibes.activities.MainActivity;
 import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKontakte;

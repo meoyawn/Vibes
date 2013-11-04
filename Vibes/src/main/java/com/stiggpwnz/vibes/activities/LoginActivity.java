@@ -1,10 +1,10 @@
-package com.stiggpwnz.vibes.test;
+package com.stiggpwnz.vibes.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.webkit.WebView;
 
-import com.stiggpwnz.vibes.test.base.BaseActivity;
+import com.stiggpwnz.vibes.activities.base.BaseActivity;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 
 public class LoginActivity extends BaseActivity {
