@@ -1,2 +1,2 @@
-include ':Vibes'
 include ':RobotoTextView'
+include ':Vibes'
