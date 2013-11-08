@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.devspark.progressfragment.ProgressFragment;
 import com.squareup.otto.Bus;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ public abstract class BaseProgressFragment extends ProgressFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Vibes.from(getActivity()).inject(this);
+        VibesApplication.from(getActivity()).inject(this);
         restoreInstanceState(this, savedInstanceState);
     }
 

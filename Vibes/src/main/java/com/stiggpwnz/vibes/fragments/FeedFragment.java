@@ -86,15 +86,8 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     protected void postResult(Feed result) {
-        FeedAdapter adapter = (FeedAdapter) gridView.getAdapter();
-        if (adapter == null) {
-            this.result = result;
-            Feed.filter(result);
-            gridView.setAdapter(new FeedAdapter(getActivity(), result));
-        } else {
-            this.result.append(result);
-            adapter.notifyDataSetChanged();
-        }
+        this.result = result;
+        gridView.setAdapter(new FeedAdapter(getActivity(), result));
     }
 
     @Override

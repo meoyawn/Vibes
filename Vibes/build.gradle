@@ -1,4 +1,5 @@
 apply plugin: 'android'
+apply plugin: 'android-test'
 
 android {
     compileSdkVersion 19
@@ -7,7 +8,6 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
-        testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
     }
 }
 
@@ -46,9 +46,14 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    instrumentTestCompile files('libs/espresso-1.0-SNAPSHOT.jar', 'libs/testrunner-1.0-SNAPSHOT.jar', 'libs/testrunner-runtime-1.0-SNAPSHOT.jar')
-    instrumentTestCompile files('libs/hamcrest-core-1.1.jar', 'libs/hamcrest-library-1.1.jar', 'libs/hamcrest-integration-1.1.jar')
-    instrumentTestCompile 'com.google.guava:guava:+'
-    instrumentTestCompile 'com.jayway.android.robotium:robotium-solo:+'
+    testCompile 'junit:junit:+'
+    testCompile 'org.robolectric:robolectric:2.1.+'
+    testCompile 'com.squareup:fest-android:+'
+    testCompile 'org.mockito:mockito-all:+'
+
+    instrumentTestCompile 'junit:junit:+'
+    instrumentTestCompile 'org.robolectric:robolectric:2.1.+'
+    instrumentTestCompile 'com.squareup:fest-android:+'
+    instrumentTestCompile 'org.mockito:mockito-all:+'
 }
 

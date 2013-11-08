@@ -3,6 +3,8 @@ package com.stiggpwnz.vibes;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpResponseCache;
@@ -20,7 +22,7 @@ import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.util.DiskUtils;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
-import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.vk.VKAuth;
 import com.stiggpwnz.vibes.widget.PhotoView;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.util.Map;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import retrofit.RequestInterceptor;
@@ -57,12 +60,23 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
 
         // views
         PhotoView.class})
-public class DependenciesModule {
+public class VibesModule {
 
     Context context;
 
-    DependenciesModule(Context context) {
+    public VibesModule(Context context) {
         this.context = context;
+    }
+
+    @Provides
+    @Singleton
+    CookieSyncManager provideCookieSyncManager() {
+        return CookieSyncManager.createInstance(context);
+    }
+
+    @Provides
+    CookieManager provideCookieManager(CookieSyncManager cookieSyncManager) {
+        return CookieManager.getInstance();
     }
 
     @Provides
@@ -137,13 +151,13 @@ public class DependenciesModule {
 
     @Provides
     @Singleton
-    Client provideClient(OkHttpClient okHttpClient) {
+    Client provideRetrofitHttpClient(OkHttpClient okHttpClient) {
         return new OkClient(okHttpClient);
     }
 
     @Provides
     @Singleton
-    VKApi provideRoadtrippers(Client client, Converter converter, RestAdapter.Log log, final Persistence persistence, final VKontakte vKontakte) {
+    VKApi provideVkApi(Client client, Converter converter, RestAdapter.Log log, final Lazy<Persistence> persistenceLazy, final Lazy<VKAuth> vkAuthLazy) {
         return new RestAdapter.Builder()
                 .setServer(VKApi.SERVER)
                 .setClient(client)
@@ -152,11 +166,11 @@ public class DependenciesModule {
 
                     @Override
                     public void intercept(RequestFacade requestFacade) {
-                        String accessToken = persistence.getAccessToken();
+                        String accessToken = persistenceLazy.get().getAccessToken();
                         if (accessToken == null) {
                             try {
-                                Map<String, String> map = vKontakte.auth();
-                                persistence.saveAccessToken(map);
+                                Map<String, String> map = vkAuthLazy.get().auth();
+                                persistenceLazy.get().saveAccessToken(map);
                                 accessToken = map.get(ACCESS_TOKEN);
                             } catch (IOException e) {
                                 throw new RuntimeException("Failed to refresh access token", e);

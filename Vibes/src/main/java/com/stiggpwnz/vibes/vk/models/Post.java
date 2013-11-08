@@ -47,7 +47,7 @@ public class Post {
         source_id = fromId;
     }
 
-    public boolean hasAudios() {
+    public boolean calculateAudiosAndPhotos() {
         boolean hasAudios = false;
         if (attachments != null) {
             List<Photo> photos = new ArrayList<Photo>();

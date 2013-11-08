@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.Window;
 
 import com.squareup.otto.Bus;
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
@@ -21,7 +21,7 @@ public class BaseDialogFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Vibes.from(getActivity()).inject(this);
+        VibesApplication.from(getActivity()).inject(this);
     }
 
     @Override

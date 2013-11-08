@@ -12,16 +12,13 @@ import com.devspark.robototextview.widget.RobotoTextView;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.events.UnitClickedEvent;
 import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -87,7 +84,7 @@ public class FeedAdapter extends InflaterAdapter {
         Post post;
 
         PostViewHolder(LinearLayout convertView) {
-            Vibes.from(convertView.getContext()).inject(this);
+            VibesApplication.from(convertView.getContext()).inject(this);
             Views.inject(this, convertView);
 
             for (int i = 0; i < audioViews.length; i++) {

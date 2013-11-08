@@ -3,7 +3,6 @@ package com.stiggpwnz.vibes.vk.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ public class Feed {
         items = wall;
     }
 
-    void assignUnit(Post post) {
+    public void assignUnit(Post post) {
         if (post.source_id >= 0) {
             setProfile(post);
         } else {
@@ -46,26 +45,13 @@ public class Feed {
         }
     }
 
-    public static void filter(Feed feed) {
-        List<Post> posts = new ArrayList<Post>();
-        for (Post post : feed.items) {
-            if (post.hasAudios()) {
-                feed.assignUnit(post);
-                posts.add(post);
-            }
-        }
-        feed.items = posts;
-    }
-
-    public void append(Feed feed) {
-        filter(feed);
-
-        new_offset = feed.new_offset;
-
-        items.addAll(feed.items);
-        profiles.addAll(feed.profiles);
-        groups.addAll(feed.groups);
-    }
+//    void append(Feed feed) {
+//        new_offset = feed.new_offset;
+//
+//        items.addAll(feed.items);
+//        profiles.addAll(feed.profiles);
+//        groups.addAll(feed.groups);
+//    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Response extends Result<Feed> {

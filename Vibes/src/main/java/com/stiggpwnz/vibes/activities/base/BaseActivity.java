@@ -4,12 +4,13 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.squareup.otto.Bus;
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
 import butterknife.Views;
 import dagger.Lazy;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
 import icepick.bundle.Bundles;
 
 public abstract class BaseActivity extends FragmentActivity {
@@ -19,8 +20,11 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Vibes.from(this).inject(this);
+        VibesApplication.from(this).inject(this);
         Bundles.restoreInstanceState(this, savedInstanceState);
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     @Override
@@ -50,7 +54,6 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // TODO FUCK
-//        Crouton.cancelAllCroutons();
+        Crouton.cancelAllCroutons();
     }
 }

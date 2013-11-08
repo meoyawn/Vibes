@@ -8,10 +8,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebViewFragment;
 
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.activities.MainActivity;
 import com.stiggpwnz.vibes.util.Persistence;
-import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.vk.VKAuth;
 
 import java.util.Map;
 
@@ -29,7 +29,8 @@ import timber.log.Timber;
 
 public class LoginFragment extends WebViewFragment {
 
-    @Inject Lazy<Persistence> persistenceLazy;
+    @Inject Lazy<Persistence>       persistenceLazy;
+    @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;
 
     PublishSubject<String> urlPublishSubject = PublishSubject.create();
     Subscription subscription;
@@ -37,7 +38,7 @@ public class LoginFragment extends WebViewFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Vibes.from(getActivity()).inject(this);
+        VibesApplication.from(getActivity()).inject(this);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class LoginFragment extends WebViewFragment {
                 }
             });
             if (webView.getUrl() == null) {
-                webView.loadUrl(VKontakte.authUrl());
+                webView.loadUrl(VKAuth.authUrl());
             }
         }
 
@@ -61,7 +62,7 @@ public class LoginFragment extends WebViewFragment {
 
             @Override
             public Boolean call(String url) {
-                return url.startsWith(VKontakte.REDIRECT_URL);
+                return url.startsWith(VKAuth.REDIRECT_URL);
             }
         }).flatMap(new Func1<String, Observable<Boolean>>() {
 
@@ -72,8 +73,8 @@ public class LoginFragment extends WebViewFragment {
                     @SuppressWarnings("all")
                     @Override
                     public Subscription onSubscribe(Observer<? super Boolean> observer) {
-                        CookieSyncManager.getInstance().sync();
-                        Map<String, String> map = VKontakte.parseRedirectUrl(url);
+                        cookieSyncManagerLazy.get().sync();
+                        Map<String, String> map = VKAuth.parseRedirectUrl(url);
                         if (map.containsKey("error")) {
                             observer.onError(null);
                         } else {

@@ -5,14 +5,13 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import com.squareup.otto.Bus;
-import com.stiggpwnz.vibes.Vibes;
+import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
 import butterknife.Views;
 import dagger.Lazy;
 import icepick.bundle.Bundles;
-import rx.Observer;
 
 public class BaseFragment extends Fragment {
 
@@ -21,7 +20,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Vibes.from(getActivity()).inject(this);
+        VibesApplication.from(getActivity()).inject(this);
         Bundles.restoreInstanceState(this, savedInstanceState);
     }
 
