@@ -2,19 +2,21 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-            android:id="@android:id/background"
-            android:drawable="@color/audio_seekbar_bg">
+        android:id="@android:id/background">
+        <shape>
+            <solid android:color="@color/audio_seekbar_secondary"/>
+        </shape>
     </item>
     <item android:id="@android:id/secondaryProgress">
         <scale
-                android:drawable="@color/audio_seekbar_secondary"
-                android:scaleWidth="100%">
+            android:drawable="@color/full_black"
+            android:scaleWidth="100%">
         </scale>
     </item>
     <item android:id="@android:id/progress">
         <scale
-                android:drawable="@color/audio_seekbar_progress"
-                android:scaleWidth="100%">
+            android:drawable="@color/holo_blue"
+            android:scaleWidth="100%">
         </scale>
     </item>
 

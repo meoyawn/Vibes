@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
@@ -18,7 +18,7 @@ import butterknife.Views;
 
 public class AudioView extends LinearLayout {
 
-    @InjectView(R.id.imageButtonPlay) ImageButton    play;
+    @InjectView(R.id.imageButtonPlay) ImageView      play;
     @InjectView(R.id.seekBarAudio)    SeekBar        seekBar;
     @InjectView(R.id.artist_audio)    RobotoTextView artist;
     @InjectView(R.id.title_audio)     RobotoTextView title;
@@ -46,7 +46,7 @@ public class AudioView extends LinearLayout {
 
     @OnClick(R.id.imageButtonPlay)
     void play() {
-        play.setImageResource(R.drawable.pause);
+        play.setImageResource(R.drawable.btn_play_active);
 
         seekBar.setVisibility(View.VISIBLE);
         seekBar.setProgress(20);
