@@ -9,7 +9,7 @@ import com.devspark.robototextview.R;
 import com.devspark.robototextview.RobotoTypefaceManager;
 
 /**
- * Implementation of a {@link CheckedTextView} with native support for all the Roboto fonts.
+ * Implementation of a {@link android.widget.CheckedTextView} with native support for all the Roboto fonts.
  *
  * @author e.shishkin
  */
@@ -40,7 +40,7 @@ public class RobotoCheckedTextView extends CheckedTextView {
      * @param context The Context the widget is running in, through which it can
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the widget.
-     * @see #RobotoCheckedTextView(Context, android.util.AttributeSet, int)
+     * @see #RobotoCheckedTextView(android.content.Context, android.util.AttributeSet, int)
      */
     public RobotoCheckedTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -59,7 +59,7 @@ public class RobotoCheckedTextView extends CheckedTextView {
      *                 will be applied (beyond what is included in the theme). This may
      *                 either be an attribute resource, whose value will be retrieved
      *                 from the current theme, or an explicit style resource.
-     * @see #RobotoCheckedTextView(Context, AttributeSet)
+     * @see #RobotoCheckedTextView(android.content.Context, android.util.AttributeSet)
      */
     public RobotoCheckedTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

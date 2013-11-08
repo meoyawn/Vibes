@@ -9,7 +9,7 @@ import com.devspark.robototextview.R;
 import com.devspark.robototextview.RobotoTypefaceManager;
 
 /**
- * Implementation of a {@link DigitalClock} with native support for all the Roboto fonts.
+ * Implementation of a {@link android.widget.DigitalClock} with native support for all the Roboto fonts.
  *
  * @author e.shishkin
  */

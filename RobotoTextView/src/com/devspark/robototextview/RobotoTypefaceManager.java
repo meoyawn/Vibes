@@ -26,15 +26,16 @@ public class RobotoTypefaceManager {
     private final static int ROBOTO_BOLD_ITALIC = 9;
     private final static int ROBOTO_BLACK = 10;
     private final static int ROBOTO_BLACK_ITALIC = 11;
-    private final static int ROBOTO_CONDENSED = 12;
-    private final static int ROBOTO_CONDENSED_ITALIC = 13;
-    private final static int ROBOTO_CONDENSED_BOLD = 14;
-    private final static int ROBOTO_CONDENSED_BOLD_ITALIC = 15;
-    private final static int ROBOTOSLAB_THIN = 16;
-    private final static int ROBOTOSLAB_LIGHT = 17;
-    private final static int ROBOTOSLAB_REGULAR = 18;
-    private final static int ROBOTOSLAB_BOLD = 19;
-
+    private final static int ROBOTO_CONDENSED_LIGHT = 12;
+    private final static int ROBOTO_CONDENSED_LIGHT_ITALIC = 13;
+    private final static int ROBOTO_CONDENSED_REGULAR = 14;
+    private final static int ROBOTO_CONDENSED_ITALIC = 15;
+    private final static int ROBOTO_CONDENSED_BOLD = 16;
+    private final static int ROBOTO_CONDENSED_BOLD_ITALIC = 17;
+    private final static int ROBOTO_SLAB_THIN = 18;
+    private final static int ROBOTO_SLAB_LIGHT = 19;
+    private final static int ROBOTO_SLAB_REGULAR = 20;
+    private final static int ROBOTO_SLAB_BOLD = 21;
     /**
      * Array of created typefaces for later reused.
      */
@@ -45,7 +46,7 @@ public class RobotoTypefaceManager {
      *
      * @param context       The Context the widget is running in, through which it can access the current theme, resources, etc.
      * @param typefaceValue The value of "typeface" attribute
-     * @return specify {@link Typeface}
+     * @return specify {@link android.graphics.Typeface}
      * @throws IllegalArgumentException if unknown `typeface` attribute value.
      */
     public static Typeface obtaintTypeface(Context context, int typefaceValue) throws IllegalArgumentException {
@@ -63,7 +64,7 @@ public class RobotoTypefaceManager {
      * @param context       The Context the widget is running in, through which it can
      *                      access the current theme, resources, etc.
      * @param typefaceValue The value of "typeface" attribute
-     * @return Roboto {@link Typeface}
+     * @return Roboto {@link android.graphics.Typeface}
      * @throws IllegalArgumentException if unknown `typeface` attribute value.
      */
     private static Typeface createTypeface(Context context, int typefaceValue) throws IllegalArgumentException {
@@ -105,28 +106,34 @@ public class RobotoTypefaceManager {
             case ROBOTO_BLACK_ITALIC:
                 typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-BlackItalic.ttf");
                 break;
-            case ROBOTO_CONDENSED:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-Condensed.ttf");
+            case ROBOTO_CONDENSED_LIGHT:
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Light.ttf");
+                break;
+            case ROBOTO_CONDENSED_LIGHT_ITALIC:
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-LightItalic.ttf");
+                break;
+            case ROBOTO_CONDENSED_REGULAR:
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Regular.ttf");
                 break;
             case ROBOTO_CONDENSED_ITALIC:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-CondensedItalic.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Italic.ttf");
                 break;
             case ROBOTO_CONDENSED_BOLD:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-BoldCondensed.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-Bold.ttf");
                 break;
             case ROBOTO_CONDENSED_BOLD_ITALIC:
-                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/Roboto-BoldCondensedItalic.ttf");
+                typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoCondensed-BoldItalic.ttf");
                 break;
-            case ROBOTOSLAB_THIN:
+            case ROBOTO_SLAB_THIN:
                 typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoSlab-Thin.ttf");
                 break;
-            case ROBOTOSLAB_LIGHT:
+            case ROBOTO_SLAB_LIGHT:
                 typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoSlab-Light.ttf");
                 break;
-            case ROBOTOSLAB_REGULAR:
+            case ROBOTO_SLAB_REGULAR:
                 typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoSlab-Regular.ttf");
                 break;
-            case ROBOTOSLAB_BOLD:
+            case ROBOTO_SLAB_BOLD:
                 typeface = Typeface.createFromAsset(context.getAssets(), "fonts/RobotoSlab-Bold.ttf");
                 break;
             default:

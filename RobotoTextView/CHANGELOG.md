@@ -2,6 +2,21 @@ Change Log
 ==========
 
 
+Version 1.5 *(2013-11-06)*
+--------------------------
+
+* Support brand new `Roboto Condensed` font from Android 4.4 ([info](http://www.theverge.com/2013/10/31/5049672/android-kit-kat-4-4-google-software-operating-system)).
+* Update Gradle build (support gradle v 1.8).
+
+
+Version 1.4 *(2013-08-11)*
+--------------------------
+
+* Support brand new `Roboto` typefaces from Android 4.3 ([info](http://www.androidpolice.com/2013/06/29/typeface-teardown-roboto-gets-a-facelift-in-android-4-3/)).
+* Add Gradle build.
+* Fix: #14 RobotoMultiAutoCompleteTextView inheritance.
+
+
 Version 1.3 *(2013-05-20)*
 --------------------------
 

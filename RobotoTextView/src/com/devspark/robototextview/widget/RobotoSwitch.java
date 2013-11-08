@@ -9,7 +9,7 @@ import com.devspark.robototextview.R;
 import com.devspark.robototextview.RobotoTypefaceManager;
 
 /**
- * Implementation of a {@link Switch} with native support for all the Roboto fonts.
+ * Implementation of a {@link android.widget.Switch} with native support for all the Roboto fonts.
  *
  * @author e.shishkin
  */
@@ -40,7 +40,7 @@ public class RobotoSwitch extends Switch {
      * @param context The Context the widget is running in, through which it can
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the widget.
-     * @see #RobotoSwitch(Context, android.util.AttributeSet, int)
+     * @see #RobotoSwitch(android.content.Context, android.util.AttributeSet, int)
      */
     public RobotoSwitch(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -59,7 +59,7 @@ public class RobotoSwitch extends Switch {
      *                 will be applied (beyond what is included in the theme). This may
      *                 either be an attribute resource, whose value will be retrieved
      *                 from the current theme, or an explicit style resource.
-     * @see #RobotoSwitch(Context, AttributeSet)
+     * @see #RobotoSwitch(android.content.Context, android.util.AttributeSet)
      */
     public RobotoSwitch(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

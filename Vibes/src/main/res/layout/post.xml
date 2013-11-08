@@ -35,7 +35,7 @@
                 android:orientation="vertical"
                 android:paddingLeft="@dimen/padding_post">
 
-                <com.devspark.robototextview.widget.RobotoTextView
+                <com.devspark.app.widget.RobotoTextView
                     android:id="@+id/user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
                     tools:text="Adel Nizamutdinov"
                     app:typeface="roboto_bold"/>
 
-                <com.devspark.robototextview.widget.RobotoTextView
+                <com.devspark.app.widget.RobotoTextView
                     android:id="@+id/time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.devspark.robototextview.widget.RobotoTextView
+        <com.devspark.app.widget.RobotoTextView
             android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

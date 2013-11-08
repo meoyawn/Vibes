@@ -25,7 +25,7 @@ import com.devspark.robototextview.R;
 import com.devspark.robototextview.RobotoTypefaceManager;
 
 /**
- * Implementation of a {@link TextView} with native support for all the Roboto fonts.
+ * Implementation of a {@link android.widget.TextView} with native support for all the Roboto fonts.
  *
  * @author e.shishkin
  */
@@ -56,7 +56,7 @@ public class RobotoTextView extends TextView {
      * @param context The Context the widget is running in, through which it can
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the widget.
-     * @see #RobotoTextView(Context, AttributeSet, int)
+     * @see #RobotoTextView(android.content.Context, android.util.AttributeSet, int)
      */
     public RobotoTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -75,7 +75,7 @@ public class RobotoTextView extends TextView {
      *                 will be applied (beyond what is included in the theme). This may
      *                 either be an attribute resource, whose value will be retrieved
      *                 from the current theme, or an explicit style resource.
-     * @see #RobotoTextView(Context, AttributeSet)
+     * @see #RobotoTextView(android.content.Context, android.util.AttributeSet)
      */
     public RobotoTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

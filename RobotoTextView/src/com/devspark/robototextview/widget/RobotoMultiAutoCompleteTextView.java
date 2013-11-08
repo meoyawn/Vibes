@@ -4,15 +4,17 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.widget.MultiAutoCompleteTextView;
+
 import com.devspark.robototextview.R;
 import com.devspark.robototextview.RobotoTypefaceManager;
 
 /**
- * Implementation of a {@link RobotoAutoCompleteTextView} with native support for all the Roboto fonts.
+ * Implementation of a {@link android.widget.MultiAutoCompleteTextView} with native support for all the Roboto fonts.
  *
  * @author e.shishkin
  */
-public class RobotoMultiAutoCompleteTextView extends RobotoAutoCompleteTextView {
+public class RobotoMultiAutoCompleteTextView extends MultiAutoCompleteTextView {
 
     /**
      * Simple constructor to use when creating a widget from code.
@@ -39,7 +41,7 @@ public class RobotoMultiAutoCompleteTextView extends RobotoAutoCompleteTextView 
      * @param context The Context the widget is running in, through which it can
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the widget.
-     * @see #RobotoMultiAutoCompleteTextView(Context, android.util.AttributeSet, int)
+     * @see #RobotoMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet, int)
      */
     public RobotoMultiAutoCompleteTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -58,7 +60,7 @@ public class RobotoMultiAutoCompleteTextView extends RobotoAutoCompleteTextView 
      *                 will be applied (beyond what is included in the theme). This may
      *                 either be an attribute resource, whose value will be retrieved
      *                 from the current theme, or an explicit style resource.
-     * @see #RobotoMultiAutoCompleteTextView(Context, AttributeSet)
+     * @see #RobotoMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet)
      */
     public RobotoMultiAutoCompleteTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);

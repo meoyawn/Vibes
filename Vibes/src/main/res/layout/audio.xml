@@ -41,7 +41,7 @@
                 android:orientation="vertical"
                 android:paddingBottom="2dp">
 
-                <com.devspark.robototextview.widget.RobotoTextView
+                <com.devspark.app.widget.RobotoTextView
                     android:id="@+id/artist_audio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
                     android:textSize="18sp"
                     app:typeface="roboto_bold"/>
 
-                <com.devspark.robototextview.widget.RobotoTextView
+                <com.devspark.app.widget.RobotoTextView
                     android:id="@+id/title_audio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
