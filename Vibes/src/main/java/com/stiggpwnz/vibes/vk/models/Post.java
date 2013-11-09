@@ -1,16 +1,10 @@
 package com.stiggpwnz.vibes.vk.models;
 
-import android.text.Html;
-import android.text.Spanned;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.stiggpwnz.vibes.util.HtmlDeserializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +16,8 @@ public class Post {
     public int  source_id;
     public long date;
 
-    @JsonDeserialize(using = HtmlParser.class)
-    public Spanned text;
+    @JsonDeserialize(using = HtmlDeserializer.class)
+    public String text;
 
     public Attachment[] attachments;
 
@@ -68,11 +62,4 @@ public class Post {
         return hasAudios;
     }
 
-    public static class HtmlParser extends JsonDeserializer<Spanned> {
-
-        @Override
-        public Spanned deserialize(JsonParser arg0, DeserializationContext arg1) throws IOException {
-            return Html.fromHtml(arg0.getValueAsString());
-        }
-    }
 }

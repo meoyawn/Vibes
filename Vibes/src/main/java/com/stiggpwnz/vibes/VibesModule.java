@@ -15,7 +15,7 @@ import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.activities.LoginActivity;
 import com.stiggpwnz.vibes.activities.MainActivity;
-import com.stiggpwnz.vibes.adapters.FeedAdapter;
+import com.stiggpwnz.vibes.adapters.PostViewHolder;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
@@ -55,8 +55,8 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
         // fragments
         LoginFragment.class, NavigationFragment.class, FeedFragment.class,
 
-        // adapters
-        FeedAdapter.PostViewHolder.class,
+        // holders
+        PostViewHolder.class,
 
         // views
         PhotoView.class})

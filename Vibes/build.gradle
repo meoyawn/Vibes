@@ -3,7 +3,7 @@ apply plugin: 'android-test'
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.0"
+    buildToolsVersion '19.0.0'
 
     defaultConfig {
         minSdkVersion 14
@@ -56,4 +56,3 @@ dependencies {
     instrumentTestCompile 'com.squareup:fest-android:+'
     instrumentTestCompile 'org.mockito:mockito-all:+'
 }
-
