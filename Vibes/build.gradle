@@ -4,10 +4,16 @@ apply plugin: 'android-test'
 android {
     compileSdkVersion 19
     buildToolsVersion '19.0.0'
-
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 19
+    }
+
+    sourceSets {
+        instrumentTest {
+            java.srcDir file('src/test/java')
+            resources.srcDir file('src/test/resources')
+        }
     }
 }
 

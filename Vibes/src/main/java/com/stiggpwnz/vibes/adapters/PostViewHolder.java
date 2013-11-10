@@ -1,10 +1,14 @@
 package com.stiggpwnz.vibes.adapters;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.text.style.URLSpan;
+import android.text.style.ClickableSpan;
+import android.text.style.ReplacementSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,13 +35,15 @@ import butterknife.Views;
 import dagger.Lazy;
 import timber.log.Timber;
 
+import static com.stiggpwnz.vibes.adapters.InflaterAdapter.setVisibility;
+
 /**
  * Created by adel on 11/9/13
  */
 public class PostViewHolder {
 
-    static final Pattern HASH_TAGS_PATTERN   = Pattern.compile("(#[a-zA-Z][\\w-]*)");
-    static final Pattern HYPER_LINKS_PATTERN = Pattern.compile("^(((?i:https?)://)?[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)+.*)$");
+    static final Pattern HASH_TAGS_PATTERN = Pattern.compile("#[a-zA-Z][\\w@-]*");
+    static final Pattern VK_LINK           = Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
 
     @Inject Lazy<Picasso> picassoLazy;
     @Inject Lazy<Bus>     busLazy;
@@ -68,22 +74,73 @@ public class PostViewHolder {
         busLazy.get().post(new UnitClickedEvent(post.source_id));
     }
 
-    void linkify(SpannableString text) {
+    static class HashTagSpan extends ClickableSpan {
+
+        String hashtag;
+
+        public HashTagSpan(String hashtag) {
+            this.hashtag = hashtag;
+        }
+
+        @Override
+        public void onClick(View widget) {
+
+        }
+    }
+
+
+    static class VKLinkSpan extends ClickableSpan {
+
+        String path;
+
+        public VKLinkSpan(String group) {
+            path = group;
+        }
+
+        @Override
+        public void onClick(View widget) {
+            Timber.d("clicked on %s group", path);
+        }
+    }
+
+    static class ReplaceTextSpan extends ReplacementSpan {
+
+        String replacement;
+
+        public ReplaceTextSpan(String replacement) {
+            this.replacement = replacement;
+        }
+
+        @Override
+        public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
+            return Math.round(paint.measureText(replacement));
+        }
+
+        @Override
+        public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+            paint.setUnderlineText(true);
+            canvas.drawText(replacement, x, y, paint);
+        }
+    }
+
+    SpannableString linkify(String string) {
+        SpannableString text = new SpannableString(string);
+
         Matcher m = HASH_TAGS_PATTERN.matcher(text);
         while (m.find()) {
             int start = m.start();
             int end = m.end();
-            Timber.d("matched %s", m.group());
-            text.setSpan(new URLSpan("http://vk.com"), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new HashTagSpan(m.group()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        m = HYPER_LINKS_PATTERN.matcher(text);
+        m = VK_LINK.matcher(text);
         while (m.find()) {
             int start = m.start();
             int end = m.end();
-            Timber.d("matched %s", m.group());
-            text.setSpan(new URLSpan(m.group()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new VKLinkSpan(m.group(1)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new ReplaceTextSpan(m.group(2)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        return text;
     }
 
     void setPost(Post post) {
@@ -96,12 +153,10 @@ public class PostViewHolder {
         time.setText(DateUtils.getRelativeTimeSpanString(post.date * 1000));
 
         if (!TextUtils.isEmpty(post.text)) {
-            SpannableString string = new SpannableString(post.text);
-            linkify(string);
-            text.setText(string);
-            InflaterAdapter.setVisibility(text, View.VISIBLE);
+            text.setText(linkify(post.text));
+            setVisibility(text, View.VISIBLE);
         } else {
-            InflaterAdapter.setVisibility(text, View.GONE);
+            setVisibility(text, View.GONE);
         }
 
         if (post.photos.size() > 0) {

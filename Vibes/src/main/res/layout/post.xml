@@ -60,6 +60,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/padding_post"
             android:textSize="16sp"
+            android:autoLink="web"
             tools:text="Lorum ipsum."
             app:typeface="roboto_regular"/>
     </LinearLayout>
