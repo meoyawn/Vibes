@@ -31,7 +31,8 @@ public class MainActivityTest {
 
     @Test
     public void testInjection() throws Exception {
-        assertEquals(cookieManager, buildActivity(MainActivity.class).create().get().cookieManager);
+        assertEquals(cookieManager,
+                buildActivity(MainActivity.class).create().get().cookieManager);
     }
 
     @Test

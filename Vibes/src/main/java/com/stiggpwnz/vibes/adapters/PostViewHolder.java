@@ -1,10 +1,10 @@
 package com.stiggpwnz.vibes.adapters;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ClickableSpan;
@@ -88,7 +88,6 @@ public class PostViewHolder {
         }
     }
 
-
     static class VKLinkSpan extends ClickableSpan {
 
         String path;
@@ -118,6 +117,7 @@ public class PostViewHolder {
 
         @Override
         public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+            paint.setColor(Color.parseColor("#33b5e5"));
             paint.setUnderlineText(true);
             canvas.drawText(replacement, x, y, paint);
         }
