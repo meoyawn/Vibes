@@ -1,7 +1,7 @@
 buildscript {
     repositories {
+        maven { url 'https://raw.github.com/adelnizamutdinov/mvn-repo/master/' }
         mavenCentral()
-        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:+'

@@ -123,7 +123,7 @@ public class PostViewHolder {
         }
     }
 
-    SpannableString linkify(String string) {
+    static SpannableString linkify(String string) {
         SpannableString text = new SpannableString(string);
 
         Matcher m = HASH_TAGS_PATTERN.matcher(text);

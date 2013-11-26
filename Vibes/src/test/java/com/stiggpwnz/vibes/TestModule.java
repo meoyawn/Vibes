@@ -12,8 +12,8 @@ import dagger.Provides;
 import static org.mockito.Mockito.mock;
 
 /**
-* Created by adel on 11/8/13
-*/
+ * Created by adel on 11/8/13
+ */
 @Module(injects = {MainActivityTest.class},
         includes = VibesModule.class,
         overrides = true)
