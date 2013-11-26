@@ -1,5 +1,5 @@
 language: java
 
 install:
-    - git clone git@github.com:JakeWharton/gradle-android-test-plugin.git
+    - git clone https://github.com/JakeWharton/gradle-android-test-plugin.git
     - gradle-android-test-plugin/gradlew install
