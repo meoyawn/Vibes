@@ -9,7 +9,7 @@ import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
-import butterknife.Views;
+import butterknife.ButterKnife;
 import dagger.Lazy;
 import icepick.bundle.Bundles;
 
@@ -27,7 +27,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Views.inject(this, view);
+        ButterKnife.inject(this, view);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class BaseFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Views.reset(this);
+        ButterKnife.reset(this);
         super.onDestroyView();
     }
 }

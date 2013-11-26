@@ -15,5 +15,5 @@ local.properties
 .apt_generated/
 build/
 *.iml
-.gradle/
+.gradle*
 .idea/

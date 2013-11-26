@@ -29,9 +29,9 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import butterknife.Views;
 import dagger.Lazy;
 import timber.log.Timber;
 
@@ -60,7 +60,7 @@ public class PostViewHolder {
 
     PostViewHolder(LinearLayout convertView) {
         VibesApplication.from(convertView.getContext()).inject(this);
-        Views.inject(this, convertView);
+        ButterKnife.inject(this, convertView);
 
         for (int i = 0; i < audioViews.length; i++) {
             AudioView audioView = new AudioView(convertView.getContext());

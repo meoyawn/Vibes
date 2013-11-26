@@ -8,7 +8,7 @@ import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
-import butterknife.Views;
+import butterknife.ButterKnife;
 import dagger.Lazy;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import icepick.bundle.Bundles;
@@ -30,7 +30,7 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     public void setContentView(int layoutResId) {
         super.setContentView(layoutResId);
-        Views.inject(this);
+        ButterKnife.inject(this);
     }
 
     @Override

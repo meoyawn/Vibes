@@ -9,8 +9,8 @@ import com.stiggpwnz.vibes.VibesApplication;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Views;
 import dagger.Lazy;
 import rx.Observer;
 
@@ -33,7 +33,7 @@ public abstract class BaseProgressFragment extends ProgressFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         onCreateView(savedInstanceState);
-        Views.inject(this, getView());
+        ButterKnife.inject(this, getView());
         onViewCreated(savedInstanceState);
     }
 
@@ -69,7 +69,7 @@ public abstract class BaseProgressFragment extends ProgressFragment {
 
     @Override
     public void onDestroyView() {
-        Views.reset(this);
+        ButterKnife.reset(this);
         super.onDestroyView();
     }
 
