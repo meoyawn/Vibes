@@ -1,6 +1,7 @@
 package com.stiggpwnz.vibes.fragments.base;
 
 import android.os.Bundle;
+import android.view.View;
 
 import com.devspark.progressfragment.ProgressFragment;
 import com.squareup.otto.Bus;
@@ -23,11 +24,15 @@ public abstract class BaseProgressFragment extends ProgressFragment {
         Injector.inject(this);
     }
 
+    @Override
+    public void setContentView(int layoutResId) {
+        super.setContentView(layoutResId);
+        ButterKnife.inject(this, getView());
+    }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        setContentView(getLayoutResId());
+    public void setContentView(View view) {
+        super.setContentView(view);
         ButterKnife.inject(this, getView());
     }
 
@@ -35,9 +40,6 @@ public abstract class BaseProgressFragment extends ProgressFragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
-
-    protected abstract int getLayoutResId();
-
 
     @OnClick(R.id.retry_button)
     void retry() {

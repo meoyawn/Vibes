@@ -87,13 +87,9 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     @Override
-    protected int getLayoutResId() {
-        return R.layout.newsfeed;
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        setContentView(R.layout.newsfeed);
         gridView.setItemMargin(getResources().getDimensionPixelSize(R.dimen.padding_list));
         gridView.setColumnCount(getResources().getInteger(R.integer.num_columns));
         updateView();
