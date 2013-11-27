@@ -17,8 +17,8 @@ import com.devspark.robototextview.widget.RobotoTextView;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.events.UnitClickedEvent;
-import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
@@ -29,9 +29,9 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import butterknife.Views;
 import dagger.Lazy;
 import timber.log.Timber;
 
@@ -59,8 +59,8 @@ public class PostViewHolder {
     Post post;
 
     PostViewHolder(LinearLayout convertView) {
-        Injector.inject(convertView.getContext(), this);
-        Views.inject(this, convertView);
+        VibesApplication.from(convertView.getContext()).inject(this);
+        ButterKnife.inject(this, convertView);
 
         for (int i = 0; i < audioViews.length; i++) {
             AudioView audioView = new AudioView(convertView.getContext());
@@ -123,7 +123,7 @@ public class PostViewHolder {
         }
     }
 
-    SpannableString linkify(String string) {
+    static SpannableString linkify(String string) {
         SpannableString text = new SpannableString(string);
 
         Matcher m = HASH_TAGS_PATTERN.matcher(text);

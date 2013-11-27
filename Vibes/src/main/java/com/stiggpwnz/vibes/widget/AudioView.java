@@ -12,9 +12,9 @@ import com.devspark.robototextview.widget.RobotoTextView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
+import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import butterknife.Views;
 
 public class AudioView extends LinearLayout {
 
@@ -32,7 +32,7 @@ public class AudioView extends LinearLayout {
     public AudioView(Context context, AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.audio, this, true);
-        Views.inject(this);
+        ButterKnife.inject(this);
     }
 
     public void setAudio(Audio audio) {
