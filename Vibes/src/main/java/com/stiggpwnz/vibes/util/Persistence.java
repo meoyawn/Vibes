@@ -27,7 +27,6 @@ public class Persistence {
 
     static final String USER_ID    = "user_id";
     static final String EXPIRES_IN = "expires_in";
-    static final String COOKIE     = "cookie";
 
     Lazy<SharedPreferences> prefsLazy;
     Lazy<JacksonSerializer> jackson;

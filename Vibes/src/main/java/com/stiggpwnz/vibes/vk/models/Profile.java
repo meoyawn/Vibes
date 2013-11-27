@@ -39,7 +39,7 @@ public class Profile implements Unit {
 
     @Override
     public String getName() {
-        return first_name + " " + last_name;
+        return String.format("%s %s", first_name, last_name);
     }
 
     @Override

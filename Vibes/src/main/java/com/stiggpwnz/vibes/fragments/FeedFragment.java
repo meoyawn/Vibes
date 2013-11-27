@@ -5,7 +5,9 @@ import android.os.Bundle;
 import com.android.ex.widget.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
+import com.stiggpwnz.vibes.fragments.base.FragmentObserver;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
+import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Feed;
 
@@ -14,6 +16,7 @@ import javax.inject.Inject;
 import butterknife.InjectView;
 import dagger.Lazy;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
@@ -21,11 +24,12 @@ import timber.log.Timber;
 
 public class FeedFragment extends RetainedProgressFragment {
 
-    @Inject Lazy<VKontakte> vKontakteLazy;
+    @Inject Lazy<VKontakte>         vKontakteLazy;
+    @Inject Lazy<JacksonSerializer> jacksonSerializerLazy;
 
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
-    Feed         result;
+    Feed         lastResult;
     Subscription subscription;
 
     public static FeedFragment newInstance(int ownerId) {
@@ -37,45 +41,63 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     @Override
-    protected void onCreateView(Bundle savedInstanceState) {
-        setContentView(R.layout.newsfeed);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (lastResult == null) {
+            if (savedInstanceState == null) {
+                makeRequest();
+            } else {
+                lastResult = jacksonSerializerLazy.get().deserialize(savedInstanceState.getString("feed"), Feed.class);
+            }
+        }
     }
 
     @Override
-    protected void onViewCreated(Bundle savedInstanceState) {
+    protected int getLayoutResId() {
+        return R.layout.newsfeed;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         gridView.setItemMargin(getResources().getDimensionPixelSize(R.dimen.padding_list));
         gridView.setColumnCount(getResources().getInteger(R.integer.num_columns));
+        updateView();
+    }
 
-        if (result == null) {
-            makeRequest();
-        } else {
-            postResult(result);
-            setContentShownNoAnimation(true);
+    void updateView() {
+        if (lastResult != null) {
+            gridView.setAdapter(new FeedAdapter(getActivity(), lastResult));
+            setContentShown(true);
         }
     }
 
     void makeRequest() {
-        setContentShown(false);
+        if (getView() != null) {
+            setContentShown(false);
+        }
         int ownerId = getArguments().getInt("owner_id");
         Observable<Feed> feedObservable = ownerId == 0 ?
                 vKontakteLazy.get().getNewsFeed(0) :
                 vKontakteLazy.get().getWall(ownerId, null, 0);
         subscription = feedObservable.subscribeOn(Schedulers.threadPoolForIO())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SafeObserver<Feed>() {
+                .subscribe(new Observer<Feed>() {
 
                     @Override
-                    public void safeOnNext(Feed feed) {
-                        setContentEmpty(false);
-                        setContentShown(true);
-                        postResult(feed);
+                    public void onCompleted() {
+
                     }
 
                     @Override
-                    public void safeOnError(Throwable throwable) {
-                        Timber.e(throwable, "Error getting newsfeed");
-                        setContentEmpty(true);
-                        setContentShown(true);
+                    public void onError(Throwable throwable) {
+                        Timber.e(throwable, "error getting feed");
+                    }
+
+                    @Override
+                    public void onNext(Feed feed) {
+                        lastResult = feed;
+                        updateView();
                     }
                 });
     }
@@ -85,14 +107,16 @@ public class FeedFragment extends RetainedProgressFragment {
         makeRequest();
     }
 
-    protected void postResult(Feed result) {
-        this.result = result;
-        gridView.setAdapter(new FeedAdapter(getActivity(), result));
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("feed", jacksonSerializerLazy.get().serialize(lastResult));
     }
 
     @Override
     public void onDestroy() {
         if (subscription != null) {
+            Timber.d("unsubscribing");
             subscription.unsubscribe();
         }
         super.onDestroy();

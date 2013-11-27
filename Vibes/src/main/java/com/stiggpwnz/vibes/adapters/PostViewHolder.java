@@ -17,8 +17,8 @@ import com.devspark.robototextview.widget.RobotoTextView;
 import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.events.UnitClickedEvent;
+import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
@@ -59,7 +59,7 @@ public class PostViewHolder {
     Post post;
 
     PostViewHolder(LinearLayout convertView) {
-        VibesApplication.from(convertView.getContext()).inject(this);
+        Injector.inject(convertView.getContext(), this);
         Views.inject(this, convertView);
 
         for (int i = 0; i < audioViews.length; i++) {

@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.VibesApplication;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
 import javax.inject.Inject;
@@ -21,17 +21,23 @@ public class PhotoView extends ImageView {
     Photo photo;
 
     public PhotoView(Context context) {
-        this(context, null);
+        super(context);
+        init();
     }
 
     public PhotoView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
+        init();
     }
 
     public PhotoView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init();
+    }
+
+    private void init() {
         if (!isInEditMode()) {
-            VibesApplication.from(getContext()).inject(this);
+            Injector.inject(this);
         }
     }
 

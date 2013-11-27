@@ -1,7 +1,6 @@
 package com.stiggpwnz.vibes;
 
 import android.app.Application;
-import android.content.Context;
 
 import com.stiggpwnz.vibes.util.CrashReportingTree;
 
@@ -14,10 +13,6 @@ import static timber.log.Timber.DebugTree;
 
 public class VibesApplication extends Application {
 
-    public static VibesApplication from(Context context) {
-        return (VibesApplication) context.getApplicationContext();
-    }
-
     ObjectGraph objectGraph;
 
     @Override
@@ -27,13 +22,13 @@ public class VibesApplication extends Application {
         Timber.plant(BuildConfig.DEBUG ? new DebugTree() : new CrashReportingTree());
     }
 
-    public <T> T inject(T object) {
-        return objectGraph.inject(object);
-    }
-
     protected ArrayList<Object> getModules() {
         ArrayList<Object> modules = new ArrayList<Object>(1);
         modules.add(new VibesModule(this));
         return modules;
+    }
+
+    public ObjectGraph getObjectGraph() {
+        return objectGraph;
     }
 }
