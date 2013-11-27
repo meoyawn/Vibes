@@ -5,7 +5,6 @@ import android.os.Bundle;
 import com.android.ex.widget.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
-import com.stiggpwnz.vibes.fragments.base.FragmentObserver;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
 import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.vk.VKontakte;
@@ -20,24 +19,28 @@ import rx.Observer;
 import rx.Subscription;
 import rx.android.concurrency.AndroidSchedulers;
 import rx.concurrency.Schedulers;
+import rx.util.functions.Action1;
+import rx.util.functions.Func1;
 import timber.log.Timber;
 
 public class FeedFragment extends RetainedProgressFragment {
 
-    @Inject Lazy<VKontakte>         vKontakteLazy;
-    @Inject Lazy<JacksonSerializer> jacksonSerializerLazy;
+    @Inject Lazy<VKontakte>         vkontakte;
+    @Inject Lazy<JacksonSerializer> jackson;
 
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
     Feed         lastResult;
     Subscription subscription;
 
-    public static FeedFragment newInstance(int ownerId) {
-        FeedFragment fragment = new FeedFragment();
+    public FeedFragment() {
+
+    }
+
+    public FeedFragment(int ownerId) {
         Bundle args = new Bundle();
         args.putInt("owner_id", ownerId);
-        fragment.setArguments(args);
-        return fragment;
+        setArguments(args);
     }
 
     @Override
@@ -47,9 +50,40 @@ public class FeedFragment extends RetainedProgressFragment {
             if (savedInstanceState == null) {
                 makeRequest();
             } else {
-                lastResult = jacksonSerializerLazy.get().deserialize(savedInstanceState.getString("feed"), Feed.class);
+                Observable.just(savedInstanceState)
+                        .map(new Func1<Bundle, Feed>() {
+
+                            @Override
+                            public Feed call(Bundle bundle) {
+                                return jackson.get().deserialize(bundle.getString("feed"), Feed.class);
+                            }
+                        })
+                        .subscribeOn(Schedulers.threadPoolForComputation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Action1<Feed>() {
+
+                            @Override
+                            public void call(Feed feed) {
+                                lastResult = feed;
+                                updateView();
+                            }
+                        });
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Observable.just(outState)
+                .subscribeOn(Schedulers.threadPoolForComputation())
+                .subscribe(new Action1<Bundle>() {
+
+                    @Override
+                    public void call(Bundle bundle) {
+                        bundle.putString("feed", jackson.get().serialize(lastResult));
+                    }
+                });
     }
 
     @Override
@@ -66,7 +100,7 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     void updateView() {
-        if (lastResult != null) {
+        if (getView() != null && lastResult != null) {
             gridView.setAdapter(new FeedAdapter(getActivity(), lastResult));
             setContentShown(true);
         }
@@ -78,8 +112,8 @@ public class FeedFragment extends RetainedProgressFragment {
         }
         int ownerId = getArguments().getInt("owner_id");
         Observable<Feed> feedObservable = ownerId == 0 ?
-                vKontakteLazy.get().getNewsFeed(0) :
-                vKontakteLazy.get().getWall(ownerId, null, 0);
+                vkontakte.get().getNewsFeed(0) :
+                vkontakte.get().getWall(ownerId, null, 0);
         subscription = feedObservable.subscribeOn(Schedulers.threadPoolForIO())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Feed>() {
@@ -108,15 +142,8 @@ public class FeedFragment extends RetainedProgressFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("feed", jacksonSerializerLazy.get().serialize(lastResult));
-    }
-
-    @Override
     public void onDestroy() {
         if (subscription != null) {
-            Timber.d("unsubscribing");
             subscription.unsubscribe();
         }
         super.onDestroy();

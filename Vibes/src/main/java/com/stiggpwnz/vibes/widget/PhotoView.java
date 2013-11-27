@@ -6,8 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
-import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
 import javax.inject.Inject;

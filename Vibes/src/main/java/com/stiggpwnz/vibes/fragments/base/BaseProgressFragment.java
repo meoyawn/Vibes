@@ -5,17 +5,13 @@ import android.os.Bundle;
 import com.devspark.progressfragment.ProgressFragment;
 import com.squareup.otto.Bus;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.VibesApplication;
+import com.stiggpwnz.vibes.util.Injector;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import dagger.Lazy;
-import rx.Observer;
-
-import static icepick.bundle.Bundles.restoreInstanceState;
-import static icepick.bundle.Bundles.saveInstanceState;
 
 public abstract class BaseProgressFragment extends ProgressFragment {
 
@@ -24,28 +20,24 @@ public abstract class BaseProgressFragment extends ProgressFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        VibesApplication.from(getActivity()).inject(this);
-        restoreInstanceState(this, savedInstanceState);
+        Injector.inject(this);
     }
 
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        onCreateView(savedInstanceState);
+        setContentView(getLayoutResId());
         ButterKnife.inject(this, getView());
-        onViewCreated(savedInstanceState);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        saveInstanceState(this, outState);
     }
 
-    protected abstract void onCreateView(Bundle savedInstanceState);
+    protected abstract int getLayoutResId();
 
-    protected abstract void onViewCreated(Bundle savedInstanceState);
 
     @OnClick(R.id.retry_button)
     void retry() {
@@ -71,35 +63,5 @@ public abstract class BaseProgressFragment extends ProgressFragment {
     public void onDestroyView() {
         ButterKnife.reset(this);
         super.onDestroyView();
-    }
-
-    protected abstract class SafeObserver<T> implements Observer<T> {
-
-        public abstract void safeOnNext(T t);
-
-        public abstract void safeOnError(Throwable throwable);
-
-        @Override
-        public void onNext(T args) {
-            if (getView() != null) {
-                setContentEmpty(false);
-                setContentShown(true);
-                safeOnNext(args);
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            if (getView() != null) {
-                setContentEmpty(true);
-                setContentShown(true);
-                safeOnError(e);
-            }
-        }
-
-        @Override
-        public void onCompleted() {
-
-        }
     }
 }

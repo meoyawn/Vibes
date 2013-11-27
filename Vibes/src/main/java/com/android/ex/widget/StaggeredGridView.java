@@ -59,7 +59,7 @@ import java.util.Arrays;
  * </p>
  */
 public class StaggeredGridView extends ViewGroup {
-    private static final String TAG = "StaggeredGridView";
+    private static final String  TAG   = "StaggeredGridView";
     private static final boolean DEBUG = false;
 
 	/*
@@ -86,8 +86,8 @@ public class StaggeredGridView extends ViewGroup {
     public static final int COLUMN_COUNT_AUTO = -1;
 
     private int mColCountSetting = 2;
-    private int mColCount = 2;
-    private int mMinColWidth = 0;
+    private int mColCount        = 2;
+    private int mMinColWidth     = 0;
     private int mItemMargin;
 
     private int[] mItemTops;
@@ -97,27 +97,27 @@ public class StaggeredGridView extends ViewGroup {
     private boolean mPopulating;
     private boolean mForcePopulateOnLayout;
     private boolean mInLayout;
-    private int mRestoreOffset;
+    private int     mRestoreOffset;
 
     private final RecycleBin mRecycler = new RecycleBin();
 
     private final AdapterDataSetObserver mObserver = new AdapterDataSetObserver();
 
     private boolean mDataChanged;
-    private int mOldItemCount;
-    private int mItemCount;
+    private int     mOldItemCount;
+    private int     mItemCount;
     private boolean mHasStableIds;
 
     private int mFirstPosition;
 
-    private int mTouchSlop;
-    private int mMaximumVelocity;
-    private int mFlingVelocity;
+    private int   mTouchSlop;
+    private int   mMaximumVelocity;
+    private int   mFlingVelocity;
     private float mLastTouchY;
     private float mTouchRemainderY;
-    private int mActivePointerId;
+    private int   mActivePointerId;
 
-    private static final int TOUCH_MODE_IDLE = 0;
+    private static final int TOUCH_MODE_IDLE     = 0;
     private static final int TOUCH_MODE_DRAGGING = 1;
     private static final int TOUCH_MODE_FLINGING = 2;
 
@@ -131,8 +131,8 @@ public class StaggeredGridView extends ViewGroup {
     private static final class LayoutRecord {
         public int column;
         public long id = -1;
-        public int height;
-        public int span;
+        public  int   height;
+        public  int   span;
         private int[] mMargins;
 
         private final void ensureMargins() {
@@ -1434,8 +1434,8 @@ public class StaggeredGridView extends ViewGroup {
 
     private class RecycleBin {
         private ArrayList<View>[] mScrapViews;
-        private int mViewTypeCount;
-        private int mMaxScrap;
+        private int               mViewTypeCount;
+        private int               mMaxScrap;
 
         private SparseArray<View> mTransientStateViews;
 

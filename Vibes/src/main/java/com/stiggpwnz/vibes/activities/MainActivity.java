@@ -29,7 +29,7 @@ public class MainActivity extends HomeAsUpActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.left_drawer, new NavigationFragment())
-                    .add(R.id.content_frame, FeedFragment.newInstance(0))
+                    .add(R.id.content_frame, new FeedFragment(0))
                     .commit();
         }
     }
