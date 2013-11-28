@@ -32,11 +32,6 @@ public class FeedAdapter extends InflaterAdapter {
     }
 
     @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.post, parent, false);
