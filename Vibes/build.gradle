@@ -42,9 +42,7 @@ dependencies {
     compile 'com.squareup.dagger:dagger-compiler:+'
     compile 'com.squareup.dagger:dagger:+'
 
-    compile('com.github.johnkil.android-progressfragment:progressfragment:+') {
-        exclude group: 'com.android.support'
-    }
+    compile('com.github.johnkil.android-progressfragment:progressfragment:+') { exclude group: 'com.android.support' }
 
     testCompile 'junit:junit:+'
     testCompile 'org.robolectric:robolectric:2.1.+'

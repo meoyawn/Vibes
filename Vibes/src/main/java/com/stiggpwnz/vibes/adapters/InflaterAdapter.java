@@ -13,6 +13,11 @@ public abstract class InflaterAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(context);
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
     public static void setVisibility(View view, int visibility) {
         if (view.getVisibility() != visibility) {
             view.setVisibility(visibility);

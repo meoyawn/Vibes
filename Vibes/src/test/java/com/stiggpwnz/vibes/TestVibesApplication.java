@@ -9,15 +9,14 @@ import java.util.ArrayList;
  */
 public class TestVibesApplication extends VibesApplication {
 
+    public static TestVibesApplication get() {
+        return (TestVibesApplication) Robolectric.application;
+    }
+
     @Override
     protected ArrayList<Object> getModules() {
         ArrayList<Object> modules = super.getModules();
         modules.add(new TestModule());
         return modules;
-    }
-
-    public static <T> T injectMocks(T object) {
-        VibesApplication app = (VibesApplication) Robolectric.application;
-        return app.inject(object);
     }
 }
