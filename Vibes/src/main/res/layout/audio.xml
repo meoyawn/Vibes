@@ -1,69 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <View
+    <ImageView
+        android:id="@+id/imageButtonPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/play"
+        android:src="@drawable/btn_play_inactive" />
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/light_grey_divider"/>
+        android:layout_height="50dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        <SeekBar
+            android:id="@+id/seekBarAudio"
+            style="@style/AudioSeekBar"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-        <ImageView
-            android:id="@+id/imageButtonPlay"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/play"
-            android:src="@drawable/btn_play_inactive"/>
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingBottom="2dp">
 
-        <FrameLayout
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1">
-
-            <SeekBar
-                android:id="@+id/seekBarAudio"
-                style="@style/AudioSeekBar"
-                android:visibility="invisible"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-            <LinearLayout
+            <com.devspark.robototextview.widget.RobotoTextView
+                android:id="@+id/artist_audio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical"
-                android:paddingBottom="2dp">
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textColor="@color/text_black"
+                android:textSize="18sp"
+                tools:text="Kindred"
+                app:typeface="roboto_bold" />
 
-                <com.devspark.robototextview.widget.RobotoTextView
-                    android:id="@+id/artist_audio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
-                    android:singleLine="true"
-                    android:textColor="@color/text_black"
-                    android:textSize="18sp"
-                    tools:text="Kindred"
-                    app:typeface="roboto_bold"/>
-
-                <com.devspark.robototextview.widget.RobotoTextView
-                    android:id="@+id/title_audio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="marquee"
-                    android:singleLine="true"
-                    android:textColor="@color/text_black"
-                    android:textSize="14sp"
-                    tools:text="Burial"
-                    app:typeface="roboto_regular"/>
-            </LinearLayout>
-        </FrameLayout>
-    </LinearLayout>
+            <com.devspark.robototextview.widget.RobotoTextView
+                android:id="@+id/title_audio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:textColor="@color/text_black"
+                android:textSize="14sp"
+                tools:text="Burial"
+                app:typeface="roboto_regular" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

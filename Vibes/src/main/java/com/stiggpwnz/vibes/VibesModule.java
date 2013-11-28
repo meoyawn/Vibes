@@ -2,6 +2,8 @@ package com.stiggpwnz.vibes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -18,10 +20,12 @@ import com.stiggpwnz.vibes.adapters.PostViewHolder;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
+import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.util.DiskUtils;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
 import com.stiggpwnz.vibes.vk.VKAuth;
+import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
 
 import java.io.IOException;
@@ -48,6 +52,9 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
  * Created by adelnizamutdinov on 18/09/2013
  */
 @Module(injects = {
+        // services
+        PlayerService.class,
+
         // activities
         MainActivity.class,
 
@@ -58,7 +65,7 @@ import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
         PostViewHolder.class,
 
         // views
-        PhotoView.class})
+        PhotoView.class, AudioView.class})
 public class VibesModule {
 
     Context context;
@@ -81,6 +88,12 @@ public class VibesModule {
     @Provides
     Context provideContext() {
         return context;
+    }
+
+    @Provides
+    @Singleton
+    Handler provideHandler() {
+        return new Handler(Looper.getMainLooper());
     }
 
     @Provides

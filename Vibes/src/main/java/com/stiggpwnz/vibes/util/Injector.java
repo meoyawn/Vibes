@@ -10,27 +10,23 @@ import com.stiggpwnz.vibes.VibesApplication;
  */
 public class Injector {
 
-    private static VibesApplication from(Context context) {
-        return (VibesApplication) context.getApplicationContext();
-    }
-
     public static void inject(Context context) {
-        from(context).getObjectGraph().inject(context);
+        VibesApplication.from(context).getObjectGraph().inject(context);
     }
 
     public static void inject(android.support.v4.app.Fragment fragment) {
-        from(fragment.getActivity()).getObjectGraph().inject(fragment);
+        VibesApplication.from(fragment.getActivity()).getObjectGraph().inject(fragment);
     }
 
     public static void inject(android.app.Fragment fragment) {
-        from(fragment.getActivity()).getObjectGraph().inject(fragment);
+        VibesApplication.from(fragment.getActivity()).getObjectGraph().inject(fragment);
     }
 
     public static void inject(View view) {
-        from(view.getContext()).getObjectGraph().inject(view);
+        VibesApplication.from(view.getContext()).getObjectGraph().inject(view);
     }
 
     public static void inject(Context context, Object object) {
-        from(context).getObjectGraph().inject(object);
+        VibesApplication.from(context).getObjectGraph().inject(object);
     }
 }

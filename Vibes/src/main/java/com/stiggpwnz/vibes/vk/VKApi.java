@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes.vk;
 
+import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.vk.models.Feed;
 
 import retrofit.http.GET;
@@ -14,4 +15,7 @@ public interface VKApi {
 
     @GET("/wall.get?extended=1")
     public Feed.Response getWall(@Query("owner_id") int ownerId, @Query("filter") String filter, @Query("offset") int offset);
+
+    @GET("/audio.getById")
+    public Audio.Response getAudioById(@Query("audios") String audios);
 }

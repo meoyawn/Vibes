@@ -1,6 +1,7 @@
 package com.stiggpwnz.vibes;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.stiggpwnz.vibes.util.CrashReportingTree;
 
@@ -12,6 +13,10 @@ import timber.log.Timber;
 import static timber.log.Timber.DebugTree;
 
 public class VibesApplication extends Application {
+
+    public static VibesApplication from(Context context) {
+        return (VibesApplication) context.getApplicationContext();
+    }
 
     ObjectGraph objectGraph;
 

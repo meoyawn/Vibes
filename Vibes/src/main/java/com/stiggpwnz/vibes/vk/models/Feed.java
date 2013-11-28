@@ -9,6 +9,10 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Feed {
 
+    public static class Response extends Result<Feed> {
+
+    }
+
     public List<Post>   items;
     public Set<Profile> profiles;
     public Set<Group>   groups;
@@ -53,14 +57,4 @@ public class Feed {
 //        groups.addAll(feed.groups);
 //    }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Response extends Result<Feed> {
-
-        public Feed response;
-
-        @Override
-        public Feed getResponse() {
-            return response;
-        }
-    }
 }

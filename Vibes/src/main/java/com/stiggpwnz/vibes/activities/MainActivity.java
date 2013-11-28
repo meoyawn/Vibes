@@ -1,14 +1,18 @@
 package com.stiggpwnz.vibes.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+import com.squareup.otto.Subscribe;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.activities.base.HomeAsUpActivity;
+import com.stiggpwnz.vibes.events.UnitClickedEvent;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
+import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKAuth;
 
@@ -73,14 +77,23 @@ public class MainActivity extends HomeAsUpActivity {
                 .commit();
     }
 
+    @Subscribe
+    public void onUnitClicked(UnitClickedEvent event) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, new FeedFragment(event.ownerId))
+                .commit();
+    }
+
     void init(Bundle savedInstanceState) {
         setContentView(R.layout.main_root);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.left_drawer, new NavigationFragment())
-                    .add(R.id.content_frame, new FeedFragment(0))
+                    .replace(R.id.content_frame, new FeedFragment(0))
                     .commit();
         }
+
+        startService(new Intent(this, PlayerService.class));
     }
 }

@@ -50,7 +50,7 @@ public class LoginFragment extends RetainedProgressFragment {
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (url.startsWith(VKAuth.REDIRECT_URL)) {
-                    getUrlPublishSubject().onNext(url);
+                    urlPublishSubject.onNext(url);
                 } else {
                     setContentShown(true);
                 }
