@@ -20,24 +20,25 @@ import static org.junit.Assert.assertNull;
 @RunWith(RobolectricGradleTestRunner.class)
 public class FeedAdapterTest {
 
-    Feed feed;
+    private FeedAdapter feedAdapter;
 
     @Before
     public void setUp() throws Exception {
-        feed = new Feed();
+        Feed feed = new Feed();
         feed.items = new ArrayList<Post>();
         feed.items.add(new Post());
+        feedAdapter = new FeedAdapter(Robolectric.application, feed);
     }
 
     @Test
     public void testGetCount() throws Exception {
         assertEquals(0, new FeedAdapter(Robolectric.application, null).getCount());
-        assertEquals(1, new FeedAdapter(Robolectric.application, feed).getCount());
+        assertEquals(1, feedAdapter.getCount());
     }
 
     @Test
     public void testGetItem() throws Exception {
-        assertNull(new FeedAdapter(Robolectric.application, feed).getItem(0).attachments);
+        assertNull(feedAdapter.getItem(0).attachments);
     }
 
     @Test

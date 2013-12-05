@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes.fragments;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.webkit.CookieManager;
@@ -32,14 +33,10 @@ public class LoginFragment extends RetainedProgressFragment {
     }
 
     @Override
-    protected void onRetryButtonClick() {
-
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         WebView webView = new WebView(getActivity());
+        webView.setId(987654);
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
