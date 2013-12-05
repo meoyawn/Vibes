@@ -39,6 +39,7 @@ public class MainActivityTest {
     @Test
     public void testLoggedOut() throws Exception {
         when(cookieManager.getCookie("vk.com")).thenReturn(null);
+
         MainActivity mainActivity = mainActivityActivityController.create().start().resume().get();
         assertTrue(mainActivity.getSupportFragmentManager().findFragmentById(android.R.id.content) instanceof LoginFragment);
     }
@@ -46,6 +47,7 @@ public class MainActivityTest {
     @Test
     public void testLoggedIn() {
         when(cookieManager.getCookie("vk.com")).thenReturn("COOOOOOKIE");
+
         MainActivity mainActivity = mainActivityActivityController.create().start().resume().get();
         assertTrue(mainActivity.getSupportFragmentManager().findFragmentById(R.id.content_frame) instanceof FeedFragment);
     }
