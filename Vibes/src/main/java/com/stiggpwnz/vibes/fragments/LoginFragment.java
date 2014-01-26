@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes.fragments;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.webkit.CookieManager;
@@ -30,6 +29,11 @@ public class LoginFragment extends RetainedProgressFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Injector.inject(this);
+    }
+
+    @Override
+    protected void onRetryButtonClick() {
+
     }
 
     @Override
