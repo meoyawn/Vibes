@@ -5,30 +5,25 @@ import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
-import com.squareup.otto.Subscribe;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.activities.base.HomeAsUpActivity;
-import com.stiggpwnz.vibes.events.UnitClickedEvent;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.media.PlayerService;
-import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKAuth;
-
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import dagger.Lazy;
-import rx.android.concurrency.AndroidSchedulers;
-import rx.concurrency.Schedulers;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
 
 public class MainActivity extends HomeAsUpActivity {
 
-    @Inject Lazy<Persistence>       persistenceLazy;
+    @Inject Lazy<VKAuth>            vkAuthLazy;
     @Inject Lazy<CookieManager>     cookieManagerLazy;
     @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;
 
@@ -51,14 +46,12 @@ public class MainActivity extends HomeAsUpActivity {
                     @Override
                     public Boolean call(String s) {
                         cookieSyncManagerLazy.get().sync();
-                        Map<String, String> map = VKAuth.parseRedirectUrl(s);
-                        return !map.containsKey("error") && persistenceLazy.get().saveAccessToken(map);
+                        return vkAuthLazy.get().saveAuth(s, System.currentTimeMillis());
                     }
                 })
-                .subscribeOn(Schedulers.threadPoolForIO())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Boolean>() {
-
                     @Override
                     public void call(Boolean aBoolean) {
                         if (aBoolean) {
@@ -77,10 +70,10 @@ public class MainActivity extends HomeAsUpActivity {
                 .commit();
     }
 
-    @Subscribe
-    public void onUnitClicked(UnitClickedEvent event) {
+    public void onUnitClicked() {
+        // TODO FUCK
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, new FeedFragment(event.ownerId))
+                .replace(R.id.content_frame, new FeedFragment(5))
                 .commit();
     }
 

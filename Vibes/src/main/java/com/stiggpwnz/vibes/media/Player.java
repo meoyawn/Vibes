@@ -4,9 +4,6 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.squareup.otto.Bus;
-import com.stiggpwnz.vibes.events.BufferingUpdatedEvent;
-import com.stiggpwnz.vibes.events.ProgressUpdatedEvent;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
@@ -41,17 +38,15 @@ public class Player {
     State           state;
     MediaPlayer     mediaPlayer;
     Lazy<VKontakte> vKontakteLazy;
-    Lazy<Bus>       busLazy;
     Lazy<Handler>   handlerLazy;
 
     public Audio audio;
 
     @Inject
-    public Player(Lazy<VKontakte> vKontakteLazy, Lazy<Bus> busLazy, Lazy<Handler> handlerLazy) {
+    public Player(Lazy<VKontakte> vKontakteLazy, Lazy<Handler> handlerLazy) {
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnBufferingUpdateListener(onBufferingUpdateListener());
         this.vKontakteLazy = vKontakteLazy;
-        this.busLazy = busLazy;
         this.handlerLazy = handlerLazy;
     }
 
@@ -127,7 +122,7 @@ public class Player {
                 if (Looper.myLooper() != Looper.getMainLooper()) {
                     throw new RuntimeException("not on the main thread");
                 }
-                busLazy.get().post(BufferingUpdatedEvent.INSTANCE.setPercent(percent));
+                // TODO FUCK
             }
         };
     }
@@ -136,8 +131,8 @@ public class Player {
 
         @Override
         public void run() {
-            busLazy.get().post(ProgressUpdatedEvent.INSTANCE.setPosition(mediaPlayer.getCurrentPosition(), mediaPlayer.getDuration()));
             handlerLazy.get().postDelayed(this, 16);
+            // TODO FUCK
         }
     };
 

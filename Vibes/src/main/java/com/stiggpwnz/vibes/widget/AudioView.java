@@ -4,18 +4,12 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
-import com.devspark.robototextview.widget.RobotoTextView;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.adapters.InflaterAdapter;
-import com.stiggpwnz.vibes.events.BufferingUpdatedEvent;
-import com.stiggpwnz.vibes.events.ProgressUpdatedEvent;
 import com.stiggpwnz.vibes.media.Player;
 import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.vk.models.Audio;
@@ -30,12 +24,11 @@ import dagger.Lazy;
 public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUpdateListener {
 
     @Inject Lazy<Player> playerLazy;
-    @Inject Lazy<Bus>    busLazy;
 
-    @InjectView(R.id.imageButtonPlay) ImageView      play;
-    @InjectView(R.id.seekBarAudio)    SeekBar        seekBar;
-    @InjectView(R.id.artist_audio)    RobotoTextView artist;
-    @InjectView(R.id.title_audio)     RobotoTextView title;
+    @InjectView(R.id.imageButtonPlay) ImageView play;
+    @InjectView(R.id.seekBarAudio)    SeekBar   seekBar;
+    @InjectView(R.id.artist_audio)    TextView  artist;
+    @InjectView(R.id.title_audio)     TextView  title;
 
     private Audio audio;
 
@@ -58,39 +51,6 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
         Injector.inject(this);
         LayoutInflater.from(context).inflate(R.layout.audio, this, true);
         ButterKnife.inject(this);
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        busLazy.get().register(this);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        busLazy.get().unregister(this);
-    }
-
-    @Subscribe
-    public void onBufferingUpdated(BufferingUpdatedEvent event) {
-        if (audio == playerLazy.get().audio) {
-            InflaterAdapter.setVisibility(seekBar, View.VISIBLE);
-            seekBar.setSecondaryProgress(event.percent * seekBar.getMax());
-        } else {
-            InflaterAdapter.setVisibility(seekBar, View.GONE);
-        }
-    }
-
-    @Subscribe
-    public void onProgressUpdated(ProgressUpdatedEvent event) {
-        if (audio == playerLazy.get().audio) {
-            InflaterAdapter.setVisibility(seekBar, View.VISIBLE);
-            seekBar.setMax(event.max);
-            seekBar.setProgress(event.position);
-        } else {
-            InflaterAdapter.setVisibility(seekBar, View.GONE);
-        }
     }
 
     public void setAudio(Audio audio) {

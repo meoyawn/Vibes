@@ -4,19 +4,13 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.devspark.progressfragment.ProgressFragment;
-import com.squareup.otto.Bus;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.util.Injector;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import dagger.Lazy;
 
 public abstract class BaseProgressFragment extends ProgressFragment {
-
-    @Inject Lazy<Bus> busLazy;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,30 +30,12 @@ public abstract class BaseProgressFragment extends ProgressFragment {
         ButterKnife.inject(this, getView());
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     @OnClick(R.id.retry_button)
     void retry() {
         onRetryButtonClick();
     }
 
     protected abstract void onRetryButtonClick();
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        busLazy.get().register(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        busLazy.get().unregister(this);
-    }
 
     @Override
     public void onDestroyView() {

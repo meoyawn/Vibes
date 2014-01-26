@@ -13,10 +13,6 @@ public class Audio {
 
     public static final Map<Audio, String> URL_CACHE = new ConcurrentHashMap<Audio, String>();
 
-    public static class Response extends Result<Audio[]> {
-
-    }
-
     public int aid;
     public int owner_id;
 
@@ -47,5 +43,13 @@ public class Audio {
     @Override
     public int hashCode() {
         return aid;
+    }
+
+    public static class Response extends Result<Audio[]> {
+
+    }
+
+    public static class UrlResponse extends Result<Audio> {
+
     }
 }

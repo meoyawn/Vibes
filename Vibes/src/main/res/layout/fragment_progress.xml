@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
@@ -39,22 +38,19 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <com.devspark.robototextview.widget.RobotoTextView
+            <TextView
                 android:id="@+id/empty_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/no_connection"
-                android:textSize="30sp"
-                app:typeface="roboto_light"/>
+                android:textSize="30sp"/>
 
-            <com.devspark.robototextview.widget.RobotoButton
+            <TextView
                 android:id="@+id/retry_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="@string/retry"
-                app:typeface="roboto_regular"/>
+                android:text="@string/retry"/>
         </LinearLayout>
     </FrameLayout>
-
 </FrameLayout>

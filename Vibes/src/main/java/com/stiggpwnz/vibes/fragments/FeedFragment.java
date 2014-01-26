@@ -2,7 +2,7 @@ package com.stiggpwnz.vibes.fragments;
 
 import android.os.Bundle;
 
-import com.android.ex.widget.StaggeredGridView;
+import com.etsy.android.grid.StaggeredGridView;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
@@ -34,7 +34,7 @@ public class FeedFragment extends RetainedProgressFragment {
     Subscription subscription;
 
     public FeedFragment() {
-
+        // restore state
     }
 
     public FeedFragment(int ownerId) {
@@ -90,8 +90,6 @@ public class FeedFragment extends RetainedProgressFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setContentView(R.layout.newsfeed);
-        gridView.setItemMargin(getResources().getDimensionPixelSize(R.dimen.padding_list));
-        gridView.setColumnCount(getResources().getInteger(R.integer.num_columns));
         updateView();
     }
 

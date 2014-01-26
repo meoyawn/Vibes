@@ -1,17 +1,14 @@
 package com.stiggpwnz.vibes;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.otto.Bus;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -22,6 +19,7 @@ import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.util.DiskUtils;
+import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
 import com.stiggpwnz.vibes.vk.VKAuth;
@@ -29,14 +27,13 @@ import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
 
 import java.io.IOException;
-import java.util.Map;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
+import de.devland.esperandro.Esperandro;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.Client;
@@ -44,8 +41,6 @@ import retrofit.client.OkClient;
 import retrofit.converter.Converter;
 import retrofit.converter.JacksonConverter;
 import timber.log.Timber;
-
-import static com.stiggpwnz.vibes.util.Persistence.ACCESS_TOKEN;
 
 
 /**
@@ -76,6 +71,13 @@ public class VibesModule {
 
     @Provides
     @Singleton
+    Persistence providePersistence(JacksonSerializer jacksonSerializer) {
+        Esperandro.setSerializer(jacksonSerializer);
+        return Esperandro.getPreferences(Persistence.class, context);
+    }
+
+    @Provides
+    @Singleton
     CookieSyncManager provideCookieSyncManager() {
         return CookieSyncManager.createInstance(context);
     }
@@ -83,11 +85,6 @@ public class VibesModule {
     @Provides
     CookieManager provideCookieManager(CookieSyncManager cookieSyncManager) {
         return CookieManager.getInstance();
-    }
-
-    @Provides
-    Context provideContext() {
-        return context;
     }
 
     @Provides
@@ -109,19 +106,6 @@ public class VibesModule {
                 .downloader(new OkHttpDownloader(okHttpClient))
                 .memoryCache(lruCache)
                 .build();
-    }
-
-    @Provides
-    @Singleton
-    @Named("prefs")
-    SharedPreferences provideSharedPreferences() {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
-    @Provides
-    @Singleton
-    Bus provideBus() {
-        return new Bus();
     }
 
     @Provides
@@ -169,26 +153,19 @@ public class VibesModule {
 
     @Provides
     @Singleton
-    VKApi provideVkApi(Client client, Converter converter, RestAdapter.Log log, final Lazy<Persistence> persistenceLazy, final Lazy<VKAuth> vkAuthLazy) {
+    VKApi provideVkApi(Client client, Converter converter, RestAdapter.Log log, final Lazy<VKAuth> vkAuthLazy) {
         return new RestAdapter.Builder()
                 .setServer(VKApi.SERVER)
                 .setClient(client)
                 .setConverter(converter)
                 .setRequestInterceptor(new RequestInterceptor() {
-
                     @Override
                     public void intercept(RequestFacade requestFacade) {
-                        String accessToken = persistenceLazy.get().getAccessToken();
-                        if (accessToken == null) {
-                            try {
-                                Map<String, String> map = vkAuthLazy.get().auth();
-                                persistenceLazy.get().saveAccessToken(map);
-                                accessToken = map.get(ACCESS_TOKEN);
-                            } catch (IOException e) {
-                                throw new RuntimeException("Failed to refresh access token", e);
-                            }
+                        try {
+                            requestFacade.addQueryParam(VKAuth.ACCESS_TOKEN, vkAuthLazy.get().getAccessToken(System.currentTimeMillis()));
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to refresh access token", e);
                         }
-                        requestFacade.addQueryParam(ACCESS_TOKEN, accessToken);
                     }
                 })
                 .setLog(log)

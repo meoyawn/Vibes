@@ -64,7 +64,7 @@ public class LoginFragment extends RetainedProgressFragment {
 
     @Override
     public void onDestroy() {
-        if (persistenceLazy.get().getAccessToken() == null) {
+        if (persistenceLazy.get().accessToken() == null) {
             cookieManagerLazy.get().removeAllCookie();
             cookieSyncManagerLazy.get().sync();
         }

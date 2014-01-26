@@ -14,8 +14,19 @@ public interface VKApi {
     public Feed.Response getNewsFeed(@Query("offset") int offset);
 
     @GET("/wall.get?extended=1")
-    public Feed.Response getWall(@Query("owner_id") int ownerId, @Query("filter") String filter, @Query("offset") int offset);
+    public Feed.Response getWall(@Query("owner_id") int ownerId,
+                                 @Query("filter") String filter,
+                                 @Query("offset") int offset);
 
     @GET("/audio.getById")
     public Audio.Response getAudioById(@Query("audios") String audios);
+
+    @GET("/audio.get")
+    public Audio.Response getAudios();
+
+    @GET("/audio.search?sort=2&count=300")
+    public Audio.Response searchAudios(@Query("q") String query);
+
+    @GET("/audio.getById")
+    public Audio.UrlResponse getAudioURL(@Query("audios") String query);
 }

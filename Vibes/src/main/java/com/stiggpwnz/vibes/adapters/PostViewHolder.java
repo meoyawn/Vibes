@@ -12,12 +12,10 @@ import android.text.style.ReplacementSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.devspark.robototextview.widget.RobotoTextView;
-import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.events.UnitClickedEvent;
 import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
@@ -46,13 +44,12 @@ public class PostViewHolder {
     static final Pattern VK_LINK           = Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
 
     @Inject Lazy<Picasso> picassoLazy;
-    @Inject Lazy<Bus>     busLazy;
 
-    @InjectView(R.id.user_icon)  ImageView      profilePic;
-    @InjectView(R.id.user)       RobotoTextView user;
-    @InjectView(R.id.time)       RobotoTextView time;
-    @InjectView(R.id.text)       RobotoTextView text;
-    @InjectView(R.id.image_item) PhotoView      image;
+    @InjectView(R.id.user_icon)  ImageView profilePic;
+    @InjectView(R.id.user)       TextView  user;
+    @InjectView(R.id.time)       TextView  time;
+    @InjectView(R.id.text)       TextView  text;
+    @InjectView(R.id.image_item) PhotoView image;
 
     final AudioView[] audioViews = new AudioView[10];
 
@@ -71,7 +68,7 @@ public class PostViewHolder {
 
     @OnClick({R.id.user_icon, R.id.user})
     void showUser() {
-        busLazy.get().post(new UnitClickedEvent(post.source_id));
+        // TODO FUCK
     }
 
     static class HashTagSpan extends ClickableSpan {

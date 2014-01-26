@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes.vk;
 
-import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Post;
@@ -16,8 +15,10 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
+import rx.subscriptions.BooleanSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
+import timber.log.Timber;
 
 /**
  * Created by adel on 11/8/13
@@ -25,13 +26,83 @@ import rx.util.functions.Func1;
 @Singleton
 public class VKontakte {
 
-    Lazy<Persistence> persistenceLazy;
-    Lazy<VKApi>       vkApiLazy;
+    Lazy<VKApi>  vkApiLazy;
+    Lazy<VKAuth> vkAuthLazy;
 
     @Inject
-    public VKontakte(Lazy<Persistence> persistenceLazy, Lazy<VKApi> vkApiLazy) {
-        this.persistenceLazy = persistenceLazy;
+    public VKontakte(Lazy<VKAuth> vkAuthLazy, Lazy<VKApi> vkApiLazy) {
+        this.vkAuthLazy = vkAuthLazy;
         this.vkApiLazy = vkApiLazy;
+    }
+
+    public Observable<Audio[]> getAudios() {
+        return Observable.create(new Observable.OnSubscribeFunc<Audio[]>() {
+
+            @Override
+            public Subscription onSubscribe(Observer<? super Audio[]> observer) {
+                try {
+                    Audio.Response response = vkApiLazy.get().getAudios();
+                    process(observer, response);
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+                return Subscriptions.empty();
+            }
+        }).retry(1);
+    }
+
+    public Observable<Audio> getUrl(final Audio audio) {
+        return Observable.create(new Observable.OnSubscribeFunc<Audio>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Audio> observer) {
+                try {
+                    Audio.UrlResponse response = vkApiLazy.get().getAudioURL(audio.getAudios());
+                    process(observer, response);
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+                return Subscriptions.empty();
+            }
+        }).retry(1);
+    }
+
+    public Observable<Audio[]> searchAudios(final String query) {
+        return Observable.create(new Observable.OnSubscribeFunc<Audio[]>() {
+            @Override
+            public Subscription onSubscribe(Observer<? super Audio[]> observer) {
+                BooleanSubscription subscription = new BooleanSubscription();
+                try {
+                    Audio.Response response = vkApiLazy.get().searchAudios(query);
+                    if (!subscription.isUnsubscribed()) {
+                        process(observer, response);
+                    }
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+                return subscription;
+            }
+        }).map(new Func1<Audio[], Audio[]>() {
+            @Override
+            public Audio[] call(Audio[] audios) {
+                Audio[] copy = new Audio[audios.length - 1];
+                System.arraycopy(audios, 1, copy, 0, audios.length - 1);
+                return copy;
+            }
+        }).retry(1);
+    }
+
+
+    <T> void process(Observer<? super T> observer, Result<T> result) {
+        if (result.isError()) {
+            if (result.error.isAuthError()) {
+                vkAuthLazy.get().resetAuth();
+            } else {
+                Timber.e(result.error, "VK error code %d", result.error.error_code);
+            }
+            observer.onError(result.error);
+        } else {
+            observer.onNext(result.response);
+        }
     }
 
     public Observable<Audio> getAudioById(final Audio audio) {
@@ -110,16 +181,5 @@ public class VKontakte {
                 return feed;
             }
         };
-    }
-
-    <T> void process(Observer<? super T> observer, Result<T> result) {
-        if (result.isError()) {
-            if (result.error.isAuthError()) {
-                persistenceLazy.get().resetAuth();
-            }
-            observer.onError(result.error);
-        } else {
-            observer.onNext(result.response);
-        }
     }
 }
