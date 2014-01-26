@@ -13,6 +13,7 @@ import com.stiggpwnz.vibes.vk.models.Feed;
 import javax.inject.Inject;
 
 import butterknife.InjectView;
+import butterknife.OnClick;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
@@ -130,7 +131,7 @@ public class FeedFragment extends RetainedProgressFragment {
                 });
     }
 
-    @Override
+    @OnClick(R.id.retry_button)
     protected void onRetryButtonClick() {
         makeRequest();
     }
