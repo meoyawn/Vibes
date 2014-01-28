@@ -5,23 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.stiggpwnz.vibes.util.HtmlDeserializer;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Audio {
+public class Audio implements Serializable {
 
-    public static final Map<Audio, String> URL_CACHE = new ConcurrentHashMap<Audio, String>();
-
-    public int aid;
-    public int owner_id;
-
+    public                                                  int    aid;
+    public                                                  int    owner_id;
     @JsonDeserialize(using = HtmlDeserializer.class) public String artist;
     @JsonDeserialize(using = HtmlDeserializer.class) public String title;
-
-    public int    duration;
-    public int    lyrics_id;
-    public String url;
+    public                                                  int    duration;
+    public                                                  int    lyrics_id;
+    public                                                  String url;
 
     @JsonIgnore
     public String getAudios() {
@@ -45,11 +40,6 @@ public class Audio {
         return aid;
     }
 
-    public static class Response extends Result<Audio[]> {
-
-    }
-
-    public static class UrlResponse extends Result<Audio> {
-
-    }
+    public static class Response extends Result<Audio[]> {}
+    public static class UrlResponse extends Result<Audio> {}
 }

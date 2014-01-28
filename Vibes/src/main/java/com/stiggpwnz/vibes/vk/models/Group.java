@@ -2,8 +2,10 @@ package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Group implements Unit {
+public class Group implements Unit, Serializable {
 
     public int    gid;
     public String name;
@@ -32,17 +34,11 @@ public class Group implements Unit {
     }
 
     @Override
-    public int getId() {
-        return -gid;
-    }
+    public int getId() { return -gid; }
 
     @Override
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     @Override
-    public String getProfilePic() {
-        return photo_medium;
-    }
+    public String getProfilePic() { return photo_medium; }
 }

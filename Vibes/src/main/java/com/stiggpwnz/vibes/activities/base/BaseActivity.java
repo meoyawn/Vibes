@@ -8,6 +8,7 @@ import com.stiggpwnz.vibes.util.Injector;
 
 import butterknife.ButterKnife;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public abstract class BaseActivity extends FragmentActivity {
@@ -21,6 +22,7 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(new CalligraphyContextWrapper(newBase));
+        CalligraphyConfig.initDefault("fonts/Roboto-Regular.ttf");
     }
 
     @Override

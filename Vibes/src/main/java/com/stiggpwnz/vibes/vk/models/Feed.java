@@ -3,11 +3,12 @@ package com.stiggpwnz.vibes.vk.models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Feed {
+public class Feed implements Serializable {
 
     public static class Response extends Result<Feed> {
 
@@ -33,7 +34,7 @@ public class Feed {
 
     void setProfile(Post post) {
         for (Profile profile : profiles) {
-            if (profile.uid == post.source_id) {
+            if (profile.getId() == post.source_id) {
                 post.unit = profile;
                 return;
             }

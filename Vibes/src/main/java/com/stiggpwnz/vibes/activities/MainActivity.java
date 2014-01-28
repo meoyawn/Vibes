@@ -16,8 +16,12 @@ import com.stiggpwnz.vibes.vk.VKAuth;
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
 
@@ -41,15 +45,19 @@ public class MainActivity extends HomeAsUpActivity {
         final LoginFragment loginFragment = new LoginFragment();
 
         loginFragment.getUrlPublishSubject()
-                .map(new Func1<String, Boolean>() {
-
+                .flatMap(new Func1<String, Observable<Boolean>>() {
                     @Override
-                    public Boolean call(String s) {
-                        cookieSyncManagerLazy.get().sync();
-                        return vkAuthLazy.get().saveAuth(s, System.currentTimeMillis());
+                    public Observable<Boolean> call(final String string) {
+                        return Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
+                            @Override
+                            public Subscription onSubscribe(Observer<? super Boolean> observer) {
+                                cookieSyncManagerLazy.get().sync();
+                                observer.onNext(vkAuthLazy.get().saveAuth(string, System.currentTimeMillis()));
+                                return Subscriptions.empty();
+                            }
+                        }).subscribeOn(Schedulers.io());
                     }
                 })
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<Boolean>() {
                     @Override
@@ -65,9 +73,11 @@ public class MainActivity extends HomeAsUpActivity {
                     }
                 });
 
-        getSupportFragmentManager().beginTransaction()
-                .add(android.R.id.content, loginFragment)
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(android.R.id.content, loginFragment)
+                    .commit();
+        }
     }
 
     public void onUnitClicked() {

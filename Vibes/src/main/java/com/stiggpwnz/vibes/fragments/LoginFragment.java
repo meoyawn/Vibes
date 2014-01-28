@@ -7,7 +7,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.stiggpwnz.vibes.fragments.base.RetainedProgressFragment;
+import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.util.Injector;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKAuth;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import dagger.Lazy;
 import rx.subjects.PublishSubject;
 
-public class LoginFragment extends RetainedProgressFragment {
+public class LoginFragment extends BaseFragment {
 
     @Inject Lazy<Persistence>       persistenceLazy;
     @Inject Lazy<CookieManager>     cookieManagerLazy;
@@ -32,32 +32,18 @@ public class LoginFragment extends RetainedProgressFragment {
     }
 
     @Override
-    protected void onRetryButtonClick() {
-
-    }
-
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         WebView webView = new WebView(getActivity());
         webView.setId(987654);
         webView.setWebViewClient(new WebViewClient() {
-
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                setContentShown(false);
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
                 if (url.startsWith(VKAuth.REDIRECT_URL)) {
                     urlPublishSubject.onNext(url);
-                } else {
-                    setContentShown(true);
                 }
             }
         });
-        setContentView(webView);
         if (webView.getUrl() == null) {
             webView.loadUrl(VKAuth.authUrl());
         }

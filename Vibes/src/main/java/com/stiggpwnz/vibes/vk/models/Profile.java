@@ -1,14 +1,44 @@
 package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Profile implements Unit {
+public class Profile implements Unit, Serializable {
 
-    public int    uid;
-    public String first_name;
-    public String last_name;
-    public String photo_medium_rec;
+    private int    uid;
+    private String firstName;
+    private String lastName;
+    private String photoMediumRec;
+
+    @Override
+    public String getName() { return String.format("%s %s", firstName, lastName); }
+
+    @JsonProperty("uid") @Override
+    public int getId() { return uid; }
+
+    @JsonProperty("uid")
+    public void setUid(int uid) { this.uid = uid; }
+
+    @JsonProperty("first_name")
+    public String getFirstName() { return firstName; }
+
+    @JsonProperty("first_name")
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    @JsonProperty("last_name")
+    public String getLastName() { return lastName; }
+
+    @JsonProperty("last_name")
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    @JsonProperty("photo_medium_rec") @Override
+    public String getProfilePic() { return photoMediumRec; }
+
+    @JsonProperty("photo_medium_rec")
+    public void setPhotoMediumRec(String photoMediumRec) { this.photoMediumRec = photoMediumRec; }
 
     @Override
     public int hashCode() {
@@ -30,20 +60,5 @@ public class Profile implements Unit {
         if (uid != other.uid)
             return false;
         return true;
-    }
-
-    @Override
-    public int getId() {
-        return uid;
-    }
-
-    @Override
-    public String getName() {
-        return String.format("%s %s", first_name, last_name);
-    }
-
-    @Override
-    public String getProfilePic() {
-        return photo_medium_rec;
     }
 }

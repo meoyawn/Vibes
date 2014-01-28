@@ -18,10 +18,12 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 }
 
 dependencies {
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+'
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:+'
     compile 'com.etsy.android.grid:library:+'
 
@@ -44,13 +46,12 @@ dependencies {
         exclude group: 'com.google.android'
     }
 
-    compile('com.github.johnkil.android-progressfragment:progressfragment:+') {
-        exclude group: 'com.android.support'
-    }
-
     apt 'com.squareup.dagger:dagger-compiler:+'
     compile 'com.squareup.dagger:dagger:+'
 
     apt 'de.devland.esperandro:esperandro:1.+'
     compile 'de.devland.esperandro:esperandro-api:1.+'
+
+    compile 'com.squareup.mortar:mortar:+'
+    compile 'com.squareup.flow:flow:+'
 }
