@@ -58,7 +58,7 @@ public class Post implements Serializable {
                     audioList.add(attachment.getAudio());
                 }
             }
-            this.audios = audioList.toArray(new Audio[audioList.size()]);
+            audios = audioList.toArray(new Audio[audioList.size()]);
         }
     }
 
@@ -70,7 +70,7 @@ public class Post implements Serializable {
                     photoList.add(attachment.getPhoto());
                 }
             }
-            this.photos = photoList.toArray(new Photo[photoList.size()]);
+            photos = photoList.toArray(new Photo[photoList.size()]);
         }
     }
 
@@ -97,7 +97,7 @@ public class Post implements Serializable {
 
     void setGroupFrom(Feed feed) {
         for (Group group : feed.groups) {
-            if (-group.gid == source_id) {
+            if (-group.getId() == source_id) {
                 unit = group;
                 break;
             }

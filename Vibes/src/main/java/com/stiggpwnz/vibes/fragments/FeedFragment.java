@@ -4,13 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
-import com.etsy.android.grid.StaggeredGridView;
 import com.neenbedankt.bundles.annotation.Argument;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.util.JacksonSerializer;
+import com.stiggpwnz.vibes.util.ReactiveJobQueue;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Feed;
 
@@ -21,18 +22,22 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.observables.AndroidObservable;
-import rx.schedulers.Schedulers;
+import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class FeedFragment extends BaseFragment {
 
     @Inject Lazy<VKontakte>         vkontakte;
     @Inject Lazy<JacksonSerializer> jackson;
+    @Inject Lazy<ReactiveJobQueue>  reactiveJobQueueLazy;
 
     @Argument int ownerId;
 
-    @InjectView(R.id.grid) StaggeredGridView gridView;
+    @InjectView(R.id.ptr_layout) PullToRefreshLayout pullToRefreshLayout;
+    @InjectView(R.id.grid)       AbsListView         staggeredGridView;
 
     Feed         lastResult;
     Subscription subscription;
@@ -43,10 +48,10 @@ public class FeedFragment extends BaseFragment {
         FeedFragmentBuilder.injectArguments(this);
 
         if (lastResult == null) {
-            if (savedInstanceState == null) {
-                makeRequest();
+            if (savedInstanceState != null && savedInstanceState.containsKey("feed")) {
+                lastResult = (Feed) savedInstanceState.get("feed");
             } else {
-                lastResult = (Feed) savedInstanceState.getSerializable("feed");
+                makeRequest(false);
             }
         }
     }
@@ -59,7 +64,21 @@ public class FeedFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        updateView();
+        ActionBarPullToRefresh.from(getActivity())
+                .allChildrenArePullable()
+                .listener(new OnRefreshListener() {
+                    @Override
+                    public void onRefreshStarted(View view) {
+                        makeRequest(true);
+                    }
+                })
+                .setup(pullToRefreshLayout);
+
+        if (lastResult != null) {
+            updateView();
+        } else if (reactiveJobQueueLazy.get().get(FeedFragment.class) != null) {
+            pullToRefreshLayout.setRefreshing(true);
+        }
     }
 
     @Override
@@ -70,30 +89,31 @@ public class FeedFragment extends BaseFragment {
 
     void updateView() {
         if (getView() != null && lastResult != null) {
-            gridView.setAdapter(new FeedAdapter(getActivity(), lastResult.items));
-            // TODO loading finished
+            pullToRefreshLayout.setRefreshComplete();
+            staggeredGridView.setAdapter(new FeedAdapter(getActivity(), lastResult.items));
         }
     }
 
-    void makeRequest() {
-        if (getView() != null) {
-            // TODO loading started
+    void makeRequest(boolean forceReload) {
+        if (pullToRefreshLayout != null) {
+            pullToRefreshLayout.setRefreshing(true);
         }
+
         Observable<Feed> feedObservable = ownerId == 0 ?
                 vkontakte.get().getNewsFeed(0) :
                 vkontakte.get().getWall(ownerId, null, 0);
 
-        subscription = AndroidObservable.fromFragment(this, feedObservable.subscribeOn(Schedulers.io()))
+        subscription = reactiveJobQueueLazy.get()
+                .connect(FeedFragment.class, feedObservable, forceReload)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Feed>() {
                     @Override
-                    public void onCompleted() {
-
-                    }
+                    public void onCompleted() {}
 
                     @Override
                     public void onError(Throwable throwable) {
                         Timber.e(throwable, "error getting feed");
-                        // TODO show retry
+                        pullToRefreshLayout.setRefreshComplete();
                     }
 
                     @Override
@@ -108,6 +128,7 @@ public class FeedFragment extends BaseFragment {
     public void onDestroy() {
         if (subscription != null) {
             subscription.unsubscribe();
+            subscription = null;
         }
         super.onDestroy();
     }

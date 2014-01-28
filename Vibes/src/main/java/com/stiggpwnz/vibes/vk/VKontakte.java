@@ -10,11 +10,12 @@ import javax.inject.Singleton;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscription;
-import rx.subscriptions.BooleanSubscription;
-import rx.subscriptions.Subscriptions;
-import rx.util.functions.Func1;
-import timber.log.Timber;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.MultipleAssignmentSubscription;
+import rx.util.functions.Func2;
 
 import static rx.Observable.OnSubscribeFunc;
 
@@ -23,6 +24,59 @@ import static rx.Observable.OnSubscribeFunc;
  */
 @Singleton
 public class VKontakte {
+
+    static class RetryAuth<T> implements OnSubscribeFunc<T> {
+
+        private final Observable<? extends Result<T>> source;
+        private final CompositeSubscription subscription = new CompositeSubscription();
+        private final Lazy<VKAuth> vkAuthLazy;
+
+        public RetryAuth(Observable<? extends Result<T>> source, Lazy<VKAuth> vkAuthLazy) {
+            this.source = source;
+            this.vkAuthLazy = vkAuthLazy;
+        }
+
+        @Override
+        public Subscription onSubscribe(Observer<? super T> observer) {
+            MultipleAssignmentSubscription rescursiveSubscription = new MultipleAssignmentSubscription();
+            subscription.add(Schedulers.io().schedule(rescursiveSubscription, attemptSubscription(observer)));
+            subscription.add(rescursiveSubscription);
+            return subscription;
+        }
+
+        private Func2<Scheduler, MultipleAssignmentSubscription, Subscription> attemptSubscription(final Observer<? super T> observer) {
+            return new Func2<Scheduler, MultipleAssignmentSubscription, Subscription>() {
+                @Override
+                public Subscription call(final Scheduler scheduler, final MultipleAssignmentSubscription rescursiveSubscription) {
+                    return source.subscribe(new Observer<Result<T>>() {
+                        @Override
+                        public void onCompleted() {
+                            observer.onCompleted();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            observer.onError(e);
+                        }
+
+                        @Override
+                        public void onNext(Result<T> v) {
+                            if (v.isError()) {
+                                if (v.error.isAuthError()) {
+                                    vkAuthLazy.get().resetAuth();
+                                    rescursiveSubscription.setSubscription(scheduler.schedule(rescursiveSubscription, attemptSubscription(observer)));
+                                } else {
+                                    observer.onError(v.error);
+                                }
+                            } else {
+                                observer.onNext(v.response);
+                            }
+                        }
+                    });
+                }
+            };
+        }
+    }
 
     Lazy<VKApi>  vkApiLazy;
     Lazy<VKAuth> vkAuthLazy;
@@ -34,115 +88,30 @@ public class VKontakte {
     }
 
     public Observable<Audio[]> getAudios() {
-        return Observable.create(new OnSubscribeFunc<Audio[]>() {
-
-            @Override
-            public Subscription onSubscribe(Observer<? super Audio[]> observer) {
-                try {
-                    Audio.Response response = vkApiLazy.get().getAudios();
-                    process(observer, response);
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).retry(1);
+        return retryAuth(vkApiLazy.get().getAudios());
     }
 
-    public Observable<Audio> getUrl(final Audio audio) {
-        return Observable.create(new OnSubscribeFunc<Audio>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Audio> observer) {
-                try {
-                    Audio.UrlResponse response = vkApiLazy.get().getAudioURL(audio.ownerIdAidParam());
-                    process(observer, response);
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).retry(1);
+    public Observable<Audio> getAudioUrl(Audio audio) {
+        return retryAuth(vkApiLazy.get().getAudioURL(audio.ownerIdAidParam()));
     }
 
-    public Observable<Audio[]> searchAudios(final String query) {
-        return Observable.create(new OnSubscribeFunc<Audio[]>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Audio[]> observer) {
-                BooleanSubscription subscription = new BooleanSubscription();
-                try {
-                    Audio.Response response = vkApiLazy.get().searchAudios(query);
-                    if (!subscription.isUnsubscribed()) {
-                        process(observer, response);
-                    }
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return subscription;
-            }
-        }).map(Audio.removeFirstItem()).retry(1);
+    public Observable<Audio[]> searchAudios(String query) {
+        return retryAuth(vkApiLazy.get().searchAudios(query))
+                .map(Audio.removeFirstItem());
     }
 
-    <T> void process(Observer<? super T> observer, Result<T> result) {
-        if (result.isError()) {
-            if (result.error.isAuthError()) {
-                vkAuthLazy.get().resetAuth();
-            } else {
-                Timber.e(result.error, "VK error code %d", result.error.getErrorCode());
-            }
-            observer.onError(result.error);
-        } else {
-            observer.onNext(result.response);
-        }
+    public Observable<Feed> getNewsFeed(int offset) {
+        return retryAuth(vkApiLazy.get().getNewsFeed(offset))
+                .map(Feed.filterAudios());
     }
 
-    public Observable<Audio> getAudioById(final Audio audio) {
-        return Observable.create(new OnSubscribeFunc<Audio[]>() {
-            @Override
-            public Subscription onSubscribe(Observer<? super Audio[]> observer) {
-                try {
-                    process(observer, vkApiLazy.get().getAudioById(audio.ownerIdAidParam()));
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).retry(1).map(new Func1<Audio[], Audio>() {
-            @Override
-            public Audio call(Audio[] audios) {
-                Audio audio = audios[0];
-                // TODO insert into URL cache
-                return audio;
-            }
-        });
+    public Observable<Feed> getWall(int ownerId, String filter, int offset) {
+        return retryAuth(vkApiLazy.get().getWall(ownerId, filter, offset))
+                .map(Feed.removeFirstItem())
+                .map(Feed.filterAudios());
     }
 
-    public Observable<Feed> getNewsFeed(final int offset) {
-        return Observable.create(new OnSubscribeFunc<Feed>() {
-
-            @Override
-            public Subscription onSubscribe(Observer<? super Feed> observer) {
-                try {
-                    process(observer, vkApiLazy.get().getNewsFeed(offset));
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).retry(1).map(Feed.filterAudios());
-    }
-
-    public Observable<Feed> getWall(final int ownerId, final String filter, final int offset) {
-        return Observable.create(new OnSubscribeFunc<Feed>() {
-
-            @Override
-            public Subscription onSubscribe(Observer<? super Feed> observer) {
-                try {
-                    process(observer, vkApiLazy.get().getWall(ownerId, filter, offset));
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-                return Subscriptions.empty();
-            }
-        }).retry(1).map(Feed.removeFirstItem()).map(Feed.filterAudios());
+    <T> Observable<T> retryAuth(Observable<? extends Result<T>> observable) {
+        return Observable.create(new RetryAuth<>(observable, vkAuthLazy));
     }
 }

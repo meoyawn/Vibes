@@ -16,10 +16,10 @@ public class Profile implements Unit, Serializable {
     @Override
     public String getName() { return String.format("%s %s", firstName, lastName); }
 
-    @JsonProperty("uid") @Override
+    @Override
+    @JsonProperty("uid")
     public int getId() { return uid; }
 
-    @JsonProperty("uid")
     public void setUid(int uid) { this.uid = uid; }
 
     @JsonProperty("first_name")
@@ -34,7 +34,8 @@ public class Profile implements Unit, Serializable {
     @JsonProperty("last_name")
     public void setLastName(String lastName) { this.lastName = lastName; }
 
-    @JsonProperty("photo_medium_rec") @Override
+    @Override
+    @JsonProperty("photo_medium_rec")
     public String getProfilePic() { return photoMediumRec; }
 
     @JsonProperty("photo_medium_rec")
@@ -54,7 +55,7 @@ public class Profile implements Unit, Serializable {
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (((Object) this).getClass() != obj.getClass())
             return false;
         Profile other = (Profile) obj;
         if (uid != other.uid)

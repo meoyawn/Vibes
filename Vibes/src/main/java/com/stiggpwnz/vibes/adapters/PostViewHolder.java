@@ -14,7 +14,7 @@ import com.stiggpwnz.vibes.text.HashTagSpan;
 import com.stiggpwnz.vibes.text.ReplaceTextSpan;
 import com.stiggpwnz.vibes.text.VKLinkSpan;
 import com.stiggpwnz.vibes.util.Dagger;
-import com.stiggpwnz.vibes.util.Singleton;
+import com.stiggpwnz.vibes.util.LazyVal;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
@@ -37,13 +37,13 @@ import static com.stiggpwnz.vibes.adapters.InflaterAdapter.setVisibility;
  */
 public class PostViewHolder {
 
-    static final Singleton<Pattern> HASH_TAG = new Singleton<Pattern>() {
+    static final LazyVal<Pattern> HASH_TAG = new LazyVal<Pattern>() {
         @Override
         protected Pattern create() {
             return Pattern.compile("#[a-zA-Z][\\w@-]*");
         }
     };
-    static final Singleton<Pattern> VK_UNIT  = new Singleton<Pattern>() {
+    static final LazyVal<Pattern> VK_UNIT  = new LazyVal<Pattern>() {
         @Override
         protected Pattern create() {
             return Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");

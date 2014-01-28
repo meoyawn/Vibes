@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.etsy.android.grid.StaggeredGridView
+<uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/grid"
+    android:id="@+id/ptr_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:item_margin="@dimen/padding_list"
-    app:column_count_portrait="@integer/num_columns"
-    app:column_count_landscape="@integer/num_columns"/>
+    android:layout_height="match_parent">
+
+    <com.etsy.android.grid.StaggeredGridView
+        android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:item_margin="@dimen/padding_list"
+        app:column_count_portrait="@integer/num_columns"
+        app:column_count_landscape="@integer/num_columns"/>
+
+</uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>

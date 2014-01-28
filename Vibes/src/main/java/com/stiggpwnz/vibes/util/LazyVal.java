@@ -3,7 +3,7 @@ package com.stiggpwnz.vibes.util;
 /**
  * Created by adel on 1/28/14
  */
-public abstract class Singleton<T> {
+public abstract class LazyVal<T> {
 
     private T mInstance;
 

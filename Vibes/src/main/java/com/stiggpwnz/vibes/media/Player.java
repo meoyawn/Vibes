@@ -103,7 +103,7 @@ public class Player {
             Timber.d("has url in cache");
             return playObservable(audio);
         } else {
-            return vKontakteLazy.get().getAudioById(audio)
+            return vKontakteLazy.get().getAudioUrl(audio)
                     .flatMap(new Func1<Audio, Observable<MediaPlayer>>() {
 
                         @Override
