@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.media.Player;
-import com.stiggpwnz.vibes.util.Injector;
+import com.stiggpwnz.vibes.util.Dagger;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
 import javax.inject.Inject;
@@ -21,6 +21,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import dagger.Lazy;
 
+// FIXME inflating linear with linear
 public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUpdateListener {
 
     @Inject Lazy<Player> playerLazy;
@@ -48,7 +49,7 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
     }
 
     private void init(Context context) {
-        Injector.inject(this);
+        Dagger.inject(this);
         LayoutInflater.from(context).inflate(R.layout.audio, this, true);
         ButterKnife.inject(this);
     }
@@ -56,8 +57,8 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
     public void setAudio(Audio audio) {
         this.audio = audio;
 
-        artist.setText(audio.artist);
-        title.setText(audio.title);
+        artist.setText(audio.getArtist());
+        title.setText(audio.getTitle());
     }
 
     @OnClick(R.id.imageButtonPlay)

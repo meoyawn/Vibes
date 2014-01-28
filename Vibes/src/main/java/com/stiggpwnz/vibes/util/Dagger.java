@@ -8,7 +8,7 @@ import com.stiggpwnz.vibes.VibesApplication;
 /**
  * Created by adel on 11/17/13
  */
-public class Injector {
+public class Dagger {
     public static void inject(Context context) {
         VibesApplication.from(context).getObjectGraph().inject(context);
     }

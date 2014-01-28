@@ -1,14 +1,8 @@
 package com.stiggpwnz.vibes.adapters;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.content.Context;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.format.DateUtils;
-import android.text.style.ClickableSpan;
-import android.text.style.ReplacementSpan;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,7 +10,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.util.Injector;
+import com.stiggpwnz.vibes.text.HashTagSpan;
+import com.stiggpwnz.vibes.text.ReplaceTextSpan;
+import com.stiggpwnz.vibes.text.VKLinkSpan;
+import com.stiggpwnz.vibes.util.Dagger;
+import com.stiggpwnz.vibes.util.Singleton;
 import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
 import com.stiggpwnz.vibes.widget.AudioView;
@@ -31,7 +29,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import dagger.Lazy;
-import timber.log.Timber;
 
 import static com.stiggpwnz.vibes.adapters.InflaterAdapter.setVisibility;
 
@@ -40,8 +37,18 @@ import static com.stiggpwnz.vibes.adapters.InflaterAdapter.setVisibility;
  */
 public class PostViewHolder {
 
-    static final Pattern HASH_TAGS_PATTERN = Pattern.compile("#[a-zA-Z][\\w@-]*");
-    static final Pattern VK_LINK           = Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
+    static final Singleton<Pattern> HASH_TAG = new Singleton<Pattern>() {
+        @Override
+        protected Pattern create() {
+            return Pattern.compile("#[a-zA-Z][\\w@-]*");
+        }
+    };
+    static final Singleton<Pattern> VK_UNIT  = new Singleton<Pattern>() {
+        @Override
+        protected Pattern create() {
+            return Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
+        }
+    };
 
     @Inject Lazy<Picasso> picassoLazy;
 
@@ -51,12 +58,12 @@ public class PostViewHolder {
     @InjectView(R.id.text)       TextView  text;
     @InjectView(R.id.image_item) PhotoView image;
 
-    final AudioView[] audioViews = new AudioView[10];
+    AudioView[] audioViews = new AudioView[10];
 
     Post post;
 
     PostViewHolder(LinearLayout convertView) {
-        Injector.inject(convertView.getContext(), this);
+        Dagger.inject(convertView.getContext(), this);
         ButterKnife.inject(this, convertView);
 
         for (int i = 0; i < audioViews.length; i++) {
@@ -71,103 +78,55 @@ public class PostViewHolder {
         // TODO FUCK
     }
 
-    static class HashTagSpan extends ClickableSpan {
-
-        String hashtag;
-
-        public HashTagSpan(String hashtag) {
-            this.hashtag = hashtag;
-        }
-
-        @Override
-        public void onClick(View widget) {
-
-        }
-    }
-
-    static class VKLinkSpan extends ClickableSpan {
-
-        String path;
-
-        public VKLinkSpan(String group) {
-            path = group;
-        }
-
-        @Override
-        public void onClick(View widget) {
-            Timber.d("clicked on %s group", path);
-        }
-    }
-
-    static class ReplaceTextSpan extends ReplacementSpan {
-
-        String replacement;
-
-        public ReplaceTextSpan(String replacement) {
-            this.replacement = replacement;
-        }
-
-        @Override
-        public int getSize(Paint paint, CharSequence text, int start, int end, Paint.FontMetricsInt fm) {
-            return Math.round(paint.measureText(replacement));
-        }
-
-        @Override
-        public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
-            paint.setColor(Color.parseColor("#33b5e5"));
-            paint.setUnderlineText(true);
-            canvas.drawText(replacement, x, y, paint);
-        }
-    }
-
-    static SpannableString linkify(String string) {
+    static SpannableString linkify(Context context, String string) {
         SpannableString text = new SpannableString(string);
 
-        Matcher m = HASH_TAGS_PATTERN.matcher(text);
+        Matcher m = HASH_TAG.get().matcher(text);
         while (m.find()) {
             int start = m.start();
             int end = m.end();
             text.setSpan(new HashTagSpan(m.group()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        m = VK_LINK.matcher(text);
+        m = VK_UNIT.get().matcher(text);
         while (m.find()) {
             int start = m.start();
             int end = m.end();
             text.setSpan(new VKLinkSpan(m.group(1)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            text.setSpan(new ReplaceTextSpan(m.group(2)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new ReplaceTextSpan(context, m.group(2)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return text;
     }
 
     void setPost(Post post) {
         this.post = post;
+
         picassoLazy.get().load(post.unit.getProfilePic())
                 .placeholder(R.drawable.ic_user_placeholder)
                 .into(profilePic);
 
         user.setText(post.unit.getName());
-        time.setText(DateUtils.getRelativeTimeSpanString(post.date * 1000));
+        time.setText(post.relativeTimeString());
 
-        if (!TextUtils.isEmpty(post.text)) {
-            text.setText(linkify(post.text));
+        if (post.hasText()) {
+            text.setText(linkify(text.getContext(), post.text));
             setVisibility(text, View.VISIBLE);
         } else {
             setVisibility(text, View.GONE);
         }
 
-        if (post.photos.size() > 0) {
-            final Photo photo = post.photos.get(0);
+        if (post.hasPhotos()) {
+            Photo photo = post.photos[0];
             image.setPhoto(photo);
         } else {
             image.setPhoto(null);
         }
 
-        for (int i = 0; i < post.audios.size(); i++) {
-            audioViews[i].setAudio(post.audios.get(i));
+        for (int i = 0; i < post.audios.length; i++) {
+            audioViews[i].setAudio(post.audios[i]);
         }
-        for (int i = post.audios.size(); i < audioViews.length; i++) {
-            audioViews[i].setVisibility(View.GONE);
+        for (int i = post.audios.length; i < audioViews.length; i++) {
+            setVisibility(audioViews[i], View.GONE);
         }
     }
 }

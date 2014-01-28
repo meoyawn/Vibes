@@ -1,22 +1,22 @@
 package com.stiggpwnz.vibes.activities.base;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 
-import com.stiggpwnz.vibes.util.Injector;
+import com.stiggpwnz.vibes.util.Dagger;
 
 import butterknife.ButterKnife;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public abstract class BaseActivity extends FragmentActivity {
+public abstract class BaseActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Injector.inject(this);
+        Dagger.inject(this);
     }
 
     @Override

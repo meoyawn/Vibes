@@ -98,20 +98,20 @@ public class Player {
     }
 
     private Observable<MediaPlayer> prepareObservable(Audio audio) {
-        Observable<MediaPlayer> prepare;
-        if (Audio.URL_CACHE.containsKey(audio)) {
+        // TODO check from URL cache
+        if (false) {
             Timber.d("has url in cache");
-            prepare = playObservable(audio);
+            return playObservable(audio);
         } else {
-            prepare = vKontakteLazy.get().getAudioById(audio).flatMap(new Func1<Audio, Observable<MediaPlayer>>() {
+            return vKontakteLazy.get().getAudioById(audio)
+                    .flatMap(new Func1<Audio, Observable<MediaPlayer>>() {
 
-                @Override
-                public Observable<MediaPlayer> call(Audio audio) {
-                    return playObservable(audio);
-                }
-            });
+                        @Override
+                        public Observable<MediaPlayer> call(Audio audio) {
+                            return playObservable(audio);
+                        }
+                    });
         }
-        return prepare;
     }
 
     MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener() {
@@ -163,7 +163,8 @@ public class Player {
             @Override
             public Subscription onSubscribe(Observer<? super MediaPlayer> observer) {
                 try {
-                    String path = Audio.URL_CACHE.get(audio);
+                    // TODO get from URL cache
+                    String path = null;
                     Timber.d("setting source %s", path);
 
                     state = State.PREPARING;

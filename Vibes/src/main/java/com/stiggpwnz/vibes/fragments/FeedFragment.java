@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.etsy.android.grid.StaggeredGridView;
+import com.neenbedankt.bundles.annotation.Argument;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
 import com.stiggpwnz.vibes.fragments.base.BaseFragment;
@@ -20,10 +21,8 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import rx.android.observables.AndroidObservable;
 import rx.schedulers.Schedulers;
-import rx.util.functions.Action1;
-import rx.util.functions.Func1;
 import timber.log.Timber;
 
 public class FeedFragment extends BaseFragment {
@@ -31,62 +30,25 @@ public class FeedFragment extends BaseFragment {
     @Inject Lazy<VKontakte>         vkontakte;
     @Inject Lazy<JacksonSerializer> jackson;
 
+    @Argument int ownerId;
+
     @InjectView(R.id.grid) StaggeredGridView gridView;
 
     Feed         lastResult;
     Subscription subscription;
 
-    public FeedFragment() {
-        // restore state
-    }
-
-    public FeedFragment(int ownerId) {
-        Bundle args = new Bundle();
-        args.putInt("owner_id", ownerId);
-        setArguments(args);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FeedFragmentBuilder.injectArguments(this);
+
         if (lastResult == null) {
             if (savedInstanceState == null) {
                 makeRequest();
             } else {
-                Observable.from(savedInstanceState)
-                        .map(new Func1<Bundle, Feed>() {
-
-                            @Override
-                            public Feed call(Bundle bundle) {
-                                return jackson.get().deserialize(bundle.getString("feed"), Feed.class);
-                            }
-                        })
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Action1<Feed>() {
-
-                            @Override
-                            public void call(Feed feed) {
-                                lastResult = feed;
-                                updateView();
-                            }
-                        });
+                lastResult = (Feed) savedInstanceState.getSerializable("feed");
             }
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Observable.just(outState)
-                .subscribeOn(Schedulers.threadPoolForComputation())
-                .subscribe(new Action1<Bundle>() {
-
-                    @Override
-                    public void call(Bundle bundle) {
-                        bundle.putString("feed", jackson.get().serialize(lastResult));
-                    }
-                });
     }
 
     @Override
@@ -100,9 +62,15 @@ public class FeedFragment extends BaseFragment {
         updateView();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("feed", lastResult);
+    }
+
     void updateView() {
         if (getView() != null && lastResult != null) {
-            gridView.setAdapter(new FeedAdapter(getActivity(), lastResult));
+            gridView.setAdapter(new FeedAdapter(getActivity(), lastResult.items));
             // TODO loading finished
         }
     }
@@ -111,12 +79,11 @@ public class FeedFragment extends BaseFragment {
         if (getView() != null) {
             // TODO loading started
         }
-        int ownerId = getArguments().getInt("owner_id");
         Observable<Feed> feedObservable = ownerId == 0 ?
                 vkontakte.get().getNewsFeed(0) :
                 vkontakte.get().getWall(ownerId, null, 0);
-        subscription = feedObservable.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+
+        subscription = AndroidObservable.fromFragment(this, feedObservable.subscribeOn(Schedulers.io()))
                 .subscribe(new Observer<Feed>() {
                     @Override
                     public void onCompleted() {
@@ -126,6 +93,7 @@ public class FeedFragment extends BaseFragment {
                     @Override
                     public void onError(Throwable throwable) {
                         Timber.e(throwable, "error getting feed");
+                        // TODO show retry
                     }
 
                     @Override

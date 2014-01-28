@@ -6,8 +6,8 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.activities.base.HomeAsUpActivity;
-import com.stiggpwnz.vibes.fragments.FeedFragment;
+import com.stiggpwnz.vibes.activities.base.BaseActivity;
+import com.stiggpwnz.vibes.fragments.FeedFragmentBuilder;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.media.PlayerService;
@@ -25,14 +25,14 @@ import rx.subscriptions.Subscriptions;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
 
-public class MainActivity extends HomeAsUpActivity {
+public class MainActivity extends BaseActivity {
 
     @Inject Lazy<VKAuth>            vkAuthLazy;
     @Inject Lazy<CookieManager>     cookieManagerLazy;
     @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (cookieManagerLazy.get().getCookie("vk.com") == null) {
             login(savedInstanceState);
@@ -44,7 +44,7 @@ public class MainActivity extends HomeAsUpActivity {
     void login(final Bundle savedInstanceState) {
         final LoginFragment loginFragment = new LoginFragment();
 
-        loginFragment.getUrlPublishSubject()
+        loginFragment.getUrls()
                 .flatMap(new Func1<String, Observable<Boolean>>() {
                     @Override
                     public Observable<Boolean> call(final String string) {
@@ -63,7 +63,7 @@ public class MainActivity extends HomeAsUpActivity {
                     @Override
                     public void call(Boolean aBoolean) {
                         if (aBoolean) {
-                            getSupportFragmentManager().beginTransaction()
+                            getFragmentManager().beginTransaction()
                                     .remove(loginFragment)
                                     .commit();
                             init(savedInstanceState);
@@ -74,16 +74,16 @@ public class MainActivity extends HomeAsUpActivity {
                 });
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(android.R.id.content, loginFragment)
+            getFragmentManager().beginTransaction()
+                    .replace(android.R.id.content, loginFragment)
                     .commit();
         }
     }
 
     public void onUnitClicked() {
         // TODO FUCK
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_frame, new FeedFragment(5))
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(5))
                 .commit();
     }
 
@@ -91,9 +91,9 @@ public class MainActivity extends HomeAsUpActivity {
         setContentView(R.layout.main_root);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.left_drawer, new NavigationFragment())
-                    .replace(R.id.content_frame, new FeedFragment(0))
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.left_drawer, new NavigationFragment())
+                    .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(0))
                     .commit();
         }
 

@@ -7,7 +7,7 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.util.Injector;
+import com.stiggpwnz.vibes.util.Dagger;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ public class PhotoView extends ImageView {
 
     private void init() {
         if (!isInEditMode()) {
-            Injector.inject(this);
+            Dagger.inject(this);
         }
     }
 

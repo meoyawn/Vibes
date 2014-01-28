@@ -1,61 +1,56 @@
 package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import rx.util.functions.Func1;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Feed implements Serializable {
 
-    public static class Response extends Result<Feed> {
-
-    }
-
-    public List<Post>   items;
+    public Post[]       items;
     public Set<Profile> profiles;
     public Set<Group>   groups;
     public int          new_offset;
 
-    @JsonProperty("wall")
-    public void setWall(List<Post> wall) {
+    public static Func1<Feed, Feed> removeFirstItem() {
+        return new Func1<Feed, Feed>() {
+            @Override
+            public Feed call(Feed feed) {
+                Post[] src = feed.items;
+                feed.items = new Post[src.length - 1];
+                System.arraycopy(src, 1, feed.items, 0, feed.items.length);
+                return feed;
+            }
+        };
+    }
+
+    public static Func1<Feed, Feed> filterAudios() {
+        return new Func1<Feed, Feed>() {
+            @Override
+            public Feed call(Feed feed) {
+                List<Post> posts = new ArrayList<>();
+                for (Post post : feed.items) {
+                    if (post.hasAudios()) {
+                        post.setUnitFrom(feed);
+                        post.calculateSelfAudios();
+                        post.calculateSelfPhotos();
+                        posts.add(post);
+                    }
+                }
+                feed.items = posts.toArray(new Post[posts.size()]);
+                return feed;
+            }
+        };
+    }
+
+    public void setWall(Post[] wall) {
         items = wall;
     }
 
-    public void assignUnit(Post post) {
-        if (post.source_id >= 0) {
-            setProfile(post);
-        } else {
-            setGroup(post);
-        }
-    }
-
-    void setProfile(Post post) {
-        for (Profile profile : profiles) {
-            if (profile.getId() == post.source_id) {
-                post.unit = profile;
-                return;
-            }
-        }
-    }
-
-    void setGroup(Post post) {
-        for (Group group : groups) {
-            if (-group.gid == post.source_id) {
-                post.unit = group;
-                return;
-            }
-        }
-    }
-
-//    void append(Feed feed) {
-//        new_offset = feed.new_offset;
-//
-//        items.addAll(feed.items);
-//        profiles.addAll(feed.profiles);
-//        groups.addAll(feed.groups);
-//    }
-
+    public static class Response extends Result<Feed> {}
 }

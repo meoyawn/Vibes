@@ -6,29 +6,25 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Post;
 
 public class FeedAdapter extends InflaterAdapter {
 
-    Feed feed;
+    Post[] posts;
 
-    public FeedAdapter(Context context, Feed feed) {
+    public FeedAdapter(Context context, Post[] posts) {
         super(context);
-        this.feed = feed;
+        this.posts = posts;
     }
 
     @Override
     public int getCount() {
-        if (feed != null && feed.items != null) {
-            return feed.items.size();
-        }
-        return 0;
+        return posts != null ? posts.length : 0;
     }
 
     @Override
-    public Post getItem(int arg0) {
-        return feed.items.get(arg0);
+    public Post getItem(int position) {
+        return posts[position];
     }
 
     @Override
@@ -38,8 +34,8 @@ public class FeedAdapter extends InflaterAdapter {
             convertView.setTag(new PostViewHolder((LinearLayout) convertView));
         }
 
-        PostViewHolder holder = (PostViewHolder) convertView.getTag();
         Post post = getItem(position);
+        PostViewHolder holder = (PostViewHolder) convertView.getTag();
         holder.setPost(post);
 
         return convertView;

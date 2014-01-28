@@ -28,12 +28,10 @@ public class VibesApplication extends Application {
     }
 
     protected ArrayList<Object> getModules() {
-        ArrayList<Object> modules = new ArrayList<Object>(1);
+        ArrayList<Object> modules = new ArrayList<>(1);
         modules.add(new VibesModule(this));
         return modules;
     }
 
-    public ObjectGraph getObjectGraph() {
-        return objectGraph;
-    }
+    public ObjectGraph getObjectGraph() { return objectGraph; }
 }
