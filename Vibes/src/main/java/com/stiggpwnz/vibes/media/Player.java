@@ -119,7 +119,7 @@ public class Player {
 
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                if (Looper.myLooper() != Looper.getMainLooper()) {
+                if (!Looper.getMainLooper().equals(Looper.myLooper())) {
                     throw new RuntimeException("not on the main thread");
                 }
                 // TODO FUCK

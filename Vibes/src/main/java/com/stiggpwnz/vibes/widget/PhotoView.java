@@ -42,7 +42,7 @@ public class PhotoView extends ImageView {
     }
 
     private void setHeight(int w) {
-        if (!isInEditMode()) {
+        if (!isInEditMode() && getLayoutParams() != null) {
             getLayoutParams().height = (int) (photo.getRatio() * w);
         }
     }

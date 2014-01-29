@@ -31,6 +31,7 @@ public class PlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        //noinspection ReturnOfNull
         return null;
     }
 }

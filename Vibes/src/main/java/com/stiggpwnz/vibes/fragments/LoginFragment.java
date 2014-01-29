@@ -35,11 +35,6 @@ public class LoginFragment extends BaseFragment {
     @InjectView(R.id.webview_login) WebView             webView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.login, container, false);
     }

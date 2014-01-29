@@ -82,7 +82,8 @@ public class VibesModule {
     }
 
     @Provides
-    CookieManager provideCookieManager(CookieSyncManager cookieSyncManager) {
+    CookieManager provideCookieManager(
+            @SuppressWarnings("UnusedParameters") CookieSyncManager cookieSyncManager) {
         return CookieManager.getInstance();
     }
 
