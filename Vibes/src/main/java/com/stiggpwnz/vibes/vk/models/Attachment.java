@@ -15,7 +15,6 @@ public class Attachment implements Serializable {
     private Type  type;
     private Photo photo;
     private Audio audio;
-    private Link  link;
 
     public Photo getPhoto() { return photo; }
 
@@ -24,10 +23,6 @@ public class Attachment implements Serializable {
     public Audio getAudio() { return audio; }
 
     public void setAudio(Audio audio) { this.audio = audio; }
-
-    public Link getLink() { return link; }
-
-    public void setLink(Link link) { this.link = link; }
 
     public Type getType() { return type; }
 
@@ -44,8 +39,8 @@ public class Attachment implements Serializable {
         @Override
         public Type deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             switch (jsonParser.getValueAsString()) {
-                case "audio": return Type.AUDIO;
-                case "photo": return Type.PHOTO;
+                case "audio": case "AUDIO": return Type.AUDIO;
+                case "photo": case "PHOTO": return Type.PHOTO;
                 default: return Type.UNKNOWN;
             }
         }

@@ -90,7 +90,7 @@ public class FeedFragment extends BaseFragment {
     void updateView() {
         if (getView() != null && lastResult != null) {
             pullToRefreshLayout.setRefreshComplete();
-            staggeredGridView.setAdapter(new FeedAdapter(getActivity(), lastResult.items));
+            staggeredGridView.setAdapter(new FeedAdapter(getActivity(), lastResult.getItems()));
         }
     }
 

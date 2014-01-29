@@ -1,6 +1,7 @@
 package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,18 +13,18 @@ import rx.util.functions.Func1;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Feed implements Serializable {
 
-    public Post[]       items;
-    public Set<Profile> profiles;
-    public Set<Group>   groups;
-    public int          new_offset;
+    private Post[]       items;
+    private Set<Profile> profiles;
+    private Set<Group>   groups;
+    private int          newOffset;
 
     public static Func1<Feed, Feed> removeFirstItem() {
         return new Func1<Feed, Feed>() {
             @Override
             public Feed call(Feed feed) {
-                Post[] src = feed.items;
-                feed.items = new Post[src.length - 1];
-                System.arraycopy(src, 1, feed.items, 0, feed.items.length);
+                Post[] src = feed.getItems();
+                feed.setItems(new Post[src.length - 1]);
+                System.arraycopy(src, 1, feed.getItems(), 0, feed.getItems().length);
                 return feed;
             }
         };
@@ -33,8 +34,8 @@ public class Feed implements Serializable {
         return new Func1<Feed, Feed>() {
             @Override
             public Feed call(Feed feed) {
-                List<Post> posts = new ArrayList<>(feed.items.length);
-                for (Post post : feed.items) {
+                List<Post> posts = new ArrayList<>(feed.getItems().length);
+                for (Post post : feed.getItems()) {
                     if (post.hasAudios()) {
                         post.setUnitFrom(feed);
                         post.calculateSelfAudios();
@@ -42,15 +43,31 @@ public class Feed implements Serializable {
                         posts.add(post);
                     }
                 }
-                feed.items = posts.toArray(new Post[posts.size()]);
+                feed.setItems(posts.toArray(new Post[posts.size()]));
                 return feed;
             }
         };
     }
 
-    public void setWall(Post... wall) {
-        items = wall;
-    }
+    public Post[] getItems() { return items; }
+
+    public void setItems(Post... items) { this.items = items; }
+
+    public void setWall(Post... wall) { this.items = wall; }
+
+    public Set<Profile> getProfiles() { return profiles; }
+
+    public void setProfiles(Set<Profile> profiles) { this.profiles = profiles; }
+
+    public Set<Group> getGroups() { return groups; }
+
+    public void setGroups(Set<Group> groups) { this.groups = groups; }
+
+    @JsonProperty("new_offset")
+    public int getNewOffset() { return newOffset; }
+
+    @JsonProperty("new_offset")
+    public void setNewOffset(int newOffset) { this.newOffset = newOffset; }
 
     public static class Response extends Result<Feed> {}
 }

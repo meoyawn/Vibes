@@ -57,7 +57,6 @@ public class PhotoView extends ImageView {
 
     public void setPhoto(Photo photo) {
         this.photo = photo;
-
         if (photo != null) {
             setVisibility(View.VISIBLE);
 

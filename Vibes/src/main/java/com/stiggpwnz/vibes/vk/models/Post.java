@@ -15,29 +15,20 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Post implements Serializable {
 
-    public                                                  int          count;
-    public                                                  int          source_id;
-    public                                                  long         date;
-    @JsonDeserialize(using = HtmlDeserializer.class) public String       text;
-    public                                                  Attachment[] attachments;
+    private int          count;
+    private int          sourceId;
+    private long         date;
+    private String       text;
+    private Attachment[] attachments;
 
     // computed stuff
-    public Photo[] photos;
-    public Audio[] audios;
-    public Unit    unit;
+    private Photo[] photos;
+    private Audio[] audios;
+    private Unit    unit;
 
-    public Post() {
+    public Post() { }
 
-    }
-
-    public Post(int count) {
-        this.count = count;
-    }
-
-    @JsonProperty("from_id")
-    public void setFromId(int fromId) {
-        source_id = fromId;
-    }
+    public Post(int count) { this.count = count; }
 
     public boolean hasAudios() {
         if (attachments != null) {
@@ -78,17 +69,13 @@ public class Post implements Serializable {
         return DateUtils.getRelativeTimeSpanString(date * 1000);
     }
 
-    public boolean hasText() {
-        return !TextUtils.isEmpty(text);
-    }
+    public boolean hasText() { return !TextUtils.isEmpty(text); }
 
-    public boolean hasPhotos() {
-        return photos != null && photos.length > 0;
-    }
+    public boolean hasPhotos() { return photos != null && photos.length > 0; }
 
     void setProfileFrom(Feed feed) {
-        for (Profile profile : feed.profiles) {
-            if (profile.getId() == source_id) {
+        for (Profile profile : feed.getProfiles()) {
+            if (profile.getId() == sourceId) {
                 unit = profile;
                 break;
             }
@@ -96,8 +83,8 @@ public class Post implements Serializable {
     }
 
     void setGroupFrom(Feed feed) {
-        for (Group group : feed.groups) {
-            if (-group.getId() == source_id) {
+        for (Group group : feed.getGroups()) {
+            if (-group.getId() == sourceId) {
                 unit = group;
                 break;
             }
@@ -105,10 +92,46 @@ public class Post implements Serializable {
     }
 
     public void setUnitFrom(Feed feed) {
-        if (source_id >= 0) {
+        if (sourceId >= 0) {
             setProfileFrom(feed);
         } else {
             setGroupFrom(feed);
         }
     }
+
+    public int getCount() { return count; }
+
+    public void setCount(int count) { this.count = count; }
+
+    @JsonProperty("source_id")
+    public int getSourceId() { return sourceId; }
+
+    @JsonProperty("source_id")
+    public void setSourceId(int sourceId) { this.sourceId = sourceId; }
+
+    @JsonProperty("from_id")
+    public void setFromId(int fromId) { this.sourceId = fromId; }
+
+    public long getDate() { return date; }
+
+    public void setDate(long date) { this.date = date; }
+
+    public String getText() { return text; }
+
+    @JsonDeserialize(using = HtmlDeserializer.class)
+    public void setText(String text) { this.text = text; }
+
+    public void setAttachments(Attachment[] attachments) { this.attachments = attachments; }
+
+    public Photo[] getPhotos() { return photos; }
+
+    public void setPhotos(Photo[] photos) { this.photos = photos; }
+
+    public Audio[] getAudios() { return audios; }
+
+    public void setAudios(Audio[] audios) { this.audios = audios; }
+
+    public Unit getUnit() { return unit; }
+
+    public void setUnit(Unit unit) { this.unit = unit; }
 }

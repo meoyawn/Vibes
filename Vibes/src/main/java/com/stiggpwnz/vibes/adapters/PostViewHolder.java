@@ -103,31 +103,31 @@ public class PostViewHolder {
     void setPost(Post post) {
         this.post = post;
 
-        picassoLazy.get().load(post.unit.getProfilePic())
+        picassoLazy.get().load(post.getUnit().getProfilePic())
                 .placeholder(R.drawable.ic_user_placeholder)
                 .into(profilePic);
 
-        user.setText(post.unit.getName());
+        user.setText(post.getUnit().getName());
         time.setText(post.relativeTimeString());
 
         if (post.hasText()) {
-            text.setText(linkify(text.getContext(), post.text));
+            text.setText(linkify(text.getContext(), post.getText()));
             setVisibility(text, View.VISIBLE);
         } else {
             setVisibility(text, View.GONE);
         }
 
         if (post.hasPhotos()) {
-            Photo photo = post.photos[0];
+            Photo photo = post.getPhotos()[0];
             image.setPhoto(photo);
         } else {
             image.setPhoto(null);
         }
 
-        for (int i = 0; i < post.audios.length; i++) {
-            audioViews[i].setAudio(post.audios[i]);
+        for (int i = 0; i < post.getAudios().length; i++) {
+            audioViews[i].setAudio(post.getAudios()[i]);
         }
-        for (int i = post.audios.length; i < audioViews.length; i++) {
+        for (int i = post.getAudios().length; i < audioViews.length; i++) {
             setVisibility(audioViews[i], View.GONE);
         }
     }
