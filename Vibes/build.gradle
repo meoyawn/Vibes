@@ -1,6 +1,10 @@
 apply plugin: 'android'
 apply plugin: 'android-apt'
 
+apply plugin: 'findbugs'
+apply plugin: 'checkstyle'
+apply plugin: 'pmd'
+
 android {
     compileSdkVersion 19
     buildToolsVersion '19.0.1'
@@ -19,6 +23,11 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+        enable 'IconExpectedSize', 'EasterEgg', 'SelectableText', 'StopShip', 'TypographyQuotes', 'UnusedIds'
     }
 }
 

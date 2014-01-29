@@ -5,12 +5,12 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
 import com.squareup.okhttp.OkHttpClient;
-import com.stiggpwnz.vibes.BuildConfig;
 import com.stiggpwnz.vibes.util.Persistence;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,15 +31,14 @@ public class VKAuth {
     static final int    SCOPE      = 2 + 8 + 8192;
 
     public static String authUrl() {
-        return String.format("%s?client_id=%d&scope=%s&redirect_uri=%s&display=touch&response_type=token",
+        return String.format(Locale.US,
+                "%s?client_id=%d&scope=%s&redirect_uri=%s&display=touch&response_type=token",
                 AUTH_URL, CLIENT_ID, SCOPE, REDIRECT_URL);
     }
 
     public static void checkThread() {
-        if (BuildConfig.DEBUG) {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                throw new RuntimeException("Wrong thread, buddy");
-            }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new RuntimeException("Wrong thread, buddy");
         }
     }
 
@@ -59,33 +58,41 @@ public class VKAuth {
         this.persistenceLazy = persistenceLazy;
     }
 
-    void authRecursive(String url) throws IOException {
-        HttpURLConnection connection = okHttpClientLazy.get().open(new URL(url));
-        connection.setInstanceFollowRedirects(false);
-        connection.setRequestProperty("Cookie", cookieManagerLazy.get().getCookie(url));
-        connection.connect();
+    String authRecursive(String url) throws IOException {
+        while (true) {
+            HttpURLConnection connection = okHttpClientLazy.get().open(new URL(url));
+            connection.setInstanceFollowRedirects(false);
+            connection.setRequestProperty("Cookie", cookieManagerLazy.get().getCookie(url));
+            connection.connect();
 
-        if (connection.getResponseCode() == 302) {
-            cookieManagerLazy.get().setCookie(url, connection.getHeaderField("Set-Cookie"));
-            String redirectUrl = connection.getHeaderField("Location");
-            if (redirectUrl.startsWith(REDIRECT_URL)) {
-                cookieSyncManagerLazy.get().sync();
-                saveAuth(redirectUrl, System.currentTimeMillis());
-            } else {
-                authRecursive(redirectUrl);
+            if (connection.getResponseCode() == 302) {
+                cookieManagerLazy.get().setCookie(url, connection.getHeaderField("Set-Cookie"));
+                String redirectUrl = connection.getHeaderField("Location");
+                if (redirectUrl.startsWith(REDIRECT_URL)) {
+                    cookieSyncManagerLazy.get().sync();
+                    return saveAuth(redirectUrl, System.currentTimeMillis());
+                } else {
+                    url = redirectUrl;
+                    continue;
+                }
             }
+            return null;
         }
     }
 
-    public boolean saveAuth(String redirectUrl, long now) {
+    public String saveAuth(String redirectUrl, long now) {
         checkThread();
 
+        // not extracted because of the very rare use
+        @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
         String[] params = redirectUrl.split("#")[1].split("&");
+
         Persistence persistence = persistenceLazy.get();
         for (String param : params) {
+            @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
             String[] pairs = param.split("=");
-            String value = pairs[1];
 
+            String value = pairs[1];
             switch (pairs[0]) {
                 case ACCESS_TOKEN:
                     persistence.accessToken(value);
@@ -100,10 +107,10 @@ public class VKAuth {
                     break;
 
                 default:
-                    return false;
+                    return null;
             }
         }
-        return true;
+        return persistence.accessToken();
     }
 
     public void resetAuth() {
@@ -120,8 +127,7 @@ public class VKAuth {
 
         String accessToken = persistenceLazy.get().accessToken();
         if (accessToken == null || now >= persistenceLazy.get().expiresIn()) {
-            authRecursive(authUrl());
-            return getAccessToken(System.currentTimeMillis());
+            return authRecursive(authUrl());
         }
         return accessToken;
     }

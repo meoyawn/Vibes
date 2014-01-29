@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--listview item that should produce an overdraw-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:background="@android:color/white"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              tools:ignore="Overdraw">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,14 +30,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/padding_post">
+                android:paddingLeft="@dimen/padding_post"
+                android:paddingStart="@dimen/padding_post">
 
                 <TextView
                     android:id="@+id/user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
-                    tools:text="Adel Nizamutdinov"/>
+                    tools:text="Adel Nizamutdinov"
+                    tools:ignore="SelectableText"/>
 
                 <TextView
                     android:id="@+id/time"
@@ -43,7 +47,8 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/light_grey_text"
                     android:textSize="14sp"
-                    tools:text="5 hours ago"/>
+                    tools:text="5 hours ago"
+                    tools:ignore="SelectableText"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -54,7 +59,8 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:autoLink="web"
-            tools:text="Lorum ipsum."/>
+            tools:text="Lorum ipsum."
+            android:textIsSelectable="true"/>
     </LinearLayout>
 
     <com.stiggpwnz.vibes.widget.PhotoView

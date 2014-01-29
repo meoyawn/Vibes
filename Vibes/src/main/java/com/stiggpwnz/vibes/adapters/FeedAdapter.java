@@ -12,7 +12,7 @@ public class FeedAdapter extends InflaterAdapter {
 
     Post[] posts;
 
-    public FeedAdapter(Context context, Post[] posts) {
+    public FeedAdapter(Context context, Post... posts) {
         super(context);
         this.posts = posts;
     }

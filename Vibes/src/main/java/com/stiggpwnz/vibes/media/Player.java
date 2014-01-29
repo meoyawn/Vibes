@@ -114,7 +114,7 @@ public class Player {
         }
     }
 
-    MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener() {
+    static MediaPlayer.OnBufferingUpdateListener onBufferingUpdateListener() {
         return new MediaPlayer.OnBufferingUpdateListener() {
 
             @Override

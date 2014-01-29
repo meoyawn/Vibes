@@ -58,8 +58,6 @@ public class Profile implements Unit, Serializable {
         if (((Object) this).getClass() != obj.getClass())
             return false;
         Profile other = (Profile) obj;
-        if (uid != other.uid)
-            return false;
-        return true;
+        return uid == other.uid;
     }
 }

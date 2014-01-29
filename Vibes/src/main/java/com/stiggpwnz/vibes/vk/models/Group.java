@@ -47,8 +47,6 @@ public class Group implements Unit, Serializable {
         if (((Object) this).getClass() != obj.getClass())
             return false;
         Group other = (Group) obj;
-        if (gid != other.gid)
-            return false;
-        return true;
+        return gid == other.gid;
     }
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.stiggpwnz.vibes.util.HtmlDeserializer;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 import rx.util.functions.Func1;
 
@@ -31,7 +32,7 @@ public class Audio implements Serializable {
     private int    lyricsId;
     private String url;
 
-    public String ownerIdAidParam() { return String.format("%d_%d", ownerId, aid); }
+    public String ownerIdAidParam() { return String.format(Locale.US, "%d_%d", ownerId, aid); }
 
     public int getAid() { return aid; }
 

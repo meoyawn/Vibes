@@ -33,7 +33,7 @@ public class Feed implements Serializable {
         return new Func1<Feed, Feed>() {
             @Override
             public Feed call(Feed feed) {
-                List<Post> posts = new ArrayList<>();
+                List<Post> posts = new ArrayList<>(feed.items.length);
                 for (Post post : feed.items) {
                     if (post.hasAudios()) {
                         post.setUnitFrom(feed);
@@ -48,7 +48,7 @@ public class Feed implements Serializable {
         };
     }
 
-    public void setWall(Post[] wall) {
+    public void setWall(Post... wall) {
         items = wall;
     }
 

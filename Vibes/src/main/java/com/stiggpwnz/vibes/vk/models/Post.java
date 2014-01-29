@@ -52,7 +52,7 @@ public class Post implements Serializable {
 
     public void calculateSelfAudios() {
         if (attachments != null) {
-            List<Audio> audioList = new ArrayList<>();
+            List<Audio> audioList = new ArrayList<>(attachments.length);
             for (Attachment attachment : attachments) {
                 if (attachment.getType() == Attachment.Type.AUDIO) {
                     audioList.add(attachment.getAudio());
@@ -64,7 +64,7 @@ public class Post implements Serializable {
 
     public void calculateSelfPhotos() {
         if (attachments != null) {
-            List<Photo> photoList = new ArrayList<>();
+            List<Photo> photoList = new ArrayList<>(attachments.length);
             for (Attachment attachment : attachments) {
                 if (attachment.getType() == Attachment.Type.PHOTO) {
                     photoList.add(attachment.getPhoto());

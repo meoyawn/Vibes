@@ -2,6 +2,7 @@ package com.stiggpwnz.vibes.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -15,6 +16,7 @@ import com.stiggpwnz.vibes.vk.VKAuth;
 
 import javax.inject.Inject;
 
+import butterknife.InjectView;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
@@ -31,6 +33,8 @@ public class MainActivity extends BaseActivity {
     @Inject Lazy<CookieManager>     cookieManagerLazy;
     @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;
 
+    @InjectView(R.id.drawer_layout) DrawerLayout drawerLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,12 +49,12 @@ public class MainActivity extends BaseActivity {
         final LoginFragment loginFragment = new LoginFragment();
 
         loginFragment.getUrls()
-                .flatMap(new Func1<String, Observable<Boolean>>() {
+                .flatMap(new Func1<String, Observable<String>>() {
                     @Override
-                    public Observable<Boolean> call(final String string) {
-                        return Observable.create(new Observable.OnSubscribeFunc<Boolean>() {
+                    public Observable<String> call(final String string) {
+                        return Observable.create(new Observable.OnSubscribeFunc<String>() {
                             @Override
-                            public Subscription onSubscribe(Observer<? super Boolean> observer) {
+                            public Subscription onSubscribe(Observer<? super String> observer) {
                                 cookieSyncManagerLazy.get().sync();
                                 observer.onNext(vkAuthLazy.get().saveAuth(string, System.currentTimeMillis()));
                                 return Subscriptions.empty();
@@ -59,10 +63,10 @@ public class MainActivity extends BaseActivity {
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Boolean>() {
+                .subscribe(new Action1<String>() {
                     @Override
-                    public void call(Boolean aBoolean) {
-                        if (aBoolean) {
+                    public void call(String aBoolean) {
+                        if (aBoolean != null) {
                             getFragmentManager().beginTransaction()
                                     .remove(loginFragment)
                                     .commit();

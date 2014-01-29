@@ -67,6 +67,7 @@ public class PostViewHolder {
         ButterKnife.inject(this, convertView);
 
         for (int i = 0; i < audioViews.length; i++) {
+            @SuppressWarnings("ObjectAllocationInLoop")
             AudioView audioView = new AudioView(convertView.getContext());
             convertView.addView(audioView);
             audioViews[i] = audioView;
@@ -78,6 +79,7 @@ public class PostViewHolder {
         // TODO FUCK
     }
 
+    @SuppressWarnings("ObjectAllocationInLoop")
     static SpannableString linkify(Context context, String string) {
         SpannableString text = new SpannableString(string);
 

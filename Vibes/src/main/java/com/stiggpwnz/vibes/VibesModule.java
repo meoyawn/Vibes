@@ -61,6 +61,7 @@ import timber.log.Timber;
 
         // views
         PhotoView.class, AudioView.class})
+@SuppressWarnings("MethodMayBeStatic")
 public class VibesModule {
 
     Context context;
