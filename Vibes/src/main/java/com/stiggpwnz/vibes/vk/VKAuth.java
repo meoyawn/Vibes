@@ -7,7 +7,6 @@ import android.webkit.CookieSyncManager;
 import com.squareup.okhttp.OkHttpClient;
 import com.stiggpwnz.vibes.util.Persistence;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
@@ -17,30 +16,20 @@ import javax.inject.Singleton;
 
 import dagger.Lazy;
 import de.devland.esperandro.SharedPreferenceActions;
+import retrofit.RequestInterceptor;
 
 @Singleton
-public class VKAuth {
+public class VKAuth implements RequestInterceptor {
 
-    public static final String ACCESS_TOKEN = "access_token";
     public static final String REDIRECT_URL = "https://oauth.vk.com/blank.html";
+    static final        String AUTH_URL     = "https://oauth.vk.com/authorize";
 
-    static final String USER_ID    = "user_id";
-    static final String EXPIRES_IN = "expires_in";
-    static final String AUTH_URL   = "https://oauth.vk.com/authorize";
-    static final int    CLIENT_ID  = 3027476;
-    static final int    SCOPE      = 2 + 8 + 8192;
+    static final String ACCESS_TOKEN = "access_token";
+    static final String USER_ID      = "user_id";
+    static final String EXPIRES_IN   = "expires_in";
 
-    public static String authUrl() {
-        return String.format(Locale.US,
-                "%s?client_id=%d&scope=%s&redirect_uri=%s&display=touch&response_type=token",
-                AUTH_URL, CLIENT_ID, SCOPE, REDIRECT_URL);
-    }
-
-    public static void checkThread() {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new RuntimeException("Wrong thread, buddy");
-        }
-    }
+    static final int CLIENT_ID = 3027476;
+    static final int SCOPE     = 2 + 8 + 8192;
 
     Lazy<OkHttpClient>      okHttpClientLazy;
     Lazy<CookieSyncManager> cookieSyncManagerLazy;
@@ -58,7 +47,19 @@ public class VKAuth {
         this.persistenceLazy = persistenceLazy;
     }
 
-    String authRecursive(String url) throws IOException {
+    public static String authUrl() {
+        return String.format(Locale.US,
+                "%s?client_id=%d&scope=%s&redirect_uri=%s&display=touch&response_type=token",
+                AUTH_URL, CLIENT_ID, SCOPE, REDIRECT_URL);
+    }
+
+    public static void checkThread() {
+        if (Looper.getMainLooper().equals(Looper.myLooper())) {
+            throw new RuntimeException("Wrong thread, buddy");
+        }
+    }
+
+    String authRecursive(String url) throws Exception {
         while (true) {
             HttpURLConnection connection = okHttpClientLazy.get().open(new URL(url));
             connection.setInstanceFollowRedirects(false);
@@ -73,21 +74,20 @@ public class VKAuth {
                     return saveAuth(redirectUrl, System.currentTimeMillis());
                 } else {
                     url = redirectUrl;
-                    continue;
                 }
+            } else {
+                throw new Exception("auth flow incomplete");
             }
-            return null;
         }
     }
 
-    public String saveAuth(String redirectUrl, long now) {
+    public String saveAuth(String redirectUrl, long now) throws Exception {
         checkThread();
 
         // not extracted because of the very rare use
         @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
         String[] params = redirectUrl.split("#")[1].split("&");
 
-        Persistence persistence = persistenceLazy.get();
         for (String param : params) {
             @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
             String[] pairs = param.split("=");
@@ -95,22 +95,22 @@ public class VKAuth {
             String value = pairs[1];
             switch (pairs[0]) {
                 case ACCESS_TOKEN:
-                    persistence.accessToken(value);
+                    persistenceLazy.get().accessToken(value);
                     break;
 
                 case EXPIRES_IN:
-                    persistence.expiresIn(1000 * Long.valueOf(value) + now);
+                    persistenceLazy.get().expiresIn((1000 * Long.valueOf(value)) + now);
                     break;
 
                 case USER_ID:
-                    persistence.userId(Integer.valueOf(value));
+                    persistenceLazy.get().userId(Integer.valueOf(value));
                     break;
 
                 default:
-                    return null;
+                    throw new Exception("redirected to a wrong url");
             }
         }
-        return persistence.accessToken();
+        return persistenceLazy.get().accessToken();
     }
 
     public void resetAuth() {
@@ -122,7 +122,7 @@ public class VKAuth {
         actions.remove("userId");
     }
 
-    public String getAccessToken(long now) throws IOException {
+    String getAccessToken(long now) throws Exception {
         checkThread();
 
         String accessToken = persistenceLazy.get().accessToken();
@@ -130,5 +130,14 @@ public class VKAuth {
             return authRecursive(authUrl());
         }
         return accessToken;
+    }
+
+    @Override
+    public void intercept(RequestFacade request) {
+        try {
+            request.addQueryParam(ACCESS_TOKEN, getAccessToken(System.currentTimeMillis()));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to refresh access token", e);
+        }
     }
 }

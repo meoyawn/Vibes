@@ -30,11 +30,9 @@ import java.io.IOException;
 
 import javax.inject.Singleton;
 
-import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 import de.devland.esperandro.Esperandro;
-import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.Client;
 import retrofit.client.OkClient;
@@ -113,7 +111,6 @@ public class VibesModule {
     @Singleton
     RestAdapter.Log provideRetrofitLog() {
         return new RestAdapter.Log() {
-
             @Override
             public void log(String arg0) {
                 Timber.d(arg0);
@@ -154,21 +151,12 @@ public class VibesModule {
 
     @Provides
     @Singleton
-    VKApi provideVkApi(Client client, Converter converter, RestAdapter.Log log, final Lazy<VKAuth> vkAuthLazy) {
+    VKApi provideVkApi(Client client, Converter converter, RestAdapter.Log log, VKAuth vkAuth) {
         return new RestAdapter.Builder()
                 .setServer(VKApi.SERVER)
                 .setClient(client)
                 .setConverter(converter)
-                .setRequestInterceptor(new RequestInterceptor() {
-                    @Override
-                    public void intercept(RequestFacade requestFacade) {
-                        try {
-                            requestFacade.addQueryParam(VKAuth.ACCESS_TOKEN, vkAuthLazy.get().getAccessToken(System.currentTimeMillis()));
-                        } catch (IOException e) {
-                            throw new RuntimeException("Failed to refresh access token", e);
-                        }
-                    }
-                })
+                .setRequestInterceptor(vkAuth)
                 .setLog(log)
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build()
