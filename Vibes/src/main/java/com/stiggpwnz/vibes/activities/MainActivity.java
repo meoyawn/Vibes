@@ -106,7 +106,7 @@ public class MainActivity extends BaseActivity {
     }
 
     void init(Bundle savedInstanceState) {
-        setContentView(R.layout.main_root);
+        setContentView(R.layout.navigation);
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()

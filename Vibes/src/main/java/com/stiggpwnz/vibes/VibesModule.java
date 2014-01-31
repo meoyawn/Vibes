@@ -58,7 +58,7 @@ import timber.log.Timber;
         PostViewHolder.class,
 
         // views
-        PhotoView.class, AudioView.class})
+        PhotoView.class, AudioView.class}, complete = false)
 @SuppressWarnings("MethodMayBeStatic")
 public class VibesModule {
 
