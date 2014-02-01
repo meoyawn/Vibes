@@ -12,7 +12,8 @@ import android.webkit.CookieSyncManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpResponseCache;
 import com.squareup.okhttp.OkHttpClient;
-import com.stiggpwnz.vibes.App;
+import com.stiggpwnz.vibes.LoginScreen;
+import com.stiggpwnz.vibes.MainScreen;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.util.DiskUtils;
 import com.stiggpwnz.vibes.util.JacksonParcer;
@@ -77,9 +78,9 @@ public class FlowActivity extends Activity implements Flow.Listener {
             return Backstack.from(savedInstanceState.getParcelable(BUNDLE_BACKSTACK), parcer);
         } else {
             if (cookieManager.getCookie("vk.com") == null) {
-                return Backstack.single(new App.LoginScreen());
+                return Backstack.single(new LoginScreen());
             } else {
-                return Backstack.single(new App.NavigationScreen());
+                return Backstack.single(new MainScreen());
             }
         }
     }
@@ -132,7 +133,6 @@ public class FlowActivity extends Activity implements Flow.Listener {
     public class ActivityModule {
 
         @Provides
-        @App
         Flow provideAppFlow() { return flow; }
 
         @Provides

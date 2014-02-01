@@ -9,7 +9,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.stiggpwnz.vibes.App;
+import com.stiggpwnz.vibes.MainScreen;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.util.ScopedContext;
@@ -36,11 +36,11 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
  */
 public class LoginView extends PullToRefreshLayout {
 
-    @Inject      Lazy<Persistence>       persistenceLazy;
-    @Inject      Lazy<CookieManager>     cookieManagerLazy;
-    @Inject      Lazy<CookieSyncManager> cookieSyncManagerLazy;
-    @Inject      Lazy<VKAuth>            vkAuthLazy;
-    @Inject @App Flow                    flow;
+    @Inject Lazy<Persistence>       persistenceLazy;
+    @Inject Lazy<CookieManager>     cookieManagerLazy;
+    @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;
+    @Inject Lazy<VKAuth>            vkAuthLazy;
+    @Inject Flow                    flow;
 
     @InjectView(R.id.webview_login) WebView webView;
 
@@ -59,7 +59,7 @@ public class LoginView extends PullToRefreshLayout {
         init(context);
     }
 
-    private void init(Context context) {
+    void init(Context context) {
         if (isInEditMode()) {
             return;
         }
@@ -104,7 +104,7 @@ public class LoginView extends PullToRefreshLayout {
 
                                 @Override
                                 public void onNext(String s) {
-                                    flow.goTo(new App.NavigationScreen());
+                                    flow.goTo(new MainScreen());
                                 }
                             });
                 } else {
