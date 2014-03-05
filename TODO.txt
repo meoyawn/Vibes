@@ -1,7 +1,0 @@
-repeat button bug
-share button
-update status
-friends search
-last.fm search
-dark theme
-widget

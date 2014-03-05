@@ -1,10 +1,19 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' } //gradle-test-plugin
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:+'
+        // android plugin
+        classpath 'com.android.tools.build:gradle:0.8.+'
+        // configuration for codegen dependencies (dagger-compiler)
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.+'
+        // use Java 8 lambdas on android
+        classpath 'me.tatarka:gradle-retrolambda:1.+'
+        // gradle robolectric plugin
+        classpath 'com.squareup.gradle:gradle-android-test-plugin:0.9.1-SNAPSHOT'
     }
 }
 
@@ -12,8 +21,4 @@ allprojects {
     repositories {
         mavenCentral()
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
 }
