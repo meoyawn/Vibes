@@ -1,6 +1,5 @@
 package com.stiggpwnz.vibes.util;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -21,9 +20,8 @@ public final class Utils {
         }
 
         final ViewTreeObserver observer = view.getViewTreeObserver();
-        observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
+        if (observer != null) {
+            observer.addOnPreDrawListener(() -> {
                 if (observer.isAlive()) {
                     observer.removeOnPreDrawListener(this);
                 }
@@ -31,12 +29,8 @@ public final class Utils {
                 callback.onMeasured(view, view.getWidth(), view.getHeight());
 
                 return true;
-            }
-        });
-    }
-
-    public static void inject(Context context, View view) {
-        ((Injector) context).inject(view);
+            });
+        }
     }
 
     public interface OnMeasuredCallback {

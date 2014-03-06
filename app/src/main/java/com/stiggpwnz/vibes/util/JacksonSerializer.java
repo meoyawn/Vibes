@@ -6,56 +6,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.Serializable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import dagger.Lazy;
 import de.devland.esperandro.serialization.Serializer;
-import timber.log.Timber;
+import lombok.RequiredArgsConstructor;
 
-@Singleton
+@RequiredArgsConstructor(suppressConstructorProperties = true)
 public class JacksonSerializer implements Serializer {
-    final Lazy<ObjectMapper> objectMapper;
-
-    @Inject
-    public JacksonSerializer(Lazy<ObjectMapper> objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    final ObjectMapper objectMapper;
 
     public String serialize(Object object) {
         try {
-            return objectMapper.get().writeValueAsString(object);
+            return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            Timber.e(e, "exception while serializing");
             throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public String serialize(Serializable serializable) {
-        try {
-            return objectMapper.get().writeValueAsString(serializable);
-        } catch (JsonProcessingException e) {
-            Timber.e(e, "exception while serializing");
-            throw new RuntimeException(e);
-        }
+    @Override public String serialize(Serializable serializable) {
+        return serialize((Object) serializable);
     }
 
-    @Override
-    public <T> T deserialize(String json, Class<T> clazz) {
+    @Override public <T> T deserialize(String json, Class<T> clazz) {
         try {
-            return objectMapper.get().readValue(json, clazz);
+            return objectMapper.readValue(json, clazz);
         } catch (Exception e) {
-            Timber.e(e, "exception while deserializing");
             throw new RuntimeException(e);
         }
     }
 
     public <T> T deserialize(String json, TypeReference<T> typeReference) {
         try {
-            return objectMapper.get().readValue(json, typeReference);
+            return objectMapper.readValue(json, typeReference);
         } catch (Exception e) {
-            Timber.e(e, "exception while deserializing");
             throw new RuntimeException(e);
         }
     }

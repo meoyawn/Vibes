@@ -14,7 +14,7 @@ import dagger.Lazy;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.concurrency.Schedulers;
+import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 import rx.util.functions.Func1;
 import timber.log.Timber;
@@ -24,16 +24,10 @@ import timber.log.Timber;
  */
 @Singleton
 public class Player {
+    public static enum State {PREPARING, PLAYING, PAUSED, RESETTING, IDLE}
 
     private Subscription subscription;
 
-    public static enum State {
-        PREPARING,
-        PLAYING,
-        PAUSED,
-        RESETTING,
-        IDLE
-    }
 
     State           state;
     MediaPlayer     mediaPlayer;
@@ -79,7 +73,7 @@ public class Player {
         } else {
             prepare = prepareObservable(audio);
         }
-        subscription = prepare.subscribeOn(Schedulers.threadPoolForIO()).subscribe(onPreparedObserver());
+        subscription = prepare.subscribeOn(Schedulers.io()).subscribe(onPreparedObserver());
     }
 
     private Observable<MediaPlayer> resetObservable() {

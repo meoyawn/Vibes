@@ -71,6 +71,10 @@ public class UiScopeDaggerModule {
 
     @Provides @MainThread Scheduler provideMainThread() { return AndroidSchedulers.mainThread(); }
 
+    @Provides @Singleton JacksonSerializer provideJacksonSerializer(ObjectMapper objectMapper) {
+        return new JacksonSerializer(objectMapper);
+    }
+
     @Provides @Singleton
     Persistence providePersistence(JacksonSerializer jacksonSerializer, Context context) {
         Esperandro.setSerializer(jacksonSerializer);

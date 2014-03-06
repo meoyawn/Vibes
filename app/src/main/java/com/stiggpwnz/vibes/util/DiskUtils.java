@@ -6,7 +6,6 @@ import android.os.Environment;
 import java.io.File;
 
 public class DiskUtils {
-
     public static File cacheDirNamed(Context context, String name) {
         File target = new File(getCacheDir(context), name);
         if (!target.exists()) {
@@ -16,12 +15,15 @@ public class DiskUtils {
     }
 
     public static File getCacheDir(Context context) {
-        boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-        return mounted ? context.getExternalCacheDir() : context.getCacheDir();
+        return externalIsMounted() ?
+                context.getExternalCacheDir() :
+                context.getCacheDir();
     }
 
+    private static boolean externalIsMounted() {return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());}
+
     public static File getFilesDir(Context context) {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (externalIsMounted()) {
             return context.getExternalFilesDir(null);
         }
         return context.getFilesDir();

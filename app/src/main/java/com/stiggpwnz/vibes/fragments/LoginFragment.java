@@ -24,7 +24,6 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public class LoginFragment extends BaseFragment {
-
     @Inject Lazy<Persistence>       persistenceLazy;
     @Inject Lazy<CookieManager>     cookieManagerLazy;
     @Inject Lazy<CookieSyncManager> cookieSyncManagerLazy;

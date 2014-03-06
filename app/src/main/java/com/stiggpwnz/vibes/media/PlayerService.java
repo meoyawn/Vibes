@@ -4,7 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.stiggpwnz.vibes.util.Dagger;
+import com.companyname.appname.dagger.Dagger;
 
 import javax.inject.Inject;
 

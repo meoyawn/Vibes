@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:tools="http://schemas.android.com/tools"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content"
-       android:orientation="horizontal">
-
+<com.stiggpwnz.vibes.widget.AudioView xmlns:android="http://schemas.android.com/apk/res/android"
+                                      xmlns:tools="http://schemas.android.com/tools"
+                                      android:layout_width="match_parent"
+                                      android:layout_height="wrap_content"
+                                      android:orientation="horizontal">
     <ImageView
         android:id="@+id/imageButtonPlay"
         android:layout_width="wrap_content"
@@ -13,7 +12,6 @@
         android:src="@drawable/btn_play_inactive"/>
 
     <FrameLayout
-        tools:layout_marginLeft="50dp"
         android:layout_width="match_parent"
         android:layout_height="50dp">
 
@@ -54,4 +52,4 @@
                 android:textIsSelectable="false"/>
         </LinearLayout>
     </FrameLayout>
-</merge>
+</com.stiggpwnz.vibes.widget.AudioView>

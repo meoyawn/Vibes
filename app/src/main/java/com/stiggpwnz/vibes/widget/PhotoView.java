@@ -5,9 +5,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.companyname.appname.dagger.Dagger;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.util.Dagger;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
 import javax.inject.Inject;

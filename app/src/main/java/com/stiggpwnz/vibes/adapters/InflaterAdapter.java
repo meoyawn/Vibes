@@ -1,17 +1,14 @@
 package com.stiggpwnz.vibes.adapters;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(suppressConstructorProperties = true)
 public abstract class InflaterAdapter extends BaseAdapter {
-
     protected final LayoutInflater inflater;
-
-    public InflaterAdapter(Context context) {
-        inflater = LayoutInflater.from(context);
-    }
 
     @Override
     public long getItemId(int position) {
