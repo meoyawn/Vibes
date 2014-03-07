@@ -40,8 +40,10 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
     public AudioView(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
     @Override protected void onFinishInflate() {
-        Dagger.inject(this);
-        ButterKnife.inject(this);
+        if (!isInEditMode()) {
+            Dagger.inject(this);
+            ButterKnife.inject(this);
+        }
     }
 
     public void setAudio(@NotNull Audio audio) {
