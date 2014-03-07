@@ -1,6 +1,7 @@
 package com.companyname.appname;
 
 import com.companyname.appname.dagger.ModulesTestModule;
+import com.stiggpwnz.vibes.App;
 
 import org.jetbrains.annotations.NotNull;
 

@@ -1,52 +1,71 @@
 package com.stiggpwnz.vibes.vk.models;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Photo implements Serializable {
+import lombok.Data;
 
-    public String src;
-    public String src_big;
-    public String src_small;
-    public String src_xbig;
-    public String src_xxbig;
-    public String src_xxxbig;
-    public int    width;
-    public int    height;
-    public String text;
-
-    public float getRatio() {
-        return (float) height / width;
+public @Data class Photo implements Serializable {
+    @Nullable static Photo[] arrayFrom(@Nullable Attachment[] attachments) {
+        if (attachments != null) {
+            List<Photo> photoList = new ArrayList<>(attachments.length);
+            for (Attachment attachment : attachments) {
+                if (attachment.getType() == Attachment.Type.PHOTO) {
+                    photoList.add(attachment.getPhoto());
+                }
+            }
+            return photoList.toArray(new Photo[photoList.size()]);
+        }
+        return null;
     }
 
-    public String getUrl(int width) {
-        String url;
+    String src;
+    @NotNull String src_big;
+    String src_small;
+    String src_xbig;
+    String src_xxbig;
+    String src_xxxbig;
+    int    width;
+    int    height;
+    String text;
+
+    public float getRatio() { return (float) height / width; }
+
+    @NotNull public String getUrl(int width) {
         if (width > 1500) {
-            if (src_xxxbig != null) {
-                url = src_xxxbig;
-            } else if (src_xxbig != null) {
-                url = src_xxbig;
-            } else if (src_xbig != null) {
-                url = src_xbig;
-            } else {
-                url = src_big;
-            }
-        } else if (width > 1000) {
-            if (src_xxbig != null) {
-                url = src_xxbig;
-            } else if (src_xbig != null) {
-                url = src_xbig;
-            } else {
-                url = src_big;
-            }
-        } else if (width > 800) {
-            if (src_xbig != null) {
-                url = src_xbig;
-            } else {
-                url = src_big;
-            }
-        } else {
-            url = src_big;
+            return urlFor1500Plus();
         }
-        return url;
+        if (width > 1000) {
+            return urlFor1000Plus();
+        }
+        if (width > 800) {
+            return urlFor800Plus();
+        }
+        return src_big;
+    }
+
+    @NotNull String urlFor800Plus() {
+        if (src_xbig != null) {
+            return src_xbig;
+        }
+        return src_big;
+    }
+
+    @NotNull String urlFor1000Plus() {
+        if (src_xxbig != null) {
+            return src_xxbig;
+        }
+        return urlFor800Plus();
+    }
+
+    @NotNull String urlFor1500Plus() {
+        if (src_xxxbig != null) {
+            return src_xxxbig;
+        }
+        return urlFor1000Plus();
     }
 }

@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.companyname.appname.R;
+import com.stiggpwnz.vibes.fragments.MainFragment;
 
 import org.junit.Before;
 import org.junit.Test;

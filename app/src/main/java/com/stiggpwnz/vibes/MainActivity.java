@@ -1,20 +1,19 @@
-package com.companyname.appname;
+package com.stiggpwnz.vibes;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.webkit.CookieManager;
 
-import com.companyname.appname.dagger.Dagger;
-import com.companyname.appname.dagger.UiScopeDaggerModule;
-import com.companyname.appname.fragments.MainFragment;
+import com.stiggpwnz.vibes.dagger.Dagger;
+import com.stiggpwnz.vibes.dagger.UiScopeDaggerModule;
 import com.github.mttkay.memento.Memento;
 import com.github.mttkay.memento.MementoCallbacks;
 import com.github.mttkay.memento.Retain;
-import com.google.analytics.tracking.android.EasyTracker;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
+import com.stiggpwnz.vibes.fragments.MainFragment;
 
 import javax.inject.Inject;
 
@@ -24,18 +23,19 @@ import lombok.Getter;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainActivity extends Activity implements MementoCallbacks {
-    @Inject         CookieManager cookieManager;
+public class MainActivity extends FragmentActivity implements MementoCallbacks {
     @Retain @Getter ObjectGraph   objectGraph;
+    @Inject         CookieManager cookieManager;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Memento.retain(this);
+        Dagger.inject(this);
         if (savedInstanceState == null) {
             Fragment fragment = cookieManager.getCookie("vk.com") == null ?
                     new LoginFragment() :
                     new MainFragment();
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(android.R.id.content, fragment)
                     .commit();
         }
@@ -55,15 +55,15 @@ public class MainActivity extends Activity implements MementoCallbacks {
         }
     }
 
-    @Override public void onStart() {
-        super.onStart();
-        EasyTracker.getInstance(this).activityStart(this);
-    }
-
-    @Override public void onStop() {
-        super.onStop();
-        EasyTracker.getInstance(this).activityStop(this);
-    }
+//    @Override public void onStart() {
+//        super.onStart();
+//        EasyTracker.getInstance(this).activityStart(this);
+//    }
+//
+//    @Override public void onStop() {
+//        super.onStop();
+//        EasyTracker.getInstance(this).activityStop(this);
+//    }
 
     @Override
     protected void attachBaseContext(Context newBase) {

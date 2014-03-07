@@ -1,10 +1,10 @@
 package com.stiggpwnz.vibes.fragments.base;
 
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.companyname.appname.dagger.Dagger;
+import com.stiggpwnz.vibes.dagger.Dagger;
 
 import butterknife.ButterKnife;
 

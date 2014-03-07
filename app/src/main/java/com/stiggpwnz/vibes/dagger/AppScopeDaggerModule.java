@@ -1,4 +1,4 @@
-package com.companyname.appname.dagger;
+package com.stiggpwnz.vibes.dagger;
 
 import android.content.Context;
 import android.os.Environment;

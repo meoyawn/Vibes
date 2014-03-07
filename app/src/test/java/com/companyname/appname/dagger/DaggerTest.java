@@ -1,17 +1,14 @@
 package com.companyname.appname.dagger;
 
-import com.companyname.appname.MainActivity;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.companyname.appname.dagger.Dagger.getAppScope;
-import static com.companyname.appname.dagger.Dagger.getObjectGraph;
-import static com.companyname.appname.dagger.Dagger.getUiScope;
+import static com.stiggpwnz.vibes.dagger.Dagger.getAppScope;
+import static com.stiggpwnz.vibes.dagger.Dagger.getObjectGraph;
+import static com.stiggpwnz.vibes.dagger.Dagger.getUiScope;
 import static org.junit.Assert.assertEquals;
 
 /**

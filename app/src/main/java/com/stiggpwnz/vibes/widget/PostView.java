@@ -9,9 +9,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.companyname.appname.dagger.Dagger;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.dagger.Dagger;
 import com.stiggpwnz.vibes.text.HashTagSpan;
 import com.stiggpwnz.vibes.text.ReplaceTextSpan;
 import com.stiggpwnz.vibes.text.VKLinkSpan;
@@ -74,7 +74,8 @@ public class PostView extends LinearLayout {
         if (getContext() != null) {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             for (int i = 0; i < audioViews.length; i++) {
-                audioViews[i] = (AudioView) inflater.inflate(R.layout.audio, this, true);
+                audioViews[i] = (AudioView) inflater.inflate(R.layout.audio, this, false);
+                addView(audioViews[i]);
             }
         }
     }
@@ -107,7 +108,8 @@ public class PostView extends LinearLayout {
     public void setPost(@NotNull Post post) {
         this.post = post;
 
-        picassoLazy.get().load(post.getUnit().getProfilePic())
+        String profilePic1 = post.getUnit().getProfilePic();
+        picassoLazy.get().load(profilePic1)
                 .placeholder(R.drawable.ic_user_placeholder)
                 .into(profilePic);
 

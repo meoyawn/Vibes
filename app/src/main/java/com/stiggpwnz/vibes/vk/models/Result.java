@@ -1,11 +1,12 @@
 package com.stiggpwnz.vibes.vk.models;
 
-public abstract class Result<T> {
+import org.jetbrains.annotations.Nullable;
 
-    public T     response;
-    public Error error;
+import lombok.Data;
 
-    public boolean isError() {
-        return error != null;
-    }
+public @Data class Result<T> {
+    @Nullable T     response;
+    @Nullable Error error;
+
+    public boolean isError() { return error != null; }
 }

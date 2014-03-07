@@ -24,9 +24,11 @@ public class Attachment implements Serializable {
                 case "audio":
                 case "AUDIO":
                     return Type.AUDIO;
+
                 case "photo":
                 case "PHOTO":
                     return Type.PHOTO;
+
                 default:
                     return Type.UNKNOWN;
             }

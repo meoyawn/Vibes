@@ -1,5 +1,7 @@
 package com.companyname.appname;
 
+import com.stiggpwnz.vibes.App;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;

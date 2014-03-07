@@ -1,9 +1,9 @@
-package com.companyname.appname;
+package com.stiggpwnz.vibes;
 
 import android.app.Application;
 
-import com.companyname.appname.dagger.AppScopeDaggerModule;
-import com.crittercism.app.Crittercism;
+import com.stiggpwnz.vibes.dagger.AppScopeDaggerModule;
+import com.stiggpwnz.vibes.util.CrashReportingTree;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public class App extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-        Crittercism.initialize(getApplicationContext(), getString(R.string.crittercism_app_id));
+//        Crittercism.initialize(getApplicationContext(), getString(R.string.crittercism_app_id));
         Timber.plant(BuildConfig.DEBUG ? new Timber.DebugTree() : new CrashReportingTree());
         objectGraph = ObjectGraph.create(getModules().toArray());
     }

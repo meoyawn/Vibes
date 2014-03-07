@@ -39,7 +39,7 @@ public class VKAuth implements RequestInterceptor {
     }
 
     public static void assertBgThread() {
-        if (Looper.getMainLooper().equals(Looper.myLooper())) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
             throw new RuntimeException("Wrong thread, buddy");
         }
     }

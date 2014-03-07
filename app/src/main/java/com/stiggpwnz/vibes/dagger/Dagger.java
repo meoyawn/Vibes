@@ -1,11 +1,10 @@
-package com.companyname.appname.dagger;
+package com.stiggpwnz.vibes.dagger;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.view.View;
 
-import com.companyname.appname.App;
-import com.companyname.appname.MainActivity;
+import com.stiggpwnz.vibes.App;
+import com.stiggpwnz.vibes.MainActivity;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,10 +35,12 @@ public class Dagger {
         @Nullable ObjectGraph objectGraph = null;
         if (object instanceof Context) {
             objectGraph = getObjectGraph((Context) object);
-        } else if (object instanceof Fragment) {
-            objectGraph = getObjectGraph(((Fragment) object).getActivity());
+        } else if (object instanceof android.app.Fragment) {
+            objectGraph = getObjectGraph(((android.app.Fragment) object).getActivity());
         } else if (object instanceof View) {
             objectGraph = getObjectGraph(((View) object).getContext());
+        } else if (object instanceof android.support.v4.app.Fragment) {
+            objectGraph = getObjectGraph(((android.support.v4.app.Fragment) object).getActivity());
         }
         if (objectGraph != null) {
             objectGraph.inject(object);

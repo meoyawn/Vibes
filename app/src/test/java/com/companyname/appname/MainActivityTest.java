@@ -3,8 +3,9 @@ package com.companyname.appname;
 import android.app.Fragment;
 import android.app.FragmentManager;
 
-import com.companyname.appname.dagger.Dagger;
-import com.companyname.appname.fragments.MainFragment;
+import com.stiggpwnz.vibes.dagger.Dagger;
+import com.stiggpwnz.vibes.MainActivity;
+import com.stiggpwnz.vibes.fragments.MainFragment;
 
 import org.junit.Before;
 import org.junit.Test;

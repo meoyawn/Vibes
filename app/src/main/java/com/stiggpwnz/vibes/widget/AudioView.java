@@ -8,8 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.companyname.appname.dagger.Dagger;
 import com.stiggpwnz.vibes.R;
+import com.stiggpwnz.vibes.dagger.Dagger;
 import com.stiggpwnz.vibes.media.Player;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
@@ -62,8 +62,7 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
         }
     }
 
-    @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+    @Override public void onBufferingUpdate(MediaPlayer mp, int percent) {
         seekBar.setSecondaryProgress(percent * seekBar.getMax());
     }
 }

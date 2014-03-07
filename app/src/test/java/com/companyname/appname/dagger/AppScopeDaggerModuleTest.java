@@ -2,9 +2,10 @@ package com.companyname.appname.dagger;
 
 import android.os.Environment;
 
-import com.companyname.appname.MainActivity;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Picasso;
+import com.stiggpwnz.vibes.dagger.AppScopeDaggerModule;
+import com.stiggpwnz.vibes.dagger.Dagger;
 
 import org.junit.Before;
 import org.junit.Test;

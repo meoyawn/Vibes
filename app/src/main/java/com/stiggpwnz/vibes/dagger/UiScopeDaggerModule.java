@@ -1,4 +1,4 @@
-package com.companyname.appname.dagger;
+package com.stiggpwnz.vibes.dagger;
 
 import android.content.Context;
 import android.os.Handler;
@@ -10,8 +10,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.squareup.okhttp.OkHttpClient;
+import com.stiggpwnz.vibes.MainActivity;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
+import com.stiggpwnz.vibes.fragments.MainFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
@@ -20,6 +22,7 @@ import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
 import com.stiggpwnz.vibes.vk.VKAuth;
+import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Attachment;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
@@ -46,8 +49,11 @@ import timber.log.Timber;
         // services
         PlayerService.class,
 
+        // activities
+        MainActivity.class,
+
         // fragments
-        LoginFragment.class, NavigationFragment.class, FeedFragment.class,
+        LoginFragment.class, MainFragment.class, NavigationFragment.class, FeedFragment.class,
 
         // holders
         PostView.class,
@@ -109,11 +115,13 @@ public class UiScopeDaggerModule {
                 .setClient(new OkClient(okHttpClient))
                 .setConverter(converter)
                 .setRequestInterceptor(vkAuth)
-                .setLog(arg0 -> {
-                    Timber.d(arg0);
-                })
+                .setLog(Timber::d)
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .build()
                 .create(VKApi.class);
+    }
+
+    @Provides @Singleton VKontakte provideVKontakte(VKApi vkApi, VKAuth vkAuth) {
+        return new VKontakte(vkApi, vkAuth);
     }
 }

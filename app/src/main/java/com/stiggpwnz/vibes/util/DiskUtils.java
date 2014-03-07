@@ -20,7 +20,9 @@ public class DiskUtils {
                 context.getCacheDir();
     }
 
-    private static boolean externalIsMounted() {return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());}
+    private static boolean externalIsMounted() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
 
     public static File getFilesDir(Context context) {
         if (externalIsMounted()) {

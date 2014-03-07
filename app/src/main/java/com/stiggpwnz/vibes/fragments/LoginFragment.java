@@ -10,7 +10,6 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.companyname.appname.fragments.MainFragment;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
@@ -20,7 +19,9 @@ import com.stiggpwnz.vibes.vk.VKAuth;
 import javax.inject.Inject;
 
 import butterknife.InjectView;
+import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.android.observables.AndroidObservable;
 import rx.subjects.PublishSubject;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -40,6 +41,11 @@ public class LoginFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (getActivity() != null && getActivity().getActionBar() != null) {
+            getActivity().getActionBar().setHomeButtonEnabled(false);
+            getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
+            getActivity().getActionBar().setTitle(R.string.login);
+        }
         return inflater.inflate(R.layout.login, container, false);
     }
 
@@ -51,6 +57,7 @@ public class LoginFragment extends BaseFragment {
 
         webView.setWebViewClient(new WebViewClient() {
             @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                urls.onNext(url);
                 pullToRefreshLayout.setRefreshing(true);
             }
 
@@ -65,10 +72,12 @@ public class LoginFragment extends BaseFragment {
             webView.restoreState(savedInstanceState);
         }
 
-        AndroidObservable.fromFragment(this, urls.filter(url -> url.startsWith(VKAuth.REDIRECT_URL))
-                .doOnNext(url -> cookieSyncManager.sync())
-                .map(url -> vkAuth.saveAndGetAccessToken(url, System.currentTimeMillis()))
-                .subscribeOn(ioThreadPool))
+        AndroidObservable.fromFragment(this, urls
+                .filter(url -> url.startsWith(VKAuth.REDIRECT_URL))
+                .flatMap(s -> Observable.create((Subscriber<? super String> subscriber) -> {
+                    subscriber.onNext(vkAuth.saveAndGetAccessToken(s, System.currentTimeMillis()));
+                    subscriber.onCompleted();
+                }).subscribeOn(ioThreadPool)))
                 .subscribe(s -> {
                     if (getFragmentManager() != null) {
                         getFragmentManager().beginTransaction()
@@ -78,21 +87,30 @@ public class LoginFragment extends BaseFragment {
                 }, e -> loadInitialUrl());
     }
 
+    void loadInitialUrl() {
+        webView.stopLoading();
+        webView.loadUrl(VKAuth.authUrl());
+        pullToRefreshLayout.setRefreshing(true);
+    }
+
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
     }
 
-    void loadInitialUrl() {
-        webView.loadUrl(VKAuth.authUrl());
-        pullToRefreshLayout.setRefreshing(true);
+    @Override public void onDestroyView() {
+        super.onDestroyView();
+        if (getActivity().isFinishing() && persistence.accessToken() == null) {
+            cookieManager.removeAllCookie();
+            cookieSyncManager.sync();
+        }
     }
 
     @Override public void onDestroy() {
         if (persistence.accessToken() == null) {
             cookieManager.removeAllCookie();
-            cookieSyncManager.sync();
         }
+        cookieSyncManager.sync();
         super.onDestroy();
     }
 }

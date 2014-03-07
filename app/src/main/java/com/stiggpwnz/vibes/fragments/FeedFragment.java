@@ -16,6 +16,8 @@ import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Feed;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.inject.Inject;
 
 import butterknife.InjectView;
@@ -37,24 +39,15 @@ public class FeedFragment extends BaseFragment {
 
     @Argument int ownerId;
 
-    @InjectView(R.id.ptr_layout) PullToRefreshLayout pullToRefreshLayout;
-    @InjectView(R.id.grid)       AbsListView         staggeredGridView;
+    @InjectView(R.id.ptr_layout) @NotNull PullToRefreshLayout pullToRefreshLayout;
+    @InjectView(R.id.grid) @NotNull       AbsListView         staggeredGridView;
 
     Feed         lastResult;
     Subscription subscription;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         FeedFragmentBuilder.injectArguments(this);
-
-        if (lastResult == null) {
-            if (savedInstanceState != null && savedInstanceState.containsKey("feed")) {
-                lastResult = (Feed) savedInstanceState.get("feed");
-            } else {
-                makeRequest(false);
-            }
-        }
     }
 
     @Override
@@ -66,12 +59,17 @@ public class FeedFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         ActionBarPullToRefresh.from(getActivity())
                 .allChildrenArePullable()
-                .listener(view1 -> makeRequest(true))
+                .listener(view1 -> makeRequest())
                 .setup(pullToRefreshLayout);
 
-        if (lastResult != null) {
-            updateView();
-        } else if (subscription != null) {
+        if (subscription == null) {
+            if (lastResult == null && savedInstanceState != null && savedInstanceState.containsKey("feed")) {
+                lastResult = (Feed) savedInstanceState.get("feed");
+            }
+            if (lastResult == null) {
+                makeRequest();
+            }
+        } else {
             pullToRefreshLayout.setRefreshing(true);
         }
     }
@@ -88,11 +86,8 @@ public class FeedFragment extends BaseFragment {
         }
     }
 
-    void makeRequest(boolean forceReload) {
-        if (pullToRefreshLayout != null) {
-            pullToRefreshLayout.setRefreshing(true);
-        }
-
+    void makeRequest() {
+        pullToRefreshLayout.setRefreshing(true);
         Observable<Feed> feedObservable = ownerId == 0 ?
                 vkontakte.get().getNewsFeed(0) :
                 vkontakte.get().getWall(ownerId, null, 0);

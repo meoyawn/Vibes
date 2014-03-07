@@ -3,30 +3,32 @@ package com.stiggpwnz.vibes.vk.models;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.stiggpwnz.vibes.util.HtmlDeserializer;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class Post implements Serializable {
-
-    private int          count;
-    private int          sourceId;
-    private long         date;
-    private String       text;
-    private Attachment[] attachments;
+    int count;
+    @JsonProperty("source_id") int sourceId;
+    long date;
+    @JsonDeserialize(using = HtmlDeserializer.class) @Nullable String       text;
+    @Nullable                                                  Attachment[] attachments;
 
     // computed stuff
-    private Photo[] photos;
-    private Audio[] audios;
-    private Unit    unit;
-
-    public Post() { }
+    @Nullable Photo[] photos;
+    @NotNull  Audio[] audios;
+    @NotNull  Unit    unit;
 
     public Post(int count) { this.count = count; }
 
@@ -41,28 +43,9 @@ public class Post implements Serializable {
         return false;
     }
 
-    public void calculateSelfAudios() {
-        if (attachments != null) {
-            List<Audio> audioList = new ArrayList<>(attachments.length);
-            for (Attachment attachment : attachments) {
-                if (attachment.getType() == Attachment.Type.AUDIO) {
-                    audioList.add(attachment.getAudio());
-                }
-            }
-            audios = audioList.toArray(new Audio[audioList.size()]);
-        }
-    }
-
-    public void calculateSelfPhotos() {
-        if (attachments != null) {
-            List<Photo> photoList = new ArrayList<>(attachments.length);
-            for (Attachment attachment : attachments) {
-                if (attachment.getType() == Attachment.Type.PHOTO) {
-                    photoList.add(attachment.getPhoto());
-                }
-            }
-            photos = photoList.toArray(new Photo[photoList.size()]);
-        }
+    public void calculateMedia() {
+        audios = Audio.arrayFrom(attachments);
+        photos = Photo.arrayFrom(attachments);
     }
 
     public CharSequence relativeTimeString() {
@@ -73,65 +56,21 @@ public class Post implements Serializable {
 
     public boolean hasPhotos() { return photos != null && photos.length > 0; }
 
-    void setProfileFrom(Feed feed) {
-        for (Profile profile : feed.getProfiles()) {
-            if (profile.getId() == sourceId) {
-                unit = profile;
-                break;
+    static Unit from(Set<? extends Unit> units, int sourceId) {
+        for (Unit unit : units) {
+            if (unit.getId() == sourceId) {
+                return unit;
             }
         }
-    }
-
-    void setGroupFrom(Feed feed) {
-        for (Group group : feed.getGroups()) {
-            if (-group.getId() == sourceId) {
-                unit = group;
-                break;
-            }
-        }
+        return null;
     }
 
     public void setUnitFrom(Feed feed) {
-        if (sourceId >= 0) {
-            setProfileFrom(feed);
-        } else {
-            setGroupFrom(feed);
-        }
+        Set<? extends Unit> units = sourceId >= 0 ?
+                feed.getProfiles() :
+                feed.getGroups();
+        unit = from(units, sourceId);
     }
 
-    public int getCount() { return count; }
-
-    public void setCount(int count) { this.count = count; }
-
-    @JsonProperty("source_id")
-    public int getSourceId() { return sourceId; }
-
-    @JsonProperty("source_id")
-    public void setSourceId(int sourceId) { this.sourceId = sourceId; }
-
-    @JsonProperty("from_id")
-    public void setFromId(int fromId) { this.sourceId = fromId; }
-
-    public long getDate() { return date; }
-
-    public void setDate(long date) { this.date = date; }
-
-    public String getText() { return text; }
-
-    @JsonDeserialize(using = HtmlDeserializer.class)
-    public void setText(String text) { this.text = text; }
-
-    public void setAttachments(Attachment[] attachments) { this.attachments = attachments; }
-
-    public Photo[] getPhotos() { return photos; }
-
-    public void setPhotos(Photo[] photos) { this.photos = photos; }
-
-    public Audio[] getAudios() { return audios; }
-
-    public void setAudios(Audio[] audios) { this.audios = audios; }
-
-    public Unit getUnit() { return unit; }
-
-    public void setUnit(Unit unit) { this.unit = unit; }
+    @JsonProperty("from_id") public void setFromId(int fromId) { this.sourceId = fromId; }
 }

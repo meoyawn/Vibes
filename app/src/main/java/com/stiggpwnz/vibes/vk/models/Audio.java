@@ -4,7 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.stiggpwnz.vibes.util.HtmlDeserializer;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import lombok.Data;
@@ -27,6 +32,19 @@ public @Data class Audio implements Serializable {
     @JsonProperty("lyrics_id") int lyricsId;
     String url;
 
+    @NotNull static Audio[] arrayFrom(@Nullable Attachment[] attachments) {
+        if (attachments != null) {
+            List<Audio> audioList = new ArrayList<>(attachments.length);
+            for (Attachment attachment : attachments) {
+                if (attachment.getType() == Attachment.Type.AUDIO) {
+                    audioList.add(attachment.getAudio());
+                }
+            }
+            return audioList.toArray(new Audio[audioList.size()]);
+        }
+        throw new RuntimeException("didn't find any audios");
+    }
+
     public String ownerIdAidParam() { return String.format(Locale.US, "%d_%d", ownerId, aid); }
 
     @Override
@@ -41,8 +59,4 @@ public @Data class Audio implements Serializable {
 
     @Override
     public int hashCode() { return aid; }
-
-    public static class Response extends Result<Audio[]> {}
-
-    public static class UrlResponse extends Result<Audio> {}
 }
