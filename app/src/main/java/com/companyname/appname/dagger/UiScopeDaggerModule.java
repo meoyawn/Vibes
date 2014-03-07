@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.squareup.okhttp.OkHttpClient;
-import com.stiggpwnz.vibes.adapters.PostViewHolder;
 import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
@@ -24,6 +23,7 @@ import com.stiggpwnz.vibes.vk.VKAuth;
 import com.stiggpwnz.vibes.vk.models.Attachment;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
+import com.stiggpwnz.vibes.widget.PostView;
 
 import javax.inject.Singleton;
 
@@ -50,7 +50,7 @@ import timber.log.Timber;
         LoginFragment.class, NavigationFragment.class, FeedFragment.class,
 
         // holders
-        PostViewHolder.class,
+        PostView.class,
 
         // views
         PhotoView.class, AudioView.class})

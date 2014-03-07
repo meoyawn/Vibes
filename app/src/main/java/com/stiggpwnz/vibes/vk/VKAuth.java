@@ -56,7 +56,7 @@ public class VKAuth implements RequestInterceptor {
                 String redirectUrl = connection.getHeaderField("Location");
                 if (redirectUrl.startsWith(REDIRECT_URL)) {
                     cookieSyncManager.sync();
-                    return saveAuth(redirectUrl, System.currentTimeMillis());
+                    return saveAndGetAccessToken(redirectUrl, System.currentTimeMillis());
                 } else {
                     url = redirectUrl;
                 }
@@ -66,7 +66,7 @@ public class VKAuth implements RequestInterceptor {
         }
     }
 
-    public String saveAuth(String redirectUrl, long now) throws Exception {
+    public String saveAndGetAccessToken(String redirectUrl, long now) {
         assertBgThread();
 
         // not extracted because of the very rare use
@@ -92,7 +92,7 @@ public class VKAuth implements RequestInterceptor {
                     break;
 
                 default:
-                    throw new Exception("redirected to a wrong url");
+                    throw new RuntimeException("redirected to a wrong url");
             }
         }
         return persistence.accessToken();

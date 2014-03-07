@@ -1,9 +1,11 @@
 package com.companyname.appname;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.webkit.CookieManager;
 
 import com.companyname.appname.dagger.Dagger;
 import com.companyname.appname.dagger.UiScopeDaggerModule;
@@ -12,8 +14,9 @@ import com.github.mttkay.memento.Memento;
 import com.github.mttkay.memento.MementoCallbacks;
 import com.github.mttkay.memento.Retain;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.stiggpwnz.vibes.fragments.LoginFragment;
 
-import org.jetbrains.annotations.NotNull;
+import javax.inject.Inject;
 
 import dagger.ObjectGraph;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -22,14 +25,18 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends Activity implements MementoCallbacks {
-    @Retain @NotNull @Getter ObjectGraph objectGraph;
+    @Inject         CookieManager cookieManager;
+    @Retain @Getter ObjectGraph   objectGraph;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Memento.retain(this);
         if (savedInstanceState == null) {
+            Fragment fragment = cookieManager.getCookie("vk.com") == null ?
+                    new LoginFragment() :
+                    new MainFragment();
             getFragmentManager().beginTransaction()
-                    .add(android.R.id.content, new MainFragment())
+                    .add(android.R.id.content, fragment)
                     .commit();
         }
     }
