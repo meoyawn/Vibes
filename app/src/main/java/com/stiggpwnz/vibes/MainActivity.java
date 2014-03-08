@@ -7,11 +7,12 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.webkit.CookieManager;
 
-import com.stiggpwnz.vibes.dagger.Dagger;
-import com.stiggpwnz.vibes.dagger.UiScopeDaggerModule;
 import com.github.mttkay.memento.Memento;
 import com.github.mttkay.memento.MementoCallbacks;
 import com.github.mttkay.memento.Retain;
+import com.stiggpwnz.vibes.dagger.Dagger;
+import com.stiggpwnz.vibes.dagger.UiScopeDaggerModule;
+import com.stiggpwnz.vibes.fragments.BaseFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.MainFragment;
 
@@ -41,6 +42,17 @@ public class MainActivity extends FragmentActivity implements MementoCallbacks {
         }
     }
 
+    @Override public void onBackPressed() {
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof BaseFragment) {
+                if (((BaseFragment) fragment).onBackPressed()) {
+                    return;
+                }
+            }
+        }
+        super.onBackPressed();
+    }
+
     @Override public void onLaunch() {
         objectGraph = Dagger.getAppScope(this).plus(new UiScopeDaggerModule());
     }
@@ -48,7 +60,7 @@ public class MainActivity extends FragmentActivity implements MementoCallbacks {
     @Override public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                getFragmentManager().popBackStack();
+                getSupportFragmentManager().popBackStack();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -12,15 +12,14 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.dagger.Dagger;
+import com.stiggpwnz.vibes.qualifiers.UnitClick;
 import com.stiggpwnz.vibes.text.HashTagSpan;
 import com.stiggpwnz.vibes.text.ReplaceTextSpan;
 import com.stiggpwnz.vibes.text.VKLinkSpan;
-import com.stiggpwnz.vibes.util.LazyVal;
-import com.stiggpwnz.vibes.vk.models.Photo;
 import com.stiggpwnz.vibes.vk.models.Post;
+import com.stiggpwnz.vibes.vk.models.Unit;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,25 +30,17 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import dagger.Lazy;
+import rx.subjects.PublishSubject;
 
 /**
  * Created by adelnizamutdinov on 28/01/2014
  */
 public class PostView extends LinearLayout {
-    static final LazyVal<Pattern> HASH_TAG = new LazyVal<Pattern>() {
-        @Override
-        protected Pattern create() {
-            return Pattern.compile("#[a-zA-Z][\\w@-]*");
-        }
-    };
-    static final LazyVal<Pattern> VK_UNIT  = new LazyVal<Pattern>() {
-        @Override
-        protected Pattern create() {
-            return Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
-        }
-    };
+    static final Pattern HASH_TAG = Pattern.compile("#[a-zA-Z][\\w@-]*");
+    static final Pattern VK_UNIT  = Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
 
-    @Inject Lazy<Picasso> picassoLazy;
+    @Inject            Lazy<Picasso>        picassoLazy;
+    @Inject @UnitClick PublishSubject<Unit> unitClicks;
 
     @InjectView(R.id.user_icon)  ImageView profilePic;
     @InjectView(R.id.user)       TextView  user;
@@ -59,12 +50,14 @@ public class PostView extends LinearLayout {
 
     final AudioView[] audioViews = new AudioView[10];
 
-    @Nullable Post post;
+    @NotNull Post post;
 
-    public PostView(Context context) { super(context); }
+    @SuppressWarnings("unused") public PostView(Context context) { super(context); }
 
+    @SuppressWarnings("unused")
     public PostView(Context context, AttributeSet attrs) { super(context, attrs); }
 
+    @SuppressWarnings("unused")
     public PostView(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
     @Override protected void onFinishInflate() {
@@ -83,26 +76,26 @@ public class PostView extends LinearLayout {
     }
 
     @OnClick({R.id.user_icon, R.id.user}) void showUser() {
-        // TODO FUCK
+        unitClicks.onNext(post.getUnit());
     }
 
     @SuppressWarnings("ObjectAllocationInLoop")
     static SpannableString linkify(Context context, String string) {
         SpannableString text = new SpannableString(string);
 
-        Matcher m = HASH_TAG.get().matcher(text);
-        while (m.find()) {
-            int start = m.start();
-            int end = m.end();
-            text.setSpan(new HashTagSpan(m.group()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Matcher hasTags = HASH_TAG.matcher(text);
+        while (hasTags.find()) {
+            int start = hasTags.start();
+            int end = hasTags.end();
+            text.setSpan(new HashTagSpan(hasTags.group()), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        m = VK_UNIT.get().matcher(text);
-        while (m.find()) {
-            int start = m.start();
-            int end = m.end();
-            text.setSpan(new VKLinkSpan(m.group(1)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            text.setSpan(new ReplaceTextSpan(context, m.group(2)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        Matcher units = VK_UNIT.matcher(text);
+        while (hasTags.find()) {
+            int start = units.start();
+            int end = units.end();
+            text.setSpan(new VKLinkSpan(units.group(1)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            text.setSpan(new ReplaceTextSpan(context, units.group(2)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return text;
     }
@@ -125,12 +118,7 @@ public class PostView extends LinearLayout {
             text.setVisibility(GONE);
         }
 
-        if (post.hasPhotos()) {
-            Photo photo = post.getPhotos()[0];
-            image.setPhoto(photo);
-        } else {
-            image.setPhoto(null);
-        }
+        image.setPhoto(post.getFirstPhoto());
 
         for (int i = 0; i < post.getAudios().length; i++) {
             audioViews[i].setAudio(post.getAudios()[i]);

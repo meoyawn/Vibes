@@ -17,13 +17,14 @@ import com.stiggpwnz.vibes.fragments.MainFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
 import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
-import com.stiggpwnz.vibes.qualifiers.MainThread;
+import com.stiggpwnz.vibes.qualifiers.UnitClick;
 import com.stiggpwnz.vibes.util.JacksonSerializer;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKApi;
 import com.stiggpwnz.vibes.vk.VKAuth;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Attachment;
+import com.stiggpwnz.vibes.vk.models.Unit;
 import com.stiggpwnz.vibes.widget.AudioView;
 import com.stiggpwnz.vibes.widget.PhotoView;
 import com.stiggpwnz.vibes.widget.PostView;
@@ -38,8 +39,8 @@ import retrofit.client.OkClient;
 import retrofit.converter.Converter;
 import retrofit.converter.JacksonConverter;
 import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 
 /**
@@ -61,12 +62,11 @@ import timber.log.Timber;
         // views
         PhotoView.class, AudioView.class})
 public class UiScopeDaggerModule {
-
     @Provides @Singleton ObjectMapper provideObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        SimpleModule simpleModule = new SimpleModule("attachment");
+        SimpleModule simpleModule = new SimpleModule("");
         simpleModule.addDeserializer(Attachment.Type.class, new Attachment.TypeDeserializer());
         objectMapper.registerModule(simpleModule);
 
@@ -74,8 +74,6 @@ public class UiScopeDaggerModule {
     }
 
     @Provides @IOThreadPool Scheduler provideIOThreadPool() { return Schedulers.io(); }
-
-    @Provides @MainThread Scheduler provideMainThread() { return AndroidSchedulers.mainThread(); }
 
     @Provides @Singleton JacksonSerializer provideJacksonSerializer(ObjectMapper objectMapper) {
         return new JacksonSerializer(objectMapper);
@@ -123,5 +121,9 @@ public class UiScopeDaggerModule {
 
     @Provides @Singleton VKontakte provideVKontakte(VKApi vkApi, VKAuth vkAuth) {
         return new VKontakte(vkApi, vkAuth);
+    }
+
+    @Provides @Singleton @UnitClick PublishSubject<Unit> provideUnitClicks() {
+        return PublishSubject.create();
     }
 }

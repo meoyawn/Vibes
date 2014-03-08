@@ -70,7 +70,7 @@ repositories {
 
 dependencies {
     compile 'com.netflix.rxjava:rxjava-android:0.17.+' // FRP
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:+' // pull to refresh
+    compile project(':ActionBarPullToRefresh') // pull to refresh
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:+' // custom fonts
     compile 'com.etsy.android.grid:library:+' // staggered grid
 

@@ -9,14 +9,14 @@ import android.widget.AbsListView;
 import com.neenbedankt.bundles.annotation.Argument;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
-import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
-import com.stiggpwnz.vibes.qualifiers.MainThread;
-import com.stiggpwnz.vibes.util.JacksonSerializer;
+import com.stiggpwnz.vibes.qualifiers.UnitClick;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Feed;
+import com.stiggpwnz.vibes.vk.models.Unit;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
@@ -27,23 +27,24 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.observables.AndroidObservable;
+import rx.subjects.PublishSubject;
 import timber.log.Timber;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public class FeedFragment extends BaseFragment {
-    @Inject               Lazy<VKontakte>         vkontakte;
-    @Inject               Lazy<JacksonSerializer> jackson;
-    @Inject @IOThreadPool Scheduler               ioThreadPool;
-    @Inject @MainThread   Scheduler               mainThread;
+    @Inject               Lazy<VKontakte>      vkontakte;
+    @Inject @IOThreadPool Scheduler            ioThreadPool;
+    @Inject @UnitClick    PublishSubject<Unit> unitClicks;
 
     @Argument int ownerId;
 
     @InjectView(R.id.ptr_layout) @NotNull PullToRefreshLayout pullToRefreshLayout;
     @InjectView(R.id.grid) @NotNull       AbsListView         staggeredGridView;
 
-    Feed         lastResult;
-    Subscription subscription;
+    @Nullable Feed         lastResult;
+    @Nullable Subscription subscription;
+    @NotNull  Subscription unitClickSubscription;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +59,7 @@ public class FeedFragment extends BaseFragment {
     @Override public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ActionBarPullToRefresh.from(getActivity())
-                .allChildrenArePullable()
+//                .allChildrenArePullable()
                 .listener(view1 -> makeRequest())
                 .setup(pullToRefreshLayout);
 
@@ -68,10 +69,24 @@ public class FeedFragment extends BaseFragment {
             }
             if (lastResult == null) {
                 makeRequest();
+            } else {
+                updateView();
             }
         } else {
             pullToRefreshLayout.setRefreshing(true);
         }
+
+        unitClickSubscription = unitClicks.subscribe(unit -> {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(unit.getId()))
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
+    @Override public void onDestroyView() {
+        unitClickSubscription.unsubscribe();
+        super.onDestroyView();
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
@@ -93,6 +108,7 @@ public class FeedFragment extends BaseFragment {
                 vkontakte.get().getWall(ownerId, null, 0);
 
         subscription = AndroidObservable.fromFragment(this, feedObservable.subscribeOn(ioThreadPool))
+                .doOnEach(notification -> subscription = null)
                 .subscribe(new Observer<Feed>() {
                     @Override public void onCompleted() {}
 

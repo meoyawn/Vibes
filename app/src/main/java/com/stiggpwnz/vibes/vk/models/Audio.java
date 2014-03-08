@@ -13,9 +13,12 @@ import java.util.List;
 import java.util.Locale;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import rx.functions.Func1;
 
-public @Data class Audio implements Serializable {
+@Data
+@EqualsAndHashCode(of = "aid")
+public class Audio implements Serializable {
     public static Func1<Audio[], Audio[]> removeFirstItem() {
         return audios -> {
             Audio[] copy = new Audio[audios.length - 1];
@@ -46,17 +49,4 @@ public @Data class Audio implements Serializable {
     }
 
     public String ownerIdAidParam() { return String.format(Locale.US, "%d_%d", ownerId, aid); }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || ((Object) this).getClass() != o.getClass()) return false;
-
-        Audio audio = (Audio) o;
-
-        return aid == audio.aid;
-    }
-
-    @Override
-    public int hashCode() { return aid; }
 }

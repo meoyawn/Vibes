@@ -35,4 +35,6 @@ public @Data class Feed implements Serializable {
         }
         items = posts.toArray(new Post[posts.size()]);
     }
+
+    public void setWall(Post[] wall) { items = wall; }
 }

@@ -11,7 +11,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKAuth;

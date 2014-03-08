@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.fragments.base.BaseFragment;
 
 import butterknife.InjectView;
 
@@ -41,5 +40,13 @@ public class MainFragment extends BaseFragment {
                     .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(0))
                     .commit();
         }
+    }
+
+    @Override public boolean onBackPressed() {
+        if (getChildFragmentManager().getBackStackEntryCount() > 0) {
+            getChildFragmentManager().popBackStack();
+            return true;
+        }
+        return super.onBackPressed();
     }
 }

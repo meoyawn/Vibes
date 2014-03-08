@@ -54,7 +54,11 @@ public class Post implements Serializable {
 
     public boolean hasText() { return !TextUtils.isEmpty(text); }
 
-    public boolean hasPhotos() { return photos != null && photos.length > 0; }
+    @Nullable public Photo getFirstPhoto() {
+        return photos != null && photos.length > 0 ?
+                photos[0] :
+                null;
+    }
 
     static Unit from(Set<? extends Unit> units, int sourceId) {
         for (Unit unit : units) {

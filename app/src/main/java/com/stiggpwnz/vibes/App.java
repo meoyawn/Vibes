@@ -23,7 +23,7 @@ public class App extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
-//        Crittercism.initialize(getApplicationContext(), getString(R.string.crittercism_app_id));
+//      Crittercism.initialize(getApplicationContext(), getString(R.string.crittercism_app_id));
         Timber.plant(BuildConfig.DEBUG ? new Timber.DebugTree() : new CrashReportingTree());
         objectGraph = ObjectGraph.create(getModules().toArray());
     }
