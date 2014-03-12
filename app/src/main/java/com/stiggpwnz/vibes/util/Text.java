@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Created by adel on 11/9/13
  */
-public class HtmlDeserializer extends JsonDeserializer<String> {
+public class Text extends JsonDeserializer<String> {
     @Override
     public String deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return Html.fromHtml(parser.getValueAsString()).toString();

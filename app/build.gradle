@@ -11,7 +11,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName "3.0.0"
     }
 
     compileOptions {
@@ -104,6 +104,8 @@ dependencies {
 
     apt 'de.devland.esperandro:esperandro:1.+'
     compile 'de.devland.esperandro:esperandro-api:1.+'
+
+    compile 'org.squirrelframework:squirrel-foundation:+'
 
     testCompile 'com.squareup.dagger:dagger-compiler:1.+'
     testCompile 'junit:junit:4.+'

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.dagger.Dagger;
-import com.stiggpwnz.vibes.media.Player;
+import com.stiggpwnz.vibes.player.Player;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
         }
     }
 
-    public void setAudio(@NotNull Audio audio) {
+    public void draw(@NotNull Audio audio) {
         this.audio = audio;
 
         artist.setText(audio.getArtist());

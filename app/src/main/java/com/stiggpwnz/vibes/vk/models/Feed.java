@@ -29,6 +29,7 @@ public @Data class Feed implements Serializable {
         for (Post post : items) {
             if (post.hasAudios()) {
                 post.setUnitFrom(this);
+                post.setRepostedUnitFrom(this);
                 post.calculateMedia();
                 posts.add(post);
             }

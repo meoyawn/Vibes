@@ -7,27 +7,28 @@
                                      android:orientation="vertical">
 
     <LinearLayout
+        android:paddingTop="@dimen/padding_post"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/user_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_marginLeft="@dimen/padding_post"
+            android:id="@+id/original_user_icon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             tools:src="@drawable/ic_user_placeholder"
             android:contentDescription="@string/user_profile_image"/>
 
         <LinearLayout
+            android:paddingLeft="@dimen/padding_post"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="@dimen/padding_post"
-            android:paddingStart="@dimen/padding_post">
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/user"
+                android:id="@+id/original_user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
@@ -35,7 +36,7 @@
                 tools:ignore="SelectableText"/>
 
             <TextView
-                android:id="@+id/time"
+                android:id="@+id/original_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/light_grey_text"
@@ -46,16 +47,72 @@
     </LinearLayout>
 
     <TextView
-        android:padding="@dimen/padding_post"
-        android:id="@+id/text"
+        android:paddingTop="@dimen/padding_post"
+        android:paddingLeft="@dimen/padding_post"
+        android:paddingRight="@dimen/padding_post"
+        android:id="@+id/original_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:autoLink="web"
         tools:text="Lorum ipsum."
-        android:textIsSelectable="true"/>
+        android:textIsSelectable="false"/>
+
+    <LinearLayout
+        android:id="@+id/copy_user_container"
+        android:paddingTop="@dimen/padding_post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/repost_user_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="@dimen/padding_post"
+            tools:src="@drawable/ic_user_placeholder"
+            android:contentDescription="@string/user_profile_image"/>
+
+        <LinearLayout
+            android:paddingLeft="@dimen/padding_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/repost_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                tools:text="Adel Nizamutdinov"
+                tools:ignore="SelectableText"/>
+
+            <TextView
+                android:id="@+id/repost_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/light_grey_text"
+                android:textSize="14sp"
+                tools:text="5 hours ago"
+                tools:ignore="SelectableText"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:paddingTop="@dimen/padding_post"
+        android:paddingLeft="@dimen/padding_post"
+        android:paddingRight="@dimen/padding_post"
+        android:id="@+id/repost_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:autoLink="web"
+        tools:text="Lorum ipsum."
+        android:textIsSelectable="false"/>
 
     <com.stiggpwnz.vibes.widget.PhotoView
+        android:layout_marginTop="@dimen/padding_post"
         android:id="@+id/image_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

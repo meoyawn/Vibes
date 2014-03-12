@@ -15,12 +15,13 @@ import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
 import com.stiggpwnz.vibes.util.Persistence;
 import com.stiggpwnz.vibes.vk.VKAuth;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import javax.inject.Inject;
 
 import butterknife.InjectView;
-import rx.Observable;
 import rx.Scheduler;
-import rx.Subscriber;
 import rx.android.observables.AndroidObservable;
 import rx.subjects.PublishSubject;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -35,8 +36,8 @@ public class LoginFragment extends BaseFragment {
 
     final PublishSubject<String> urls = PublishSubject.create();
 
-    @InjectView(R.id.ptr_layout)    PullToRefreshLayout pullToRefreshLayout;
-    @InjectView(R.id.webview_login) WebView             webView;
+    @InjectView(R.id.ptr_layout) @Nullable   PullToRefreshLayout pullToRefreshLayout;
+    @InjectView(R.id.webview_login) @NotNull WebView             webView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class LoginFragment extends BaseFragment {
         return inflater.inflate(R.layout.login, container, false);
     }
 
-    @Override public void onViewCreated(View view, Bundle savedInstanceState) {
+    @Override public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ActionBarPullToRefresh.from(getActivity())
                 .allChildrenArePullable()
@@ -57,34 +58,35 @@ public class LoginFragment extends BaseFragment {
         webView.setWebViewClient(new WebViewClient() {
             @Override public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 urls.onNext(url);
-                pullToRefreshLayout.setRefreshing(true);
+                if (pullToRefreshLayout != null) {
+                    pullToRefreshLayout.setRefreshing(true);
+                }
             }
 
             @Override public void onPageFinished(WebView view, String url) {
-                pullToRefreshLayout.setRefreshComplete();
+                if (pullToRefreshLayout != null) {
+                    pullToRefreshLayout.setRefreshComplete();
+                }
             }
         });
+
+        AndroidObservable.fromFragment(this, urls
+                .filter(s -> s.startsWith(VKAuth.REDIRECT_URL))
+                .flatMap(s -> vkAuth.saveAccessToken(s, System.currentTimeMillis())
+                        .subscribeOn(ioThreadPool)))
+                .subscribe(s -> {
+                    getFragmentManager().beginTransaction()
+                            .replace(android.R.id.content, new MainFragment())
+                            .commit();
+                }, e -> loadInitialUrl());
 
         if (savedInstanceState == null) {
             loadInitialUrl();
         } else {
             webView.restoreState(savedInstanceState);
         }
-
-        AndroidObservable.fromFragment(this, urls
-                .filter(url -> url.startsWith(VKAuth.REDIRECT_URL))
-                .flatMap(s -> Observable.create((Subscriber<? super String> subscriber) -> {
-                    subscriber.onNext(vkAuth.saveAndGetAccessToken(s, System.currentTimeMillis()));
-                    subscriber.onCompleted();
-                }).subscribeOn(ioThreadPool)))
-                .subscribe(s -> {
-                    if (getFragmentManager() != null) {
-                        getFragmentManager().beginTransaction()
-                                .replace(android.R.id.content, new MainFragment())
-                                .commit();
-                    }
-                }, e -> loadInitialUrl());
     }
+
 
     void loadInitialUrl() {
         webView.stopLoading();
@@ -95,14 +97,6 @@ public class LoginFragment extends BaseFragment {
     @Override public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         webView.saveState(outState);
-    }
-
-    @Override public void onDestroyView() {
-        super.onDestroyView();
-        if (getActivity().isFinishing() && persistence.accessToken() == null) {
-            cookieManager.removeAllCookie();
-            cookieSyncManager.sync();
-        }
     }
 
     @Override public void onDestroy() {

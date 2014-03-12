@@ -15,7 +15,6 @@ import com.stiggpwnz.vibes.fragments.FeedFragment;
 import com.stiggpwnz.vibes.fragments.LoginFragment;
 import com.stiggpwnz.vibes.fragments.MainFragment;
 import com.stiggpwnz.vibes.fragments.NavigationFragment;
-import com.stiggpwnz.vibes.media.PlayerService;
 import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
 import com.stiggpwnz.vibes.qualifiers.UnitClick;
 import com.stiggpwnz.vibes.util.JacksonSerializer;
@@ -47,9 +46,6 @@ import timber.log.Timber;
  * Created by adelnizamutdinov on 03/03/2014
  */
 @Module(addsTo = AppScopeDaggerModule.class, injects = {
-        // services
-        PlayerService.class,
-
         // activities
         MainActivity.class,
 

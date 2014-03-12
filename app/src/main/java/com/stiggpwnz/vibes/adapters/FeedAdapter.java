@@ -28,7 +28,7 @@ public class FeedAdapter extends InflaterAdapter {
         }
 
         @NotNull PostView postView = (PostView) convertView;
-        postView.setPost(getItem(position));
+        postView.draw(getItem(position));
 
         return convertView;
     }

@@ -1,63 +1,23 @@
 package com.stiggpwnz.vibes.vk.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(of = "uid")
 public class Profile implements Unit, Serializable {
+    int uid;
+    @JsonProperty("first_name")       String firstName;
+    @JsonProperty("last_name")        String lastName;
+    @JsonProperty("photo_medium_rec") String photoMediumRec;
 
-    private int    uid;
-    private String firstName;
-    private String lastName;
-    private String photoMediumRec;
+    @Override public int getId() { return uid; }
 
-    @Override
-    public String getName() { return String.format("%s %s", firstName, lastName); }
+    @Override public String getName() { return String.format("%s %s", firstName, lastName); }
 
-    @Override
-    @JsonProperty("uid")
-    public int getId() { return uid; }
-
-    public void setUid(int uid) { this.uid = uid; }
-
-    @JsonProperty("first_name")
-    public String getFirstName() { return firstName; }
-
-    @JsonProperty("first_name")
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    @JsonProperty("last_name")
-    public String getLastName() { return lastName; }
-
-    @JsonProperty("last_name")
-    public void setLastName(String lastName) { this.lastName = lastName; }
-
-    @Override
-    @JsonProperty("photo_medium_rec")
-    public String getProfilePic() { return photoMediumRec; }
-
-    @JsonProperty("photo_medium_rec")
-    public void setPhotoMediumRec(String photoMediumRec) { this.photoMediumRec = photoMediumRec; }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + uid;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (((Object) this).getClass() != obj.getClass())
-            return false;
-        Profile other = (Profile) obj;
-        return uid == other.uid;
-    }
+    @Override public String getProfilePic() { return photoMediumRec; }
 }

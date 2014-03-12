@@ -2,7 +2,7 @@ package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.stiggpwnz.vibes.util.HtmlDeserializer;
+import com.stiggpwnz.vibes.util.Text;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,9 +28,9 @@ public class Audio implements Serializable {
     }
 
     int aid;
-    @JsonProperty("owner_id")                        int    ownerId;
-    @JsonDeserialize(using = HtmlDeserializer.class) String artist;
-    @JsonDeserialize(using = HtmlDeserializer.class) String title;
+    @JsonProperty("owner_id")            int    ownerId;
+    @JsonDeserialize(using = Text.class) String artist;
+    @JsonDeserialize(using = Text.class) String title;
     int duration;
     @JsonProperty("lyrics_id") int lyricsId;
     String url;

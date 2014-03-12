@@ -14,6 +14,8 @@ import java.util.Locale;
 import de.devland.esperandro.SharedPreferenceActions;
 import lombok.RequiredArgsConstructor;
 import retrofit.RequestInterceptor;
+import rx.Observable;
+import rx.Subscriber;
 
 @RequiredArgsConstructor(suppressConstructorProperties = true)
 public class VKAuth implements RequestInterceptor {
@@ -66,7 +68,14 @@ public class VKAuth implements RequestInterceptor {
         }
     }
 
-    public String saveAndGetAccessToken(String redirectUrl, long now) {
+    public Observable<String> saveAccessToken(String redirectUrl, long now) {
+        return Observable.create((Subscriber<? super String> subscriber) -> {
+            subscriber.onNext(saveAndGetAccessToken(redirectUrl, now));
+            subscriber.onCompleted();
+        });
+    }
+
+    private String saveAndGetAccessToken(String redirectUrl, long now) {
         assertBgThread();
 
         // not extracted because of the very rare use

@@ -5,7 +5,7 @@ import android.text.format.DateUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.stiggpwnz.vibes.util.HtmlDeserializer;
+import com.stiggpwnz.vibes.util.Text;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,15 +22,19 @@ public class Post implements Serializable {
     int count;
     @JsonProperty("source_id") int sourceId;
     long date;
-    @JsonDeserialize(using = HtmlDeserializer.class) @Nullable String       text;
-    @Nullable                                                  Attachment[] attachments;
+    @NotNull @JsonDeserialize(using = Text.class)                   String       text;
+    @Nullable                                                       Attachment[] attachments;
+    @JsonProperty("copy_post_date")                                 long         copyPostDate;
+    @JsonProperty("copy_owner_id")                                  int          copyOwnerId;
+    @JsonProperty("copy_text") @JsonDeserialize(using = Text.class) String       copyText;
 
     // computed stuff
     @Nullable Photo[] photos;
     @NotNull  Audio[] audios;
-    @NotNull  Unit    unit;
+    @NotNull  Unit    originalUnit;
+    @Nullable Unit    repostedUnit;
 
-    public Post(int count) { this.count = count; }
+    @SuppressWarnings("unused") public Post(int count) { this.count = count; }
 
     public boolean hasAudios() {
         if (attachments != null) {
@@ -48,11 +52,17 @@ public class Post implements Serializable {
         photos = Photo.arrayFrom(attachments);
     }
 
+    public CharSequence repostRelativeTimeString() {
+        return DateUtils.getRelativeTimeSpanString(copyPostDate * 1000);
+    }
+
     public CharSequence relativeTimeString() {
         return DateUtils.getRelativeTimeSpanString(date * 1000);
     }
 
-    public boolean hasText() { return !TextUtils.isEmpty(text); }
+    public boolean hasRepostedText() { return !TextUtils.isEmpty(copyText); }
+
+    public boolean hasOriginalText() { return !TextUtils.isEmpty(text); }
 
     @Nullable public Photo getFirstPhoto() {
         return photos != null && photos.length > 0 ?
@@ -60,7 +70,7 @@ public class Post implements Serializable {
                 null;
     }
 
-    static Unit from(Set<? extends Unit> units, int sourceId) {
+    @Nullable static Unit from(Set<? extends Unit> units, int sourceId) {
         for (Unit unit : units) {
             if (unit.getId() == sourceId) {
                 return unit;
@@ -73,7 +83,14 @@ public class Post implements Serializable {
         Set<? extends Unit> units = sourceId >= 0 ?
                 feed.getProfiles() :
                 feed.getGroups();
-        unit = from(units, sourceId);
+        originalUnit = from(units, sourceId);
+    }
+
+    public void setRepostedUnitFrom(Feed feed) {
+        Set<? extends Unit> units = copyOwnerId >= 0 ?
+                feed.getProfiles() :
+                feed.getGroups();
+        repostedUnit = from(units, copyOwnerId);
     }
 
     @JsonProperty("from_id") public void setFromId(int fromId) { this.sourceId = fromId; }

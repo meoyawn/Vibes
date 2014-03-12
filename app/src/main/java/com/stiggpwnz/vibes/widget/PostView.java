@@ -5,6 +5,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,11 +43,16 @@ public class PostView extends LinearLayout {
     @Inject            Lazy<Picasso>        picassoLazy;
     @Inject @UnitClick PublishSubject<Unit> unitClicks;
 
-    @InjectView(R.id.user_icon)  ImageView profilePic;
-    @InjectView(R.id.user)       TextView  user;
-    @InjectView(R.id.time)       TextView  time;
-    @InjectView(R.id.text)       TextView  text;
-    @InjectView(R.id.image_item) PhotoView image;
+    @InjectView(R.id.original_user_icon)  ImageView profilePic;
+    @InjectView(R.id.original_user_name)  TextView  user;
+    @InjectView(R.id.original_time)       TextView  time;
+    @InjectView(R.id.original_text)       TextView  upperText;
+    @InjectView(R.id.image_item)          PhotoView image;
+    @InjectView(R.id.repost_user_icon)    ImageView repostProfilePic;
+    @InjectView(R.id.repost_user_name)    TextView  repostUserName;
+    @InjectView(R.id.repost_time)         TextView  repostTime;
+    @InjectView(R.id.repost_text)         TextView  lowerText;
+    @InjectView(R.id.copy_user_container) View      copyContainer;
 
     final AudioView[] audioViews = new AudioView[10];
 
@@ -75,8 +81,12 @@ public class PostView extends LinearLayout {
         }
     }
 
-    @OnClick({R.id.user_icon, R.id.user}) void showUser() {
-        unitClicks.onNext(post.getUnit());
+    @OnClick({R.id.original_user_icon, R.id.original_user_name}) void showUser() {
+        unitClicks.onNext(post.getOriginalUnit());
+    }
+
+    @OnClick({R.id.repost_user_icon, R.id.repost_user_name}) void showRepostUser() {
+        unitClicks.onNext(post.getRepostedUnit());
     }
 
     @SuppressWarnings("ObjectAllocationInLoop")
@@ -91,7 +101,7 @@ public class PostView extends LinearLayout {
         }
 
         Matcher units = VK_UNIT.matcher(text);
-        while (hasTags.find()) {
+        while (units.find()) {
             int start = units.start();
             int end = units.end();
             text.setSpan(new VKLinkSpan(units.group(1)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -100,28 +110,52 @@ public class PostView extends LinearLayout {
         return text;
     }
 
-    public void setPost(@NotNull Post post) {
+    void drawPostTextOn(@NotNull TextView textView) {
+        if (post.hasOriginalText()) {
+            textView.setText(linkify(textView.getContext(), post.getText()));
+            textView.setVisibility(VISIBLE);
+        } else {
+            textView.setVisibility(GONE);
+        }
+    }
+
+    public void draw(@NotNull Post post) {
         this.post = post;
 
-        String profilePic1 = post.getUnit().getProfilePic();
-        picassoLazy.get().load(profilePic1)
+        picassoLazy.get().load(post.getOriginalUnit().getProfilePic())
                 .placeholder(R.drawable.ic_user_placeholder)
                 .into(profilePic);
 
-        user.setText(post.getUnit().getName());
+        user.setText(post.getOriginalUnit().getName());
         time.setText(post.relativeTimeString());
 
-        if (post.hasText()) {
-            text.setText(linkify(text.getContext(), post.getText()));
-            text.setVisibility(VISIBLE);
+        if (post.getRepostedUnit() != null) {
+            if (post.hasRepostedText()) {
+                upperText.setText(linkify(upperText.getContext(), post.getCopyText()));
+                upperText.setVisibility(VISIBLE);
+            } else {
+                upperText.setVisibility(GONE);
+            }
+
+            picassoLazy.get().load(post.getRepostedUnit().getProfilePic())
+                    .placeholder(R.drawable.ic_user_placeholder)
+                    .into(repostProfilePic);
+            repostUserName.setText(post.getRepostedUnit().getName());
+            repostTime.setText(post.repostRelativeTimeString());
+
+            drawPostTextOn(lowerText);
+
+            copyContainer.setVisibility(VISIBLE);
         } else {
-            text.setVisibility(GONE);
+            copyContainer.setVisibility(GONE);
+
+            drawPostTextOn(upperText);
         }
 
         image.setPhoto(post.getFirstPhoto());
 
         for (int i = 0; i < post.getAudios().length; i++) {
-            audioViews[i].setAudio(post.getAudios()[i]);
+            audioViews[i].draw(post.getAudios()[i]);
         }
         for (int i = post.getAudios().length; i < audioViews.length; i++) {
             audioViews[i].setVisibility(GONE);
