@@ -9,19 +9,17 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.stiggpwnz.vibes.qualifiers.CacheDir;
 import com.stiggpwnz.vibes.util.CrashReportingTree;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Qualifier;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -53,8 +51,6 @@ public class App extends Application implements MortarContext {
     }
 
     @Override public MortarScope getMortarScope() { return rootScope; }
-
-    @Qualifier @Retention(RetentionPolicy.RUNTIME) public static @interface CacheDir {}
 
     /**
      * Created by adelnizamutdinov on 03/03/2014
