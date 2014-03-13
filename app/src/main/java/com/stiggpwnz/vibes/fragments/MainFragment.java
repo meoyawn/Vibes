@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes.fragments;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.LayoutInflater;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.stiggpwnz.vibes.R;
+
+import org.jetbrains.annotations.NotNull;
 
 import butterknife.InjectView;
 
@@ -22,13 +25,13 @@ public class MainFragment extends BaseFragment {
         setHasOptionsMenu(true);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (getActivity() != null && getActivity().getActionBar() != null) {
-            getActivity().getActionBar().setHomeButtonEnabled(true);
-            getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActivity().getActionBar().setTitle(R.string.app_name);
-        }
+    @Override protected void configure(@NotNull ActionBar actionBar) {
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(R.string.app_name);
+    }
+
+    @Override protected View createView(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 

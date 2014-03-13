@@ -7,12 +7,13 @@ import android.view.View;
 import com.etsy.android.grid.util.DynamicHeightImageView;
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.dagger.Dagger;
 import com.stiggpwnz.vibes.vk.models.Photo;
 
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+
+import mortar.Mortar;
 
 public class PhotoView extends DynamicHeightImageView {
     @Inject   Picasso picasso;
@@ -25,7 +26,7 @@ public class PhotoView extends DynamicHeightImageView {
     @Override protected void onFinishInflate() {
         super.onFinishInflate();
         if (!isInEditMode()) {
-            Dagger.inject(this);
+            Mortar.inject(getContext(), this);
         }
     }
 

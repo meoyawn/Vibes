@@ -95,9 +95,6 @@ dependencies {
     compile files('libs/crittercism_v4_4_0_sdkonly.jar') // crash reporting
     compile files('libs/libGoogleAnalyticsServices.jar') // analytics
 
-    compile 'com.github.mttkay.memento:memento:0.+' // retaining objects in activity
-    apt 'com.github.mttkay.memento:memento-processor:0.+'
-
     compile('de.keyboardsurfer.android.widget:crouton:+') {
         exclude group: 'com.google.android'
     }
@@ -105,7 +102,8 @@ dependencies {
     apt 'de.devland.esperandro:esperandro:1.+'
     compile 'de.devland.esperandro:esperandro-api:1.+'
 
-    compile 'org.squirrelframework:squirrel-foundation:+'
+    compile 'org.squirrelframework:squirrel-foundation:+' // ???
+    compile 'com.squareup.mortar:mortar:+' // dagger scopes
 
     testCompile 'com.squareup.dagger:dagger-compiler:1.+'
     testCompile 'junit:junit:4.+'

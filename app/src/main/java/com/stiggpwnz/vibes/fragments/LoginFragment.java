@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes.fragments;
 
+import android.app.ActionBar;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 
 import butterknife.InjectView;
+import mortar.Mortar;
 import rx.Scheduler;
 import rx.android.observables.AndroidObservable;
 import rx.subjects.PublishSubject;
@@ -34,18 +36,23 @@ public class LoginFragment extends BaseFragment {
     @Inject               VKAuth            vkAuth;
     @Inject @IOThreadPool Scheduler         ioThreadPool;
 
+    @InjectView(R.id.ptr_layout)    PullToRefreshLayout pullToRefreshLayout;
+    @InjectView(R.id.webview_login) WebView             webView;
+
     final PublishSubject<String> urls = PublishSubject.create();
 
-    @InjectView(R.id.ptr_layout) @Nullable   PullToRefreshLayout pullToRefreshLayout;
-    @InjectView(R.id.webview_login) @NotNull WebView             webView;
+    @Override public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Mortar.inject(getMortarContext(), this);
+    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (getActivity() != null && getActivity().getActionBar() != null) {
-            getActivity().getActionBar().setHomeButtonEnabled(false);
-            getActivity().getActionBar().setDisplayHomeAsUpEnabled(false);
-            getActivity().getActionBar().setTitle(R.string.login);
-        }
+    @Override protected void configure(@NotNull ActionBar actionBar) {
+        actionBar.setHomeButtonEnabled(false);
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setTitle(getString(R.string.login));
+    }
+
+    @Override protected View createView(LayoutInflater inflater, ViewGroup container) {
         return inflater.inflate(R.layout.login, container, false);
     }
 
@@ -91,7 +98,9 @@ public class LoginFragment extends BaseFragment {
     void loadInitialUrl() {
         webView.stopLoading();
         webView.loadUrl(VKAuth.authUrl());
-        pullToRefreshLayout.setRefreshing(true);
+        if (pullToRefreshLayout != null) {
+            pullToRefreshLayout.setRefreshing(true);
+        }
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {

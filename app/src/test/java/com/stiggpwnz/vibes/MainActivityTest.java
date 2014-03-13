@@ -4,8 +4,6 @@ package com.stiggpwnz.vibes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.stiggpwnz.vibes.dagger.Dagger;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,13 +13,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.view.TestMenuItem;
 import org.robolectric.util.ActivityController;
 
-import java.util.Scanner;
-
-import dagger.ObjectGraph;
-import rx.Observable;
-import rx.Subscriber;
-
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -34,13 +25,6 @@ public class MainActivityTest {
 
     @Before public void setUp() throws Exception {
         activityController = Robolectric.buildActivity(MainActivity.class);
-    }
-
-    @Test public void testOnLaunch() throws Exception {
-        MainActivity mainActivity = activityController.get();
-        ObjectGraph objectGraph = Dagger.getObjectGraph(mainActivity);
-        mainActivity.onLaunch();
-        assertNotEquals(Dagger.getObjectGraph(mainActivity), objectGraph);
     }
 
     @Test public void testOnOptionsItemSelected() throws Exception {

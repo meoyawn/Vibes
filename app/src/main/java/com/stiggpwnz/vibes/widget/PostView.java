@@ -12,8 +12,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 import com.stiggpwnz.vibes.R;
-import com.stiggpwnz.vibes.dagger.Dagger;
-import com.stiggpwnz.vibes.qualifiers.UnitClick;
 import com.stiggpwnz.vibes.text.HashTagSpan;
 import com.stiggpwnz.vibes.text.ReplaceTextSpan;
 import com.stiggpwnz.vibes.text.VKLinkSpan;
@@ -31,6 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import dagger.Lazy;
+import mortar.Mortar;
 import rx.subjects.PublishSubject;
 
 /**
@@ -40,8 +39,8 @@ public class PostView extends LinearLayout {
     static final Pattern HASH_TAG = Pattern.compile("#[a-zA-Z][\\w@-]*");
     static final Pattern VK_UNIT  = Pattern.compile("\\[([^\\[\\|]+?)\\|([^\\]]+?)\\]");
 
-    @Inject            Lazy<Picasso>        picassoLazy;
-    @Inject @UnitClick PublishSubject<Unit> unitClicks;
+    @Inject Lazy<Picasso>        picassoLazy;
+    @Inject PublishSubject<Unit> unitClicks;
 
     @InjectView(R.id.original_user_icon)  ImageView profilePic;
     @InjectView(R.id.original_user_name)  TextView  user;
@@ -58,22 +57,19 @@ public class PostView extends LinearLayout {
 
     @NotNull Post post;
 
-    @SuppressWarnings("unused") public PostView(Context context) { super(context); }
-
-    @SuppressWarnings("unused")
-    public PostView(Context context, AttributeSet attrs) { super(context, attrs); }
-
-    @SuppressWarnings("unused")
-    public PostView(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
+    public PostView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
     @Override protected void onFinishInflate() {
+        Context context = getContext();
         if (!isInEditMode()) {
-            Dagger.inject(this);
+            Mortar.inject(context, this);
             ButterKnife.inject(this);
         }
 
-        if (getContext() != null) {
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+        if (context != null) {
+            LayoutInflater inflater = LayoutInflater.from(context);
             for (int i = 0; i < audioViews.length; i++) {
                 audioViews[i] = (AudioView) inflater.inflate(R.layout.audio, this, false);
                 addView(audioViews[i]);

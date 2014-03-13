@@ -11,14 +11,14 @@ import com.stiggpwnz.vibes.widget.PostView;
 import org.jetbrains.annotations.NotNull;
 
 public class FeedAdapter extends InflaterAdapter {
-    Post[] posts;
+    final @NotNull Post[] posts;
 
-    public FeedAdapter(LayoutInflater layoutInflater, Post... posts) {
+    public FeedAdapter(LayoutInflater layoutInflater, @NotNull Post[] posts) {
         super(layoutInflater);
         this.posts = posts;
     }
 
-    @Override public int getCount() { return posts != null ? posts.length : 0; }
+    @Override public int getCount() { return posts.length; }
 
     @Override public Post getItem(int position) { return posts[position]; }
 

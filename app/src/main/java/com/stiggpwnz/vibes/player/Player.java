@@ -39,7 +39,6 @@ public class Player {
         PAUSE
     }
 
-
     static void playground() {
         StateMachineBuilder<PlayerStateMachine, State, Event, PlayerQueue> builder =
                 StateMachineBuilderFactory.create(PlayerStateMachine.class, State.class, Event.class, PlayerQueue.class);
