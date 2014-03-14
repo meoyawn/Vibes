@@ -18,9 +18,12 @@ import lombok.Setter;
 public class Player {
     public static enum State {
         EMPTY,
-        PREPARING,
-        READY,
-        RESETTING
+        PREPARING_TO_PLAY,
+        PREPARING_TO_PAUSE,
+        PLAYING,
+        PAUSED,
+        RESETTING_TO_PLAY,
+        RESETTING_TO_PAUSE
     }
 
     public static enum Event {
@@ -34,21 +37,26 @@ public class Player {
         @Getter @Setter int position;
     }
 
-    public static enum Intention {
-        PLAY,
-        PAUSE
-    }
-
     static void playground() {
         StateMachineBuilder<PlayerStateMachine, State, Event, PlayerQueue> builder =
                 StateMachineBuilderFactory.create(PlayerStateMachine.class, State.class, Event.class, PlayerQueue.class);
-        builder.externalTransition().from(State.EMPTY).to(State.PREPARING).on(Event.PLAY);
-        builder.externalTransition().from(State.EMPTY).to(State.PREPARING).on(Event.NTH);
 
-        builder.externalTransition().from(State.PREPARING).to(State.READY).on(Event.PREPARED);
-        builder.externalTransition().from(State.PREPARING).to(State.RESETTING).on(Event.NEXT);
-        builder.externalTransition().from(State.PREPARING).to(State.RESETTING).on(Event.PREV);
-        builder.externalTransition().from(State.PREPARING).to(State.RESETTING).on(Event.NTH);
+        builder.transition().from(State.EMPTY).to(State.PREPARING_TO_PLAY).on(Event.PLAY);
+        builder.transition().from(State.EMPTY).to(State.EMPTY).on(Event.NEXT);
+        builder.transition().from(State.EMPTY).to(State.EMPTY).on(Event.PREV);
+        builder.transition().from(State.EMPTY).to(State.PREPARING_TO_PLAY).on(Event.NTH);
+
+        builder.transition().from(State.PREPARING_TO_PLAY).to(State.PREPARING_TO_PAUSE).on(Event.PLAY);
+        builder.transition().from(State.PREPARING_TO_PLAY).to(State.RESETTING_TO_PLAY).on(Event.NEXT);
+        builder.transition().from(State.PREPARING_TO_PLAY).to(State.RESETTING_TO_PLAY).on(Event.PREV);
+        builder.transition().from(State.PREPARING_TO_PLAY).to(State.RESETTING_TO_PLAY).on(Event.NTH);
+        builder.transition().from(State.PREPARING_TO_PLAY).to(State.PLAYING).on(Event.PREPARED);
+
+        builder.transition().from(State.PREPARING_TO_PAUSE).to(State.PREPARING_TO_PLAY).on(Event.PLAY);
+        builder.transition().from(State.PREPARING_TO_PAUSE).to(State.RESETTING_TO_PAUSE).on(Event.NEXT);
+        builder.transition().from(State.PREPARING_TO_PAUSE).to(State.RESETTING_TO_PAUSE).on(Event.PREV);
+        builder.transition().from(State.PREPARING_TO_PAUSE).to(State.RESETTING_TO_PLAY).on(Event.NTH);
+        builder.transition().from(State.PREPARING_TO_PAUSE).to(State.PAUSED).on(Event.PREPARED);
     }
 
     @RequiredArgsConstructor(suppressConstructorProperties = true)
