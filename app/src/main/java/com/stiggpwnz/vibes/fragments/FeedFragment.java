@@ -85,6 +85,7 @@ public class FeedFragment extends BaseFragment {
 
         @Provides @Singleton
         VKApi provideVkApi(OkHttpClient okHttpClient, Converter converter, VKAuth vkAuth) {
+            Timber.d("creating vkapi");
             return new RestAdapter.Builder()
                     .setEndpoint(VKApi.SERVER)
                     .setClient(new OkClient(okHttpClient))
