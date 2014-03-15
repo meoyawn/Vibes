@@ -1,5 +1,7 @@
 package com.stiggpwnz.vibes.util;
 
+import com.stiggpwnz.vibes.player.PlayerQueue;
+
 import de.devland.esperandro.annotations.SharedPreferences;
 
 @SharedPreferences
@@ -15,4 +17,8 @@ public interface Persistence {
     public int userId();
 
     public void userId(int userId);
+
+    public PlayerQueue.Repeat repeat();
+
+    public void repeat(PlayerQueue.Repeat repeat);
 }

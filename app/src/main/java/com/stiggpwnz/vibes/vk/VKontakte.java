@@ -20,7 +20,7 @@ public class VKontakte {
         return vkObservableFrom(vkApi::getAudios);
     }
 
-    public Observable<Audio> getAudioUrl(Audio audio) {
+    Observable<Audio> getAudioUrl(Audio audio) {
         return vkObservableFrom(() -> vkApi.getAudioURL(audio.ownerIdAidParam()))
                 .map(array -> array[0]);
     }
@@ -43,5 +43,12 @@ public class VKontakte {
         return vkObservableFrom(() -> vkApi.getWall(ownerId, filter, offset))
                 .doOnNext(Feed::removeFirstItem)
                 .doOnNext(Feed::filterAudios);
+    }
+
+    public String getUrl(Audio audio) {
+        return getAudioUrl(audio)
+                .toBlockingObservable()
+                .first()
+                .getUrl();
     }
 }
