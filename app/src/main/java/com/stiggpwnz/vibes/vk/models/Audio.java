@@ -2,6 +2,7 @@ package com.stiggpwnz.vibes.vk.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.stiggpwnz.vibes.db.models.AudioUrl;
 import com.stiggpwnz.vibes.util.Text;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,4 +50,6 @@ public class Audio implements Serializable {
     }
 
     public String ownerIdAidParam() { return String.format(Locale.US, "%d_%d", ownerId, aid); }
+
+    public AudioUrl createAudioUrl() { return new AudioUrl((long) aid, url); }
 }

@@ -1,121 +1,98 @@
 package com.stiggpwnz.vibes.fragments;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neenbedankt.bundles.annotation.Argument;
-import com.squareup.okhttp.OkHttpClient;
-import com.stiggpwnz.vibes.MainActivity;
+import com.stiggpwnz.vibes.Dagger;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.adapters.FeedAdapter;
-import com.stiggpwnz.vibes.qualifiers.IOThreadPool;
-import com.stiggpwnz.vibes.vk.VKApi;
-import com.stiggpwnz.vibes.vk.VKAuth;
+import com.stiggpwnz.vibes.util.Images;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Unit;
-import com.stiggpwnz.vibes.widget.PostView;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import butterknife.InjectView;
 import dagger.Lazy;
-import dagger.Module;
-import dagger.Provides;
-import mortar.Blueprint;
-import mortar.Mortar;
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
-import retrofit.converter.Converter;
-import retrofit.converter.JacksonConverter;
 import rx.Observable;
-import rx.Scheduler;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.observables.AndroidObservable;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 import timber.log.Timber;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public class FeedFragment extends BaseFragment {
-    @Inject               Lazy<VKontakte>      vkontakte;
-    @Inject @IOThreadPool Scheduler            ioThreadPool;
-    @Inject               PublishSubject<Unit> unitClicks;
+    @Inject Lazy<VKontakte>        vkontakte;
+    @Inject PublishSubject<Unit>   unitClicks;
+    @Inject PublishSubject<Bitmap> loadedBitmaps;
 
     @Argument int ownerId;
 
-    @InjectView(R.id.ptr_layout) @NotNull PullToRefreshLayout pullToRefreshLayout;
-    @InjectView(R.id.grid) @NotNull       AbsListView         staggeredGridView;
+    @InjectView(R.id.ptr_layout) PullToRefreshLayout pullToRefreshLayout;
+    @InjectView(R.id.grid)       AbsListView         gridView;
 
-    @Nullable Feed         lastResult;
     @Nullable Subscription subscription;
     @NotNull  Subscription unitClickSubscription;
+    @NotNull  Subscription bitmaps;
+
+    @Nullable Feed lastResult;
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FeedFragmentBuilder.injectArguments(this);
-        Mortar.inject(getMortarContext(), this);
+        Dagger.inject(this);
     }
 
-    @Override protected Blueprint getBluePrint() {
-        return new Blueprint() {
-            @Override public String getMortarScopeName() { return FeedFragment.class.getName(); }
-
-            @Override public Object getDaggerModule() { return new DaggerModule(); }
-        };
-    }
-
-    @Module(addsTo = MainActivity.DaggerModule.class,
-            injects = {
-                    FeedFragment.class,
-                    PostView.class
-            })
-    static class DaggerModule {
-        @Provides @Singleton Converter provideJacksonConverter(ObjectMapper objectMapper) {
-            return new JacksonConverter(objectMapper);
-        }
-
-        @Provides @Singleton
-        VKApi provideVkApi(OkHttpClient okHttpClient, Converter converter, VKAuth vkAuth) {
-            Timber.d("creating vkapi");
-            return new RestAdapter.Builder()
-                    .setEndpoint(VKApi.SERVER)
-                    .setClient(new OkClient(okHttpClient))
-                    .setConverter(converter)
-                    .setRequestInterceptor(vkAuth)
-                    .setLog(Timber::d)
-                    .setLogLevel(RestAdapter.LogLevel.BASIC)
-                    .build()
-                    .create(VKApi.class);
-        }
-
-        @Provides @Singleton VKontakte provideVKontakte(VKApi vkApi, VKAuth vkAuth) {
-            return new VKontakte(vkApi, vkAuth);
-        }
-
-        @Provides @Singleton PublishSubject<Unit> provideUnitClicks() {
-            return PublishSubject.create();
-        }
-    }
-
-    @Override protected View createView(LayoutInflater inflater, ViewGroup container) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.newsfeed, container, false);
     }
 
-    @Override public void onViewCreated(View view, Bundle savedInstanceState) {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ActionBarPullToRefresh.from(getActivity())
                 .listener(view1 -> makeRequest())
                 .setup(pullToRefreshLayout);
 
+        init(savedInstanceState);
+
+        unitClickSubscription = AndroidObservable.fromFragment(this, unitClicks)
+                .subscribe(unit -> {
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(unit.getId()))
+                            .addToBackStack(null)
+                            .commit();
+                });
+
+        bitmaps = AndroidObservable.fromFragment(this, loadedBitmaps
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .flatMap(bitmap -> Observable.create((Subscriber<? super Bitmap> subscriber) -> {
+                    subscriber.onNext(Images.blur(getActivity(), bitmap));
+                })
+                        .map(blurred -> Images.transition(gridView.getBackground(), blurred, getResources()))
+                        .subscribeOn(Schedulers.computation())))
+                .subscribe(transition -> {
+                    gridView.setBackgroundDrawable(transition);
+                    transition.startTransition(500);
+                });
+    }
+
+    private void init(@Nullable Bundle savedInstanceState) {
         if (subscription == null) {
             if (lastResult == null && savedInstanceState != null && savedInstanceState.containsKey("feed")) {
                 lastResult = (Feed) savedInstanceState.get("feed");
@@ -128,13 +105,6 @@ public class FeedFragment extends BaseFragment {
         } else {
             pullToRefreshLayout.setRefreshing(true);
         }
-
-        unitClickSubscription = unitClicks.subscribe(unit -> {
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.content_frame, FeedFragmentBuilder.newFeedFragment(unit.getId()))
-                    .addToBackStack(null)
-                    .commit();
-        });
     }
 
     @Override public void onSaveInstanceState(Bundle outState) {
@@ -144,22 +114,27 @@ public class FeedFragment extends BaseFragment {
 
     @Override public void onDestroyView() {
         unitClickSubscription.unsubscribe();
+        bitmaps.unsubscribe();
         super.onDestroyView();
     }
 
     void updateView() {
         if (getView() != null && lastResult != null && getActivity() != null) {
             pullToRefreshLayout.setRefreshComplete();
-            staggeredGridView.setAdapter(new FeedAdapter(getMortarInflater(), lastResult.getItems()));
+            gridView.setAdapter(new FeedAdapter(getLayoutInflater(null), lastResult.getItems()));
         }
+    }
+
+    Observable<Feed> createNewFeedObservable() {
+        return (ownerId == 0 ?
+                vkontakte.get().getNewsFeed(0) :
+                vkontakte.get().getWall(ownerId, null, 0))
+                .subscribeOn(Schedulers.io());
     }
 
     void makeRequest() {
         pullToRefreshLayout.setRefreshing(true);
-        Observable<Feed> feedObservable = ownerId == 0 ?
-                vkontakte.get().getNewsFeed(0) :
-                vkontakte.get().getWall(ownerId, null, 0);
-        subscription = AndroidObservable.fromFragment(this, feedObservable.subscribeOn(ioThreadPool))
+        subscription = AndroidObservable.fromFragment(this, createNewFeedObservable())
                 .doOnEach(notification -> subscription = null)
                 .subscribe(feed -> {
                     lastResult = feed;

@@ -1,5 +1,6 @@
 package com.stiggpwnz.vibes.vk;
 
+import com.stiggpwnz.vibes.db.DatabaseHelper;
 import com.stiggpwnz.vibes.vk.models.Audio;
 import com.stiggpwnz.vibes.vk.models.Feed;
 import com.stiggpwnz.vibes.vk.models.Result;
@@ -13,8 +14,9 @@ import rx.functions.Func0;
  */
 @RequiredArgsConstructor(suppressConstructorProperties = true)
 public class VKontakte {
-    final VKApi  vkApi;
-    final VKAuth vkAuth;
+    final VKApi          vkApi;
+    final VKAuth         vkAuth;
+    final DatabaseHelper databaseHelper;
 
     public Observable<Audio[]> getAudios() {
         return vkObservableFrom(vkApi::getAudios);
@@ -32,7 +34,8 @@ public class VKontakte {
 
     public Observable<Feed> getNewsFeed(int offset) {
         return vkObservableFrom(() -> vkApi.getNewsFeed(offset))
-                .doOnNext(Feed::filterAudios);
+                .doOnNext(Feed::filterAudios)
+                .doOnNext(databaseHelper::putUrls);
     }
 
     @SuppressWarnings("all") <T> Observable<T> vkObservableFrom(Func0<Result<T>> func) {
@@ -42,7 +45,8 @@ public class VKontakte {
     public Observable<Feed> getWall(int ownerId, String filter, int offset) {
         return vkObservableFrom(() -> vkApi.getWall(ownerId, filter, offset))
                 .doOnNext(Feed::removeFirstItem)
-                .doOnNext(Feed::filterAudios);
+                .doOnNext(Feed::filterAudios)
+                .doOnNext(databaseHelper::putUrls);
     }
 
     public String getUrl(Audio audio) {

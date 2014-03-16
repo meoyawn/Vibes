@@ -6,6 +6,7 @@ import com.stiggpwnz.vibes.db.DatabaseHelper;
 import com.stiggpwnz.vibes.vk.VKontakte;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
+import org.squirrelframework.foundation.fsm.Action;
 import org.squirrelframework.foundation.fsm.AnonymousAction;
 import org.squirrelframework.foundation.fsm.AnonymousCondition;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
@@ -14,6 +15,8 @@ import org.squirrelframework.foundation.fsm.StateMachineConfiguration;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import lombok.Data;
 import lombok.Getter;
@@ -52,6 +55,7 @@ public class Player {
     }
 
     @Data
+    @RequiredArgsConstructor(suppressConstructorProperties = true)
     static class UrlSource {
         final VKontakte      vKontakte;
         final DatabaseHelper databaseHelper;
@@ -60,7 +64,7 @@ public class Player {
             String url = databaseHelper.getUrl(audio);
             if (url == null) {
                 url = vKontakte.getUrl(audio);
-                databaseHelper.putUrl(audio, url);
+                databaseHelper.putUrl(audio);
             }
             return url;
         }
@@ -80,10 +84,11 @@ public class Player {
 
         builder.transit().fromAny().toAny().on(Event.NEXT).perform(nextBefore());
         builder.transit().fromAny().toAny().on(Event.PREV).perform(prevBefore());
-        builder.transit().fromAny().toAny().on(Event.NTH).perform(nthBefore());
+        builder.transit().fromAny().toAny().on(Event.NTH).perform(nth());
+        builder.transit().fromAny().to(State.EMPTY).onAny().perform(reset());
 
         builder.transit().from(State.EMPTY).to(State.PREPARING_TO_PLAY).on(Event.PLAY).perform(resetAndPrepare());
-        builder.transit().from(State.EMPTY).to(State.PREPARING_TO_PLAY).on(Event.NTH).perform(resetAndPrepare());
+        builder.transit().from(State.EMPTY).to(State.PREPARING_TO_PLAY).on(Event.NTH);
         builder.transit().from(State.EMPTY).to(State.EMPTY).onAny();
 
         builder.transit().from(State.PREPARING_TO_PLAY).to(State.PREPARING_TO_PAUSE).on(Event.PLAY);
@@ -91,22 +96,50 @@ public class Player {
         builder.transit().from(State.PREPARING_TO_PLAY).to(State.PREPARING_TO_PLAY).onAny().perform(resetAndPrepare());
 
         builder.transit().from(State.PREPARING_TO_PAUSE).to(State.PREPARING_TO_PLAY).on(Event.PLAY);
-        builder.transit().from(State.PREPARING_TO_PAUSE).to(State.PREPARING_TO_PLAY).on(Event.NTH).perform(resetAndPrepare());
+        builder.transit().from(State.PREPARING_TO_PAUSE).to(State.PREPARING_TO_PLAY).on(Event.NTH);
         builder.transit().from(State.PREPARING_TO_PAUSE).to(State.PAUSED).on(Event.PREPARED);
-        builder.transit().from(State.PREPARING_TO_PAUSE).to(State.EMPTY).onAny().perform(reset());
+        builder.transit().from(State.PREPARING_TO_PAUSE).to(State.EMPTY).onAny();
 
-        builder.transit().from(State.PLAYING).to(State.PAUSED).on(Event.PLAY);
-        builder.transit().from(State.PLAYING).to(State.PLAYING).on(Event.COMPLETED).when(repeatSingle());
+        builder.transit().from(State.PLAYING).to(State.PAUSED).on(Event.PLAY).perform(pause());
+        builder.transit().from(State.PLAYING).to(State.PLAYING).on(Event.COMPLETED).when(repeatSingle()).perform(toTheBeginning());
         builder.transit().from(State.PLAYING).to(State.PREPARING_TO_PAUSE).on(Event.COMPLETED).when(atTheEndAndDontRepeat());
-        builder.transit().from(State.PLAYING).to(State.PREPARING_TO_PLAY).on(Event.COMPLETED).when(not(or(repeatSingle(), atTheEndAndDontRepeat())));
+        builder.transit().from(State.PLAYING).to(State.PREPARING_TO_PLAY).on(Event.COMPLETED).when(not(or(repeatSingle(), atTheEndAndDontRepeat()))).perform(next());
         builder.transit().from(State.PLAYING).to(State.PREPARING_TO_PLAY).onAny();
 
-        builder.transit().from(State.PAUSED).to(State.PLAYING).on(Event.PLAY);
+        builder.transit().from(State.PAUSED).to(State.PLAYING).on(Event.PLAY).perform(startPlaying());
         builder.transit().from(State.PAUSED).to(State.PREPARING_TO_PLAY).on(Event.NTH);
-        builder.transit().from(State.PAUSED).to(State.PREPARING_TO_PAUSE).onAny();
+        builder.transit().from(State.PAUSED).to(State.EMPTY).onAny();
 
         StateMachineConfiguration configuration = StateMachineConfiguration.create();
         return builder.newStateMachine(State.EMPTY, configuration, mediaPlayer, urlSource);
+    }
+
+    private static List<Action<PlayerStateMachine, State, Event, PlayerQueue>> next() {
+        return Arrays.asList(nextBefore(), resetAndPrepare());
+    }
+
+    private static List<Action<PlayerStateMachine, State, Event, PlayerQueue>> nth() {
+        return Arrays.asList(nthBefore(), resetAndPrepare());
+    }
+
+
+    private static AnonymousAction<PlayerStateMachine, State, Event, PlayerQueue> pause() {
+        return new AnonymousAction<PlayerStateMachine, State, Event, PlayerQueue>() {
+            @Override
+            public void execute(State from, State to, Event event, PlayerQueue context, PlayerStateMachine stateMachine) {
+                stateMachine.mediaPlayer.pause();
+            }
+        };
+    }
+
+    private static AnonymousAction<PlayerStateMachine, State, Event, PlayerQueue> toTheBeginning() {
+        return new AnonymousAction<PlayerStateMachine, State, Event, PlayerQueue>() {
+            @Override
+            public void execute(State from, State to, Event event, PlayerQueue context, PlayerStateMachine stateMachine) {
+                stateMachine.mediaPlayer.seekTo(0);
+                stateMachine.mediaPlayer.start();
+            }
+        };
     }
 
     private static AnonymousAction<PlayerStateMachine, State, Event, PlayerQueue> reset() {

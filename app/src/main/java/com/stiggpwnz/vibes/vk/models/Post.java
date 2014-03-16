@@ -23,10 +23,10 @@ public class Post implements Serializable {
     @JsonProperty("source_id") int sourceId;
     long date;
     @NotNull @JsonDeserialize(using = Text.class)                   String       text;
+    @JsonProperty("copy_text") @JsonDeserialize(using = Text.class) String       copyText;
     @Nullable                                                       Attachment[] attachments;
     @JsonProperty("copy_post_date")                                 long         copyPostDate;
     @JsonProperty("copy_owner_id")                                  int          copyOwnerId;
-    @JsonProperty("copy_text") @JsonDeserialize(using = Text.class) String       copyText;
 
     // computed stuff
     @Nullable Photo[] photos;

@@ -12,6 +12,10 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName "3.0.0"
+
+        renderscriptTargetApi 19
+        renderscriptSupportMode true
+        renderscriptNdkMode false
     }
 
     compileOptions {
@@ -69,7 +73,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.netflix.rxjava:rxjava-android:0.17.+' // FRP
+    compile 'com.netflix.rxjava:rxjava-android:0.17.0' // FRP
     compile project(':ActionBarPullToRefresh') // pull to refresh
     compile 'uk.co.chrisjenx.calligraphy:calligraphy:+' // custom fonts
     compile 'com.etsy.android.grid:library:+' // staggered grid
@@ -103,7 +107,9 @@ dependencies {
     compile 'de.devland.esperandro:esperandro-api:1.+'
 
     compile 'org.squirrelframework:squirrel-foundation:+' // ???
-    compile 'com.squareup.mortar:mortar:+' // dagger scopes
+
+    compile 'com.github.mttkay.memento:memento:0.+' // retaining objects in Activity
+    apt 'com.github.mttkay.memento:memento-processor:0.+'
 
     testCompile 'com.squareup.dagger:dagger-compiler:1.+'
     testCompile 'junit:junit:4.+'

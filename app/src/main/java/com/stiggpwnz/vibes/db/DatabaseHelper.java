@@ -5,7 +5,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.stiggpwnz.vibes.db.models.AudioUrl;
+import com.stiggpwnz.vibes.vk.VKAuth;
 import com.stiggpwnz.vibes.vk.models.Audio;
+import com.stiggpwnz.vibes.vk.models.Feed;
+import com.stiggpwnz.vibes.vk.models.Post;
+
+import lombok.Cleanup;
+import nl.qbusict.cupboard.DatabaseCompartment;
 
 import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
@@ -31,6 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public String getUrl(Audio audio) {
+        VKAuth.assertBgThread();
+
         return cupboard().withDatabase(getReadableDatabase())
                 .query(AudioUrl.class)
                 .byId(audio.getAid())
@@ -38,8 +46,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 .getUrl();
     }
 
-    public void putUrl(Audio audio, String url) {
+    public void putUrl(Audio audio) {
+        VKAuth.assertBgThread();
+
         cupboard().withDatabase(getWritableDatabase())
-                .put(new AudioUrl((long) audio.getAid(), url));
+                .put(audio.createAudioUrl());
+    }
+
+    public void putUrls(Feed feed) {
+        @Cleanup SQLiteDatabase writableDatabase = getWritableDatabase();
+        if (writableDatabase != null) {
+            writableDatabase.beginTransaction();
+            try {
+                AudioUrl audioUrl = new AudioUrl();
+                DatabaseCompartment databaseCompartment = cupboard().withDatabase(writableDatabase);
+
+                for (Post post : feed.getItems()) {
+                    for (Audio audio : post.getAudios()) {
+                        audioUrl.set_id((long) audio.getAid()).setUrl(audio.getUrl());
+                        databaseCompartment.put(audioUrl);
+                    }
+                }
+                writableDatabase.setTransactionSuccessful();
+            } finally {
+                writableDatabase.endTransaction();
+            }
+        }
     }
 }

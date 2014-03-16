@@ -15,7 +15,7 @@ public class VkOnSubscribe<T> implements Observable.OnSubscribe<T> {
     final VKAuth           vkAuth;
     final Func0<Result<T>> func;
 
-    @SuppressWarnings("all") @Override public void call(Subscriber<? super T> subscriber) {
+    @Override public void call(Subscriber<? super T> subscriber) {
         Result<T> result = func.call();
         if (result.getError() != null) {
             if (result.getError().isAuthError()) {

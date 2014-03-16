@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.stiggpwnz.vibes.Dagger;
 import com.stiggpwnz.vibes.R;
 import com.stiggpwnz.vibes.vk.models.Audio;
 
@@ -17,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import mortar.Mortar;
 
 public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUpdateListener {
 //    @Inject Lazy<Player> playerLazy;
@@ -33,7 +33,7 @@ public class AudioView extends LinearLayout implements MediaPlayer.OnBufferingUp
 
     @Override protected void onFinishInflate() {
         if (!isInEditMode()) {
-            Mortar.inject(getContext(), this);
+            Dagger.inject(this);
             ButterKnife.inject(this);
         }
     }

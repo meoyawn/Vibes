@@ -31,7 +31,8 @@ public class MainFragment extends BaseFragment {
         actionBar.setTitle(R.string.app_name);
     }
 
-    @Override protected View createView(LayoutInflater inflater, ViewGroup container) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
