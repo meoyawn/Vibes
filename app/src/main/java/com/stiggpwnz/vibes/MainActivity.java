@@ -63,6 +63,7 @@ public class MainActivity extends FragmentActivity implements Injector, MementoC
         }
     }
 
+
     @Override public void onLaunch() {
         retainedObjectGraph = Dagger.getObjectGraph(getApplication()).plus(new ActivityDaggerModule());
     }
