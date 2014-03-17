@@ -107,9 +107,11 @@ dependencies {
     compile 'de.devland.esperandro:esperandro-api:1.+'
 
     compile 'org.squirrelframework:squirrel-foundation:+' // ???
+    compile 'au.com.datasymphony:EasyFlow:1.3.+'
 
     compile 'com.github.mttkay.memento:memento:0.+' // retaining objects in Activity
     apt 'com.github.mttkay.memento:memento-processor:0.+'
+
 
     testCompile 'com.squareup.dagger:dagger-compiler:1.+'
     testCompile 'junit:junit:4.+'

@@ -24,7 +24,7 @@ public abstract class PlayerQueue {
     protected final @NotNull AtomicInteger position;
     private final @NotNull   Persistence   persistence;
 
-    @NotNull public abstract Audio current();
+    @NotNull public abstract Audio currentAudio();
 
     protected abstract int length();
 
@@ -64,14 +64,14 @@ public abstract class PlayerQueue {
         } else {
             position.incrementAndGet();
         }
-        return current();
+        return currentAudio();
     }
 
     @NotNull public Audio prev() {
         if (!position.compareAndSet(0, length() - 1)) {
             position.decrementAndGet();
         }
-        return current();
+        return currentAudio();
     }
 
     public boolean atTheEndOfTheSection() {return position.get() == sectionEndInclusive(); }
