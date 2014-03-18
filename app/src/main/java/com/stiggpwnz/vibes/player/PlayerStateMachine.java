@@ -3,6 +3,7 @@ package com.stiggpwnz.vibes.player;
 import android.media.MediaPlayer;
 
 import com.stiggpwnz.vibes.vk.VKontakte;
+import com.stiggpwnz.vibes.vk.models.Audio;
 
 import org.jetbrains.annotations.NotNull;
 import org.squirrelframework.foundation.fsm.Action;
@@ -35,6 +36,7 @@ import static com.stiggpwnz.vibes.player.State.PAUSED;
 import static com.stiggpwnz.vibes.player.State.PLAYING;
 import static com.stiggpwnz.vibes.player.State.PREPARING_TO_PAUSE;
 import static com.stiggpwnz.vibes.player.State.PREPARING_TO_PLAY;
+import static com.stiggpwnz.vibes.player.State.RESETTING_TO_PREPARE;
 import static org.squirrelframework.foundation.fsm.Conditions.not;
 import static org.squirrelframework.foundation.fsm.Conditions.or;
 
@@ -55,8 +57,6 @@ public class PlayerStateMachine extends AbstractStateMachine<PlayerStateMachine,
         builder.transit().fromAny().toAny().on(PREV).perform(prevBefore());
         builder.transit().fromAny().toAny().on(NTH).perform(nthAndGetUrl());
 
-        builder.onEntry(GETTING_URL_TO_PREPARE).perform(getUrl());
-
         builder.transit().from(EMPTY).to(GETTING_URL_TO_PREPARE).on(PLAY_PAUSE).perform(getUrl());
         builder.transit().from(EMPTY).to(GETTING_URL_TO_PREPARE).on(NTH); // will perform
 
@@ -67,6 +67,11 @@ public class PlayerStateMachine extends AbstractStateMachine<PlayerStateMachine,
 
         builder.transit().from(GETTING_URL_TO_EMPTY).to(GETTING_URL_TO_PREPARE).on(PLAY_PAUSE); // just switch
         builder.transit().from(GETTING_URL_TO_EMPTY).to(GETTING_URL_TO_PREPARE).on(NTH);
+
+        builder.transit().from(PREPARING_TO_PLAY).to(PREPARING_TO_PAUSE).on(PLAY_PAUSE); // just switch
+        builder.transit().from(PREPARING_TO_PLAY).to(RESETTING_TO_PREPARE).on(NEXT).perform(reset());
+        builder.transit().from(PREPARING_TO_PLAY).to(RESETTING_TO_PREPARE).on(PREV).perform(reset());
+        builder.transit().from(PREPARING_TO_PLAY).to(RESETTING_TO_PREPARE).on(NTH).perform(reset());
 
         builder.transit().from(PREPARING_TO_PLAY).to(PREPARING_TO_PAUSE).on(PLAY_PAUSE);
         builder.transit().from(PREPARING_TO_PLAY).to(PLAYING).on(PREPARED).perform(startPlaying());
@@ -102,8 +107,13 @@ public class PlayerStateMachine extends AbstractStateMachine<PlayerStateMachine,
             @Override
             public void execute(State from, State to, Event event, PlayerQueue context, PlayerStateMachine stateMachine) {
                 try {
-                    stateMachine.urlSource.tryToGetAndMaybeSaveUrl(context.currentAudio());
-                    stateMachine.fire(GOT_URL, context);
+                    Audio audio = context.currentAudio();
+                    stateMachine.urlSource.tryToGetAndSaveUrl(audio);
+
+                    // check if the audio hasn't changed
+                    if (audio.equals(context.currentAudio())) {
+                        stateMachine.fire(GOT_URL, context);
+                    }
                 } catch (Exception e) {
                     stateMachine.fire(ERROR.setException(e), context);
                 }

@@ -18,7 +18,7 @@ public class UrlSource {
         return databaseHelper.getUrl(audio);
     }
 
-    public String tryToGetAndMaybeSaveUrl(Audio audio) {
+    public String tryToGetAndSaveUrl(Audio audio) {
         String url = getSavedUrl(audio);
         if (url == null) {
             url = vKontakte.getUrl(audio);
